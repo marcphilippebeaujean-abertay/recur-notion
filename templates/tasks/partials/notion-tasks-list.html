@@ -1,0 +1,50 @@
+{% block content %}
+
+<div class="mt-2">
+    {% for db_task in tasks %}
+    <div class="flex">
+        <hr/>
+        <div class="d-flex w-100 justify-content-between">
+            <div class="d-flex flex-column">
+                <label class="mb-1">Name</label>
+                <p class="h5">{{db_task.title}}</p>
+                <a href="{{ db_task.url }}" class="mb-0" target=“_blank“ rel=“noopener noreferrer“>View in Notion</a>
+            </div>
+
+
+            <!-- CREATE RECURRING TASK FORM -->
+            <form class="d-inline-block align-self-end ml-auto" hx-post="{% url 'create-recurring-task' %}"
+                  hx-target="#active-recurring-tasks-container">
+                <input
+                        name="name"
+                        type="hidden"
+                        value="{{db_task.title}}"
+                />
+                <input
+                        name="url"
+                        type="hidden"
+                        value="{{db_task.url}}"
+                />
+                <input
+                        name="id"
+                        type="hidden"
+                        value="{{db_task.id}}"
+                />
+                <input
+                        name="database-id"
+                        type="hidden"
+                        value="{{db_task.db_id}}"
+                />
+                <button
+                        class="btn btn-success"
+                        type="submit"
+                >
+                    +
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock content %}

@@ -1,0 +1,46 @@
+{% block javascript %}
+
+<script type="text/javascript">
+      function changeEventHandler(event) {
+        var elem = document.getElementById("notion-workspace-tasks-container");
+        elem.innerHTML = "<div class='d-flex justify-content-center my-3'><div class='spinner-border margin-auto' role='status'><span class='visually-hidden'>Loading...</span></div></div>";
+      }
+
+</script>
+{% endblock javascript %}
+
+{% block content %}
+
+<div class="card-body">
+    <h2 class="h4">Notion Workspace Tasks</h2>
+    <div class="alert alert-info">
+        Click "+" to create recurring tasks from your normal Notion tasks!
+    </div>
+    <form onsubmit="return false;">
+        <input placeholder="Search for Tasks"
+               type="text"
+               name="query"
+               onkeyup="changeEventHandler(event)"
+               class="form-control"
+               hx-post="{% url 'get-notion-workspace-tasks' %}"
+               hx-trigger="keyup delay:1000ms"
+               hx-indicator="#notion-tasks-wrapper"
+               hx-target="#notion-workspace-tasks-container"
+        />
+    </form>
+    <form onsubmit="return false;" hx-post="{% url 'get-notion-workspace-tasks' %}"
+          hx-trigger="load"
+          hx-indicator="#notion-tasks-wrapper"
+          hx-target="#notion-workspace-tasks-container">
+        <input placeholder="Search for Tasks"
+               type="hidden"
+               value=""
+               name="query"
+               class="form-control"
+        />
+    </form>
+    <div id="notion-workspace-tasks-container">
+        {% include 'widgets/centered-spinner.html' %}
+    </div>
+</div>
+{% endblock content %}

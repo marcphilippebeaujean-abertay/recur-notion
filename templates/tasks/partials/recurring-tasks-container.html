@@ -1,0 +1,19 @@
+{% block content %}
+<div class="card-body">
+    <h2 class="h4">Active Recurring Tasks</h2>
+    <form onsubmit="return false;"
+          hx-post="{% url 'get-recurring-tasks' %}"
+          hx-trigger="load"
+          hx-target="#active-recurring-tasks-container">
+        <input placeholder="Search for Tasks"
+               type="hidden"
+               value=""
+               name="query"
+               class="form-control"
+        />
+    </form>
+    <div id="active-recurring-tasks-container">
+        {% include 'widgets/centered-spinner.html' %}
+    </div>
+</div>
+{% endblock content %}

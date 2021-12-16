@@ -1,5 +1,10 @@
 from pathlib import Path
 
+import environ
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 # GENERAL
 # ------------------------------------------------------------------------------
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,6 +38,8 @@ INSTALLED_APPS = [
     # Local
     'accounts',
     'pages',
+    'workspaces',
+    'tasks'
 ]
 
 # MIDDLEWARE
@@ -171,3 +178,8 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
+
+# INTERNAL
+NOTION_CLIENT_SECRET = env('NOTION_CLIENT_SECRET')
+NOTION_CLIENT_ID = env('NOTION_CLIENT_ID')
+NOTION_OAUTH_CALLBACK = env('NOTION_OAUTH_CALLBACK')

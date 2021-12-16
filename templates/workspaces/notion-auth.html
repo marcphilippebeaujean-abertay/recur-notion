@@ -1,0 +1,17 @@
+{% extends '_base.html' %}
+
+{% block title %}Connect Notion{% endblock %}
+
+{% block content %}
+<div class="card account-flow-card">
+    <div class="card-body">
+        <h1 class="h4">Connect Notion</h1>
+        <small class="mb-4">We need permission to access your Workspace - don't worry, we play nice!</small>
+        <a href="https://api.notion.com/v1/oauth/authorize?owner=user&client_id=bfa614fc-e7a7-4067-ae14-6527c61906db&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fnotion-oauth&response_type=code"
+           class="btn border rounded mt-2">
+            <img src="https://img.icons8.com/ios/452/notion.png" alt="Notion Icon" width="30" height="30">
+            <span class="mx-2">Give Permission</span>
+        </a>
+    </div>
+</div>
+{% endblock content %}

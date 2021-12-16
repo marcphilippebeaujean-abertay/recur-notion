@@ -4,8 +4,18 @@
 {% block title %}Home page{% endblock title %}
 
 {% block content %}
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-  <img src="{% static 'images/logo.png' %}" class="img-fluid" alt="DjangoX logo"/>
-  <p class="lead">A Django starter project with batteries.</p>
+<div class="px-3 py-3">
+    <div class="d-md-flex justify-content-between">
+        <div class="d-flex flex-column justify-content-center">
+            <h1>Add Recurring Tasks To Notion In Seconds</h1>
+            <p class="h5 mb-4">Save Hours on Repetitive Data Entry without Coding or Complex Tools. <b>No Changes to
+                your Tables required!</b></p>
+            <div>
+                <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Get For Free</a>
+                <p class="small pt-1"><b>No Credit Card Required</b></p>
+            </div>
+        </div>
+        <img src="{% static 'images/landing-splash.svg' %}" id="landing-splash" alt="Recur logo"/>
+    </div>
 </div>
 {% endblock content %}
