@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.db import models

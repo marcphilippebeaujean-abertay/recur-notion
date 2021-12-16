@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'crispy_forms',
     'debug_toolbar',
+    'django_q',
 
     # Local
     'accounts',
@@ -56,6 +57,19 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Configure your Q cluster
+# More details https://django-q.readthedocs.io/en/latest/configure.html
+# https://django-q.readthedocs.io/en/latest/configure.html#orm-configuration
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 4,
+    'timeout': 90,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
+}
 
 # URLS
 # ------------------------------------------------------------------------------
