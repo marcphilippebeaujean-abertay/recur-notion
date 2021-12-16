@@ -1,20 +1,15 @@
 from pathlib import Path
-
-import environ
-
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
+import os
 # GENERAL
 # ------------------------------------------------------------------------------
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True
+DEBUG = os.environ.get("DEBUG_MODE", "FALSE") is "TRUE"
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
 # APPS
 # ------------------------------------------------------------------------------
@@ -102,18 +97,18 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': env('DATABASE_ENGINE'),
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASSWORD'),
+        'ENGINE': os.environ.get('DATABASE_ENGINE'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
     }
 }
 
-if env('DATABASE_ENGINE') is 'django.db.backends.sqlite3':
+if os.environ.get('DATABASE_ENGINE') is 'django.db.backends.sqlite3':
     DATABASES['NAME'] = BASE_DIR / 'db.sqlite3'
 else:
-    DATABASES['default']['NAME'] = env('DATABASE_NAME')
-    DATABASES['default']['HOST'] = env('DATABASE_HOST')
-    DATABASES['default']['POST'] = env('DATABASE_PORT')
+    DATABASES['default']['NAME'] = os.environ.get('DATABASE_NAME')
+    DATABASES['default']['HOST'] = os.environ.get('DATABASE_HOST')
+    DATABASES['default']['POST'] = os.environ.get('DATABASE_PORT')
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -173,7 +168,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # ------------------------------------------------------------------------------
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
 # https://docs.djangoproject.com/en/dev/ref/settings/#internal-ips
-INTERNAL_IPS = env('ALLOWED_HOSTS').split(',')
+INTERNAL_IPS = os.environ.get('ALLOWED_HOSTS').split(',')
 
 # CUSTOM USER MODEL CONFIGS
 # ------------------------------------------------------------------------------
@@ -202,6 +197,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 # INTERNAL
-NOTION_CLIENT_SECRET = env('NOTION_CLIENT_SECRET')
-NOTION_CLIENT_ID = env('NOTION_CLIENT_ID')
-NOTION_OAUTH_CALLBACK = env('NOTION_OAUTH_CALLBACK')
+NOTION_CLIENT_SECRET = os.environ.get('NOTION_CLIENT_SECRET')
+NOTION_CLIENT_ID = os.environ.get('NOTION_CLIENT_ID')
+NOTION_OAUTH_CALLBACK = os.environ.get('NOTION_OAUTH_CALLBACK')
