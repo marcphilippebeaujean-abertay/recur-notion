@@ -10,11 +10,11 @@ environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
-SECRET_KEY = '43)%4yx)aa@a=+_c(fn&kf3g29xax+=+a&key9i=!98zyim=8j'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
 
 # APPS
 # ------------------------------------------------------------------------------
@@ -102,10 +102,18 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('DATABASE_ENGINE'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
     }
 }
+
+if env('DATABASE_ENGINE') is 'django.db.backends.sqlite3':
+    DATABASES['NAME'] = BASE_DIR / 'db.sqlite3'
+else:
+    DATABASES['default']['NAME'] = env('DATABASE_NAME')
+    DATABASES['default']['HOST'] = env('DATABASE_HOST')
+    DATABASES['default']['POST'] = env('DATABASE_PORT')
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -165,7 +173,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # ------------------------------------------------------------------------------
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
 # https://docs.djangoproject.com/en/dev/ref/settings/#internal-ips
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = env('ALLOWED_HOSTS').split(',')
 
 # CUSTOM USER MODEL CONFIGS
 # ------------------------------------------------------------------------------

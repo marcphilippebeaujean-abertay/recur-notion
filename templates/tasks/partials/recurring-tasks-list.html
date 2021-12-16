@@ -4,16 +4,15 @@
     <div class="flex mt-2" x-data="{ loading: false, deleted: false}" x-show="! deleted">
         <hr/>
         <div>
-            <form>
+            <form hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
+                           hx-trigger="change delay:1s"
+                           hx-target="#active-recurring-tasks-container">
                 <div class="mb-2">
                     <label for="{{ recurring_task.pk }}-task" class="form-label">Name</label>
                     <input name="name"
                            id="{{ recurring_task.pk }}-task"
                            class="non-bordered-text-input form-control h5"
                            type="text"
-                           hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                           hx-trigger="keyup changed delay:1s"
-                           hx-target="#active-recurring-tasks-container"
                            value="{{ recurring_task.name }}"/>
                 </div>
                 <div class="d-flex d-md-column">
@@ -24,9 +23,6 @@
                                id="{{ recurring_task.pk }}-start-date"
                                class="form-control"
                                @change="loading = true"
-                               hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                               hx-trigger="change"
-                               hx-target="#active-recurring-tasks-container"
                                value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
 
                     </div>
@@ -35,9 +31,6 @@
                         <select class="form-select"
                                 name="interval"
                                 @change="loading = true"
-                                hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                                hx-trigger="change"
-                                hx-target="#active-recurring-tasks-container"
                                 id="{{ recurring_task.pk }}-interval">
                             {% for choice in choices %}
                             <option value="{{ choice.0 }}"

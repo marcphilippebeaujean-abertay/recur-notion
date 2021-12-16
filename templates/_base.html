@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-    <title>{% block title %}DjangoX{% endblock title %}</title>
-    <meta name="description" content="A framework for launching new Django projects quickly.">
+    <title>{% block title %}Recurring Tasks For Notion{% endblock title %}</title>
+    <meta name="description" content="Add Recurring Tasks To Your Notion in Seconds.">
     <meta name="author" content="">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/logo.png' %}">
 
     {% block css %}
     <!-- Bootstrap CSS -->
@@ -26,9 +26,10 @@
         <div class="container d-flex flex-column flex-md-row collapse navbar-collapse">
             <nav class="navbar navbar-expand-lg navbar-light w-100">
                 <div class="container-fluid w-100">
-                    <h5 class="my-0 font-weight-normal">
-                        <a class="navbar-brand" href="{% url 'home' %}">recur.io</a>
-                    </h5>
+                    <a class="navbar-brand" href="{% url 'home' %}">
+                        <img src="{% static 'images/logo.png' %}" alt="" width="35" height="35" />
+                        &nbsp;Recur Notion
+                    </a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
                             aria-label="Toggle navigation">
@@ -80,9 +81,36 @@
     {% endblock content %}
 </div>
 
-<footer class="footer">
-    <div class="container">
-        <span class="text-muted">Footer...</span>
+<footer class="footer bg-light">
+    <div class="container bg-light">
+        <div class="row bg-light">
+            <div class="col-md-3 bg-light">
+                <a class="navbar-brand" href="{% url 'home' %}">
+                  <img src="{% static 'images/logo.png' %}" alt="" width="35" height="35" />
+                </a>
+            </div>
+            <div class="col-md-3">
+                <h4 class="h6 pt-3">GDPR</h4>
+                <div class="link-wrapper">
+                    <a href="{% url 'datapolicy' %}" class="footer-link">Data Policy</a>
+                </div>
+                <div class="link-wrapper">
+                    <a href="{% url 'imprint' %}" class="footer-link">Imprint</a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h4 class="h6 pt-3">Follow</h4>
+                <div class="link-wrapper">
+                    <a href="https://twitter.com/MarcBeaujean" target=“_blank“ rel=“noopener noreferrer“ class="footer-link">Twitter</a>
+                </div>
+                <div class="link-wrapper">
+                    <a href="https://www.youtube.com/channel/UCi-AbNLOunyIIax04MY-9bQ" target=“_blank“ rel=“noopener noreferrer“ class="footer-link">YouTube</a>
+                </div>
+            </div>
+            <div class="col-md-3 bg-light">
+
+            </div>
+        </div>
     </div>
 </footer>
 

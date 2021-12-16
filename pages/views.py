@@ -5,5 +5,9 @@ class HomePageView(TemplateView):
     template_name = 'pages/home.html'
 
 
-class AboutPageView(TemplateView):
-    template_name = 'pages/about.html'
+class Imprint(TemplateView):
+    template_name = 'pages/imprint.html'
+
+
+class DataPolicy(TemplateView):
+    template_name = 'pages/data-policy.html'

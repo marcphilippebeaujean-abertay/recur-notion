@@ -4,13 +4,16 @@
 {% block title %}Sign up{% endblock %}
 
 {% block content %}
-<div class="card account-flow-card">
+<div class="card account-flow-card" x-data="{ agreedToTerms: false }">
     <div class="card-body">
         <h2 class="h4">Sign up</h2>
         <form method="post">
             {% csrf_token %}
             {{ form|crispy }}
-            <button class="btn btn-success mt-2" type="submit">Sign up</button>
+            <div>
+            <input type="checkbox" x-model="agreedToTerms" /><span>&nbsp;I have read and agree to the <a href="{% url 'datapolicy' %}">data policy</a> (required)</span>
+                </div>
+            <button class="btn btn-success mt-2" type="submit" x-bind:disabled="!agreedToTerms">Sign up</button>
         </form>
     </div>
 </div>
