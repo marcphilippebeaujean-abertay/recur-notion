@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import redirect, render
 
+from config.settings import NOTION_OAUTH_CALLBACK
 from .service import create_access_workspace_from_user_code
 
 import logging
+from requests.utils import requote_uri
 
 logger = logging.getLogger(__name__)
 
@@ -28,4 +30,4 @@ def add_notion_workspace_from_access_code(request):
 
 @login_required
 def show_notion_access_prompt(request):
-    return render(request, "workspaces/notion-auth.html")
+    return render(request, "workspaces/notion-auth.html", {'callback_url': requote_uri(NOTION_OAUTH_CALLBACK)})
