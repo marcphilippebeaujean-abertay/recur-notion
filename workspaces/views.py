@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["GET"])
 def add_notion_workspace_from_access_code(request):
     logger.info("Fetching Notion workspace from access_code!")
-    code = request.GET.get('code', None)
-    if code is None or code == '':
+    oauth_request_code_string = request.GET.get('code', None)
+    if oauth_request_code_string is None or oauth_request_code_string == '':
         logger.warning("Did not have the request code!")
         return HttpResponseBadRequest('You need to provide an OAuth2 Code to get Access')
     try:
-        create_access_workspace_from_user_code(request.user, code)
+        create_access_workspace_from_user_code(user_model=request.user, oauth_code=oauth_request_code_string)
     except Exception:
         return HttpResponseServerError("Error occurred trying to authorize with Notion")
     return redirect('recurring-tasks-view')

@@ -63,8 +63,8 @@ class TasksTestCase(TestCase):
     @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
     def test_no_scheduled_task_for_today(self, m):
         # create new recurring task
-        task = RecurringTask.objects.create(interval='1',
-                                            start_date=datetime.date.today() - datetime.timedelta(days=2),
+        task = RecurringTask.objects.create(interval='7',
+                                            start_date=datetime.date.today() - datetime.timedelta(days=3),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
@@ -101,7 +101,7 @@ class TasksTestCase(TestCase):
         NotionWorkspaceAccess.objects.all().delete()
         # run the tasks method
         create_notion_tasks_from_recurring_user_tasks()
-        m.assert_called_once_with()
+        m.assert_not_called()
 
     @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
     def test_two_users_scheduled_tasks_for_today(self, m):
@@ -162,3 +162,38 @@ class TasksTestCase(TestCase):
         create_notion_tasks_from_recurring_user_tasks()
         self.assertEqual(m.call_count, 1)
         m.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
+
+    def test_only_logged_in_user_can_get_recurring_tasks(self):
+        response = self.client.get('/get-recurring-task/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_logged_in_user_can_get_own_recurring_tasks(self):
+        response = self.client.get('/get-recurring-task/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_only_logged_in_user_request_recurring_tasks(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.get('/get-recurring-task/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_only_logged_in_user_can_create_recurring_tasks(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        #response = self.client.get('/create-recurring-task/')
+        raise Exception('Not implemented')
+
+    def test_only_logged_in_user_can_update_recurring_tasks(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        #response = self.client.get('/create-recurring-task/')
+        raise Exception('Not implemented')
+
+    def test_only_logged_in_user_update_recurring_tasks(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        #response = self.client.get('/create-recurring-task/')
+        raise Exception('Not implemented')
+
+    def test_only_logged_in_user_can_get_workspace_tasks(self):
+        raise Exception('Not implemented')
+
+
+    def test_logged_in_user_can_get_own_workspace_tasks(self):
+        raise Exception('Not implemented')

@@ -111,18 +111,6 @@ class NotionApiMockBadRequestException(Exception):
 
 
 def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
-    class MockResponse:
-        def __init__(self, status, result):
-            self.status = status
-            self.result = result
-
-        def get(self, param):
-            if param is "status":
-                return self.status
-            if param is "result":
-                return self.result
-            raise NotionApiMockBadRequestException("No valid param provided for mocked get response")
-
     class MockPagesApi:
         def __init__(self, is_valid_token):
             self.is_valid_token = is_valid_token
@@ -131,18 +119,15 @@ def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
             if not self.is_valid_token:
                 raise NotionApiMockUnauthorizedException()
             if notion_task_id == VALID_NOTION_TASK_ID:
-                return MockResponse(200, json.loads(example_api_result))
+                return json.loads(example_api_result)
             else:
                 raise NotionApiMockNotFoundException()
 
-        def create(self, create_params):
-            expected_params = {
-                'parent': {
-                    'database_id': VALID_DATABASE_ID
-                },
-                'properties': json.loads(example_api_result)['properties'],
-            }
-            if create_params != expected_params:
+        def create(self, properties, parent):
+            expected_parent_dict = { 'database_id': VALID_DATABASE_ID }
+            expected_properties_dict = json.loads(example_api_result)['properties']
+
+            if properties != expected_properties_dict or parent != expected_parent_dict:
                 raise NotionApiMockBadRequestException()
 
     class MockClient:

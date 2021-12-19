@@ -14,13 +14,13 @@ def create_notion_tasks_from_recurring_user_tasks():
                                       workspace_access__access_token__isnull=False)
     for user in users:
         tasks_to_create = [task for task in list(user.tasks.all()) if task.should_create_task_today]
+        workspace_access_queryset = user.workspace_access.all()
+        if workspace_access_queryset.count is 0:
+            continue
         for task in tasks_to_create:
-            client = notion_client.Client(auth=list(user.workspace_access.all())[0].access_token)
-            try:
-                notion_page_resp = client.pages.retrieve(task.cloned_task_notion_id)
-                client.pages.create(properties=notion_page_resp['properties'], parent={
-                    'database_id': task.database_id
-                })
-                logger.debug(f'Created recurring task with id{task.cloned_task_notion_id}')
-            except APIResponseError as error:
-                logger.debug("API Error occurred accessing Notion!")
+            client = notion_client.Client(auth=list(workspace_access_queryset)[0].access_token)
+            notion_page_resp_dict = client.pages.retrieve(task.cloned_task_notion_id)
+            page_properties_dict = notion_page_resp_dict['properties']
+            parent_database_dict = {'database_id': task.database_id}
+            client.pages.create(properties=page_properties_dict, parent=parent_database_dict)
+            logger.debug(f'Created recurring task with id{task.cloned_task_notion_id}')
