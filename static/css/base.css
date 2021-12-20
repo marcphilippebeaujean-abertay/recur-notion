@@ -1,4 +1,8 @@
 @import "account-flows.css";
 @import "footer.css";
 @import "landing-page.css";
-@import "forms.css";
+
+.asteriskField {
+    color: #dc3545 !important;
+    display: none;
+}

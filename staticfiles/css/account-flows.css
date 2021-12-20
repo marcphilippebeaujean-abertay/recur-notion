@@ -1,5 +1,10 @@
 .account-flow-card {
     width: 90%;
     margin: auto;
-    max-width: 500px;
+    max-width: 1000px;
+}
+
+.asteriskField{
+    color: red !important;
+    font-weight: bold;
 }
