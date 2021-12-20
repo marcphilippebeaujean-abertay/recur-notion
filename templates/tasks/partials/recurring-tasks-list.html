@@ -1,56 +1,5 @@
 <div>
     {% for recurring_task in recurring_tasks %}
-        <div class="flex mt-1" x-data="{ loading: false, deleted: false}" x-show="! deleted">
-            <div class="d-flex d-md-column">
-                <div class="col-md-5 col-12 mr-1">
-                    <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
-                    <input name="start-date"
-                           type="date"
-                           id="{{ recurring_task.pk }}-start-date"
-                           class="form-control"
-                           @change="loading = true"
-                           hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                           hx-trigger="change delay:1s"
-                           hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}"
-                           value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
-                </div>
-                <div class="col-md-5 col-12">
-                    <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
-                    <select class="form-select"
-                            name="interval"
-                            @change="loading = true"
-                            hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                            hx-trigger="change delay:1s"
-                            hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}"
-                            id="{{ recurring_task.pk }}-interval">
-                        {% for choice in interval_choices %}
-                        <option value="{{ choice.0 }}"
-                                {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
-                        >
-                            {{ choice.1 }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="d-flex flex-column justify-content-end ml-1 col-md-1 col-12">
-                    <div class="d-inline-block align-self-end">
-                        <input type="hidden" value="{{recurring_task.pk}}" name="task-id"/>
-                        <button type="submit"
-                                class="btn btn-danger"
-                                @click="deleted = true"
-                                hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}">
-                            X
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <small x-show="loading == false"
-                   class="text-muted">This task will be created again in {{ recurring_task.days_till_next_task }}
-                days.</small>
-            <small x-cloak x-show="loading" class="text-muted"> <span class="spinner-border spinner-border-sm"
-                                                                      role="status"
-                                                                      aria-hidden="true"></span>
-                Loading...</small>
-        </div>
+        {% include 'tasks/partials/recurring-task.html' with recurring_task=recurring_task %}
     {% endfor %}
 </div>

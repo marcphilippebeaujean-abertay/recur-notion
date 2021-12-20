@@ -28,7 +28,7 @@ def create_recurring_task(request):
                                                 cloned_task_url=request.POST['url'],
                                                 database_id=request.POST['database-id'].replace('-', ''),
                                                 owner=request.user)
-    return get_recurring_tasks_for_notion_task_id(request=request, user=request.user,
+    return get_recurring_tasks_for_notion_task_id(request=request,
                                                   notion_task_id=task_created.cloned_task_notion_id)
 
 
@@ -43,20 +43,19 @@ def delete_recurring_task(request, pk):
 @login_required()
 def update_recurring_task(request, pk):
     task_to_update_model = request.user.tasks.all().filter(pk=pk)[0]
-    if 'name' in request.POST and 'start-date' in request.POST:
-        task_to_update_model.start_date = request.POST['start-date']
+    if 'interval' in request.POST:
         task_to_update_model.interval = request.POST['interval']
-    task = task_to_update_model.save()
-    return get_recurring_tasks_for_notion_task_id(request=request, user=request.user,
-                                                  notion_task_id=task.cloned_task_notion_id)
+    if 'start-date' in request.POST:
+        task_to_update_model.start_date = request.POST['start-date']
+    task_to_update_model.save()
+    return get_recurring_tasks_for_notion_task_id(request=request,
+                                                  notion_task_id=task_to_update_model.cloned_task_notion_id)
 
 
-@login_required
-def get_recurring_tasks_for_notion_task_id(request, user, notion_task_id):
-    tasks_queryset = user.tasks.all().filter(cloned_task_notion_id=notion_task_id)
-    choices_list = [[choice[0], choice[1]] for choice in RecurringTask.TaskIntervals.choices]
+def get_recurring_tasks_for_notion_task_id(request, notion_task_id):
+    tasks_queryset = request.user.tasks.all().filter(cloned_task_notion_id=notion_task_id)
     return render(request, "tasks/partials/recurring-tasks-list.html", {'recurring_tasks': tasks_queryset,
-                                                                        'interval_choices': choices_list})
+                                                                        'interval_choices': RecurringTask.TaskIntervals.choices})
 
 
 @login_required
