@@ -1,0 +1,8 @@
+.add-recurring-task-btn {
+    border-style: dashed !important;
+    width: 100%;
+}
+
+.add-recurring-task-btn:hover {
+  cursor: pointer;
+}

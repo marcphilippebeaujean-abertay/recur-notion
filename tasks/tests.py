@@ -184,6 +184,8 @@ class TasksTestCase(TestCase):
     def test_only_logged_in_user_can_update_recurring_tasks(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         #response = self.client.get('/create-recurring-task/')
+
+        #ENSURE NAME IS NOT UPDATED!
         raise Exception('Not implemented')
 
     def test_only_logged_in_user_update_recurring_tasks(self):

@@ -1,6 +1,7 @@
 @import "account-flows.css";
 @import "footer.css";
 @import "landing-page.css";
+@import "recurring-tasks.css";
 
 .asteriskField {
     color: #dc3545 !important;

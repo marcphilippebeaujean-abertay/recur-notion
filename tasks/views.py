@@ -6,6 +6,10 @@ from workspaces.models import NotionWorkspaceAccess
 from .service import fetch_notion_workspace_pages_and_convert_to_task_dict
 from .models import RecurringTask
 
+import logging
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 
 # Create your views here.
 @login_required
@@ -19,42 +23,45 @@ def recurring_tasks_view(request):
 
 @login_required
 def create_recurring_task(request):
-    RecurringTask.objects.create(name=request.POST['name'],
-                                 cloned_task_notion_id=request.POST['id'],
-                                 cloned_task_url=request.POST['url'],
-                                 database_id=request.POST['database-id'].replace('-', ''),
-                                 owner=request.user)
-    return get_recurring_tasks_for_user(request)
+    task_created = RecurringTask.objects.create(name=request.POST['name'],
+                                                cloned_task_notion_id=request.POST['id'],
+                                                cloned_task_url=request.POST['url'],
+                                                database_id=request.POST['database-id'].replace('-', ''),
+                                                owner=request.user)
+    return get_recurring_tasks_for_notion_task_id(request=request, user=request.user,
+                                                  notion_task_id=task_created.cloned_task_notion_id)
 
 
 @login_required
 def delete_recurring_task(request, pk):
     task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
     task_to_remove_model.delete()
-    return get_recurring_tasks_for_user(request)
+    return get_recurring_tasks_for_notion_task_id(request=request, user=request.user,
+                                                  notion_task_id=task_to_remove_model.cloned_task_notion_id)
 
 
 @login_required()
 def update_recurring_task(request, pk):
     task_to_update_model = request.user.tasks.all().filter(pk=pk)[0]
     if 'name' in request.POST and 'start-date' in request.POST:
-        task_to_update_model.name = request.POST['name']
         task_to_update_model.start_date = request.POST['start-date']
         task_to_update_model.interval = request.POST['interval']
-    task_to_update_model.save()
-    return get_recurring_tasks_for_user(request)
+    task = task_to_update_model.save()
+    return get_recurring_tasks_for_notion_task_id(request=request, user=request.user,
+                                                  notion_task_id=task.cloned_task_notion_id)
 
 
 @login_required
-def get_recurring_tasks_for_user(request):
-    tasks_queryset = request.user.tasks.all()
+def get_recurring_tasks_for_notion_task_id(request, user, notion_task_id):
+    tasks_queryset = user.tasks.all().filter(cloned_task_notion_id=notion_task_id)
     choices_list = [[choice[0], choice[1]] for choice in RecurringTask.TaskIntervals.choices]
-    return render(request, "tasks/partials/recurring-tasks-list.html", {'tasks': tasks_queryset,
+    return render(request, "tasks/partials/recurring-tasks-list.html", {'recurring_tasks': tasks_queryset,
                                                                         'choices': choices_list})
 
 
 @login_required
 def get_notion_workspace_tasks(request):
+    logger.info(f'{request.user.username} fetching notion workspace tasks.')
     tasks = fetch_notion_workspace_pages_and_convert_to_task_dict(user_model=request.user,
                                                                   query_string=request.POST['query'])
     return render(request, "tasks/partials/notion-tasks-list.html", {'tasks': tasks})

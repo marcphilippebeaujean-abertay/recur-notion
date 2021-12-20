@@ -1,6 +1,5 @@
 <div class="">
-    {% if tasks|length > 0 %}
-    {% for recurring_task in tasks %}
+    {% for recurring_task in recurring_tasks %}
     <div class="flex mt-2" x-data="{ loading: false, deleted: false}" x-show="! deleted">
         <hr/>
         <div>
@@ -47,7 +46,8 @@
         <small x-show="loading == false"
                class="text-muted">This task will be created again in {{ recurring_task.days_till_next_task }}
             days.</small>
-        <small x-cloak x-show="loading" class="text-muted"> <span class="spinner-border spinner-border-sm" role="status"
+        <small x-cloak x-show="loading" class="text-muted"> <span class="spinner-border spinner-border-sm"
+                                                                  role="status"
                                                                   aria-hidden="true"></span>
             Loading...</small>
         <div class="flex mt-2">
@@ -57,15 +57,10 @@
             <form class="d-inline-block"
                   hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
                   hx-target="#active-recurring-tasks-container">
-                <input type="hidden" value="{{ recurring_task.id }}" name="task-id"/>
+                <input type="hidden" value="{{ recurring_task.pk }}" name="task-id"/>
                 <button type="submit" class="btn btn-danger" @click="deleted = true">Delete</button>
             </form>
         </div>
     </div>
     {% endfor %}
-    {% else %}
-    <div class="alert alert-info">
-        recur.io will create recurring tasks based on your existing tasks - select some from the other column.
-    </div>
-    {% endif %}
 </div>

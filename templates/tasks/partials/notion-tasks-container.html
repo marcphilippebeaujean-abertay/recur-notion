@@ -13,9 +13,6 @@
 
 <div class="card-body">
     <h2 class="h4">Notion Workspace Tasks</h2>
-    <div class="alert alert-info">
-        Click "+" to create recurring tasks from your normal Notion tasks!
-    </div>
     <form onsubmit="return false;">
         <input placeholder="Search for Tasks"
                type="text"
@@ -28,7 +25,8 @@
                hx-target="#notion-workspace-tasks-container"
         />
     </form>
-    <form onsubmit="return false;" hx-post="{% url 'get-notion-workspace-tasks' %}"
+    <form onsubmit="return false;"
+          hx-post="{% url 'get-notion-workspace-tasks' %}"
           hx-trigger="load"
           hx-indicator="#notion-tasks-wrapper"
           hx-target="#notion-workspace-tasks-container">
