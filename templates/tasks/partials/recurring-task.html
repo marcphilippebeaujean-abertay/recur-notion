@@ -1,6 +1,6 @@
 <div class="flex mt-1" x-data="{ loading: false, deleted: false}" x-show="! deleted">
     <div class="d-flex d-md-column">
-        <div class="col-md-5 col-12 mr-1">
+        <div class="col-md-5 col-12 pr-1">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
             <input name="start-date"
                    type="date"
@@ -12,7 +12,7 @@
                    hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}"
                    value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
         </div>
-        <div class="col-md-5 col-12">
+        <div class="col-md-5 col-12 pr-1">
             <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
             <select class="form-select"
                     name="interval"
