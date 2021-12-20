@@ -1,66 +1,55 @@
-<div class="">
-    {% for recurring_task in recurring_tasks %}
-    <div class="flex mt-2" x-data="{ loading: false, deleted: false}" x-show="! deleted">
-        <hr/>
-        <div>
-            <form hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                           hx-trigger="change delay:1s"
-                           hx-target="#active-recurring-tasks-container">
-                <div class="mb-2">
-                    <label for="{{ recurring_task.pk }}-task" class="form-label">Name</label>
-                    <input name="name"
-                           id="{{ recurring_task.pk }}-task"
-                           class="non-bordered-text-input form-control h5"
-                           type="text"
-                           value="{{ recurring_task.name }}"/>
+<div>
+{% for recurring_task in recurring_tasks %}
+<div class="flex mt-2" x-data="{ loading: false, deleted: false}" x-show="! deleted">
+    <hr/>
+    <div>
+        <form hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
+                       hx-trigger="change delay:1s"
+                       hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}">
+            <div class="d-flex d-md-column">
+                <div class="col-md-6 col-12 mb-2 mr-1">
+                    <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
+                    <input name="start-date"
+                           type="date"
+                           id="{{ recurring_task.pk }}-start-date"
+                           class="form-control"
+                           @change="loading = true"
+                           value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
                 </div>
-                <div class="d-flex d-md-column">
-                    <div class="col-md-6 col-12 mb-2 mr-1">
-                        <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
-                        <input name="start-date"
-                               type="date"
-                               id="{{ recurring_task.pk }}-start-date"
-                               class="form-control"
-                               @change="loading = true"
-                               value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
-
-                    </div>
-                    <div class="col-md-6 col-12 ml-1">
-                        <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
-                        <select class="form-select"
-                                name="interval"
-                                @change="loading = true"
-                                id="{{ recurring_task.pk }}-interval">
-                            {% for choice in choices %}
-                            <option value="{{ choice.0 }}"
-                                    {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
-                            >
-                                {{ choice.1 }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                <div class="col-md-6 col-12 ml-1">
+                    <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
+                    <select class="form-select"
+                            name="interval"
+                            @change="loading = true"
+                            id="{{ recurring_task.pk }}-interval">
+                        {% for choice in interval_choices %}
+                        <option value="{{ choice.0 }}"
+                                {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
+                        >
+                            {{ choice.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </form>
-        </div>
-        <small x-show="loading == false"
-               class="text-muted">This task will be created again in {{ recurring_task.days_till_next_task }}
-            days.</small>
-        <small x-cloak x-show="loading" class="text-muted"> <span class="spinner-border spinner-border-sm"
-                                                                  role="status"
-                                                                  aria-hidden="true"></span>
-            Loading...</small>
-        <div class="flex mt-2">
-            <a href="{{recurring_task.cloned_task_url}}" target="_blank" rel="noopener noreferrer" class="btn btn-info">
-                Edit Template
-            </a>
-            <form class="d-inline-block"
-                  hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
-                  hx-target="#active-recurring-tasks-container">
-                <input type="hidden" value="{{ recurring_task.pk }}" name="task-id"/>
-                <button type="submit" class="btn btn-danger" @click="deleted = true">Delete</button>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
-    {% endfor %}
+    <div class="flex mt-2">
+        <form class="d-inline-block"
+              hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
+              hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}">
+            <input type="hidden" value="{{recurring_task.pk}}" name="task-id"/>
+            <button type="submit" class="btn btn-danger" @click="deleted = true">Delete</button>
+        </form>
+    </div>
+
+    <small x-show="loading == false"
+           class="text-muted">This task will be created again in {{ recurring_task.days_till_next_task }}
+        days.</small>
+    <small x-cloak x-show="loading" class="text-muted"> <span class="spinner-border spinner-border-sm"
+                                                              role="status"
+                                                              aria-hidden="true"></span>
+        Loading...</small>
+</div>
+{% endfor %}
 </div>

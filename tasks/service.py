@@ -44,7 +44,7 @@ def fetch_notion_workspace_pages_and_convert_to_task_dict(user_model, query_stri
         'title': page_dict['properties']['Name']['title'][0]['plain_text'],
         'id': page_dict['id'],
         'url': page_dict['url'],
-        'db_id': page_dict['parent']['database_id']
-        #'recurring_tasks': recurring_task_by_notion_task_id_dict.get(page_dict['id'], [])
+        'db_id': page_dict['parent']['database_id'],
+        'recurring_tasks': recurring_task_by_notion_task_id_dict.get(page_dict['id'], [])
     }
     return [convert_page_to_task_dict(task) for task in pages_in_database_list][:10]

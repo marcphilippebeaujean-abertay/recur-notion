@@ -56,7 +56,7 @@ def get_recurring_tasks_for_notion_task_id(request, user, notion_task_id):
     tasks_queryset = user.tasks.all().filter(cloned_task_notion_id=notion_task_id)
     choices_list = [[choice[0], choice[1]] for choice in RecurringTask.TaskIntervals.choices]
     return render(request, "tasks/partials/recurring-tasks-list.html", {'recurring_tasks': tasks_queryset,
-                                                                        'choices': choices_list})
+                                                                        'interval_choices': choices_list})
 
 
 @login_required
@@ -64,4 +64,5 @@ def get_notion_workspace_tasks(request):
     logger.info(f'{request.user.username} fetching notion workspace tasks.')
     tasks = fetch_notion_workspace_pages_and_convert_to_task_dict(user_model=request.user,
                                                                   query_string=request.POST['query'])
-    return render(request, "tasks/partials/notion-tasks-list.html", {'tasks': tasks})
+    return render(request, "tasks/partials/notion-tasks-list.html", {'tasks': tasks,
+                                                                     'interval_choices': RecurringTask.TaskIntervals.choices})
