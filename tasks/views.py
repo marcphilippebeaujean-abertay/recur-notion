@@ -36,7 +36,7 @@ def create_recurring_task(request):
 def delete_recurring_task(request, pk):
     task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
     task_to_remove_model.delete()
-    return get_recurring_tasks_for_notion_task_id(request=request, user=request.user,
+    return get_recurring_tasks_for_notion_task_id(request=request,
                                                   notion_task_id=task_to_remove_model.cloned_task_notion_id)
 
 
