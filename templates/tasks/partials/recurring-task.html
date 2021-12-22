@@ -11,7 +11,8 @@
                    class="form-control"
                    @change="loading = true"
                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                   hx-trigger="change delay:1s"
+                   hx-trigger="change"
+                   x-bind:disabled="loading"
                    value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
         </div>
         <div class="col-md-5 col-12 pr-1">
@@ -20,7 +21,8 @@
                     name="interval"
                     @change="loading = true"
                     hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                    hx-trigger="change delay:1s"
+                    hx-trigger="change"
+                    x-bind:disabled="loading"
                     id="{{ recurring_task.pk }}-interval">
                 {% for choice in interval_choices %}
                 <option value="{{ choice.0 }}"
@@ -37,6 +39,7 @@
                 <button type="submit"
                         class="btn btn-danger"
                         @click="deleted = true"
+                        x-bind:disabled="loading"
                         hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}">
                     X
                 </button>
