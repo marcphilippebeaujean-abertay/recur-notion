@@ -1,4 +1,7 @@
-<div class="flex mt-1" x-data="{ loading: false, deleted: false}" x-show="! deleted">
+<div class="flex mt-1"
+     x-data="{ loading: false, deleted: false}"
+     x-show="! deleted"
+     hx-target="this">
     <div class="d-flex d-md-column">
         <div class="col-md-5 col-12 pr-1">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
@@ -9,7 +12,6 @@
                    @change="loading = true"
                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
                    hx-trigger="change delay:1s"
-                   hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}"
                    value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
         </div>
         <div class="col-md-5 col-12 pr-1">
@@ -19,7 +21,6 @@
                     @change="loading = true"
                     hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
                     hx-trigger="change delay:1s"
-                    hx-target="#recurring-tasks-container-{{recurring_task.cloned_task_notion_id}}"
                     id="{{ recurring_task.pk }}-interval">
                 {% for choice in interval_choices %}
                 <option value="{{ choice.0 }}"

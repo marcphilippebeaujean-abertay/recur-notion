@@ -1,12 +1,16 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse
 
 from workspaces.models import NotionWorkspaceAccess
 from .service import fetch_notion_workspace_pages_and_convert_to_task_dict
 from .models import RecurringTask
 
+from datetime import date
+
 import logging
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -27,17 +31,17 @@ def create_recurring_task(request):
                                                 cloned_task_notion_id=request.POST['id'],
                                                 cloned_task_url=request.POST['url'],
                                                 database_id=request.POST['database-id'].replace('-', ''),
+                                                start_date=date.today(),
                                                 owner=request.user)
-    return get_recurring_tasks_for_notion_task_id(request=request,
-                                                  notion_task_id=task_created.cloned_task_notion_id)
+    return render(request, 'tasks/partials/recurring-task-create-form.html', {'recurring_task': task_created,
+                                                                              'interval_choices': RecurringTask.TaskIntervals.choices})
 
 
 @login_required
 def delete_recurring_task(request, pk):
     task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
     task_to_remove_model.delete()
-    return get_recurring_tasks_for_notion_task_id(request=request,
-                                                  notion_task_id=task_to_remove_model.cloned_task_notion_id)
+    return HttpResponse(status=200)
 
 
 @login_required()
@@ -48,8 +52,8 @@ def update_recurring_task(request, pk):
     if 'start-date' in request.POST:
         task_to_update_model.start_date = request.POST['start-date']
     task_to_update_model.save()
-    return get_recurring_tasks_for_notion_task_id(request=request,
-                                                  notion_task_id=task_to_update_model.cloned_task_notion_id)
+    return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': task_to_update_model,
+                                                                  'interval_choices': RecurringTask.TaskIntervals.choices})
 
 
 def get_recurring_tasks_for_notion_task_id(request, notion_task_id):
