@@ -11,43 +11,17 @@
                 <!--<a href="{{ notion_task.url }}" class="mb-0" target=“_blank“ rel=“noopener noreferrer“>View in Notion</a>-->
             </div>
         </div>
-        <div class="d-flex flex-column">
+        <div class="d-flex flex-column"
+             x-data="{
+                        notionTaskTitle: '{{notion_task.title}}',
+                        notionTaskId: '{{notion_task.id}}',
+                        notionTaskUrl: '{{notion_task.url}}',
+                        notionDbId: '{{notion_task.db_id}}'
+                      }">
             <h3 class="h6 mt-2">Recurring Task Settings</h3>
             <div id="recurring-tasks-container-{{notion_task.id}}">
                 {% include 'tasks/partials/recurring-tasks-list.html' with recurring_tasks=notion_task.recurring_tasks %}
             </div>
-
-            <!-- CREATE RECURRING TASK FORM -->
-            <form class="d-inline-block m-auto col-12 col-md-6 mt-2"
-                  hx-post="{% url 'create-recurring-task' %}"
-                  hx-target="#recurring-tasks-container-{{notion_task.id}}">
-                <input
-                        name="name"
-                        type="hidden"
-                        value="{{notion_task.title}}"
-                />
-                <input
-                        name="url"
-                        type="hidden"
-                        value="{{notion_task.url}}"
-                />
-                <input
-                        name="id"
-                        type="hidden"
-                        value="{{notion_task.id}}"
-                />
-                <input
-                        name="database-id"
-                        type="hidden"
-                        value="{{notion_task.db_id}}"
-                />
-                <button
-                        class="add-recurring-task-btn p-2"
-                        type="submit"
-                >
-                    <span class="btn btn-success">+</span>&nbsp; Add Schedule
-                </button>
-            </form>
         </div>
     </div>
     {% endfor %}

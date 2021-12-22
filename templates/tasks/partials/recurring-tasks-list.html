@@ -2,4 +2,5 @@
     {% for recurring_task in recurring_tasks %}
         {% include 'tasks/partials/recurring-task.html' with recurring_task=recurring_task %}
     {% endfor %}
+    {% include 'tasks/partials/recurring-task-create-form.html' %}
 </div>
