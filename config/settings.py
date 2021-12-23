@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google', # for Google OAuth 2.0
     'crispy_forms',
-    'debug_toolbar',
     'django_q',
 
     # Local
