@@ -41,7 +41,7 @@ def create_recurring_task(request):
 def delete_recurring_task(request, pk):
     task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
     task_to_remove_model.delete()
-    return HttpResponse(status=200)
+    return HttpResponse("", status=200)
 
 
 @login_required()

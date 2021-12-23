@@ -1,6 +1,5 @@
 <div class="flex mt-1"
      x-data="{ loading: false, deleted: false}"
-     x-show="! deleted"
      hx-target="this">
     <div class="d-flex d-md-column">
         <div class="col-md-5 col-12 pr-1">
@@ -38,10 +37,20 @@
                 <input type="hidden" value="{{recurring_task.pk}}" name="task-id"/>
                 <button type="submit"
                         class="btn btn-danger"
-                        @click="deleted = true"
+                        @click="() => {
+                            loading = true;
+                            deleted = true;
+                        }"
                         x-bind:disabled="loading"
-                        hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}">
-                    X
+                        hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
+                        hx-trigger="click"
+                >
+                    <span x-show="!deleted">X</span>
+                    <span x-show="deleted">
+                        <span class="spinner-border spinner-border-sm"
+                              role="status"
+                              aria-hidden="true"></span>
+                    </span>
                 </button>
             </div>
         </div>
@@ -49,8 +58,9 @@
     <small x-show="loading == false"
            class="text-muted">This task will be created again in {{ recurring_task.days_till_next_task }}
         days.</small>
-    <small x-cloak x-show="loading" class="text-muted"> <span class="spinner-border spinner-border-sm"
-                                                              role="status"
-                                                              aria-hidden="true"></span>
+    <small x-cloak x-show="loading && !deleted" class="text-muted">
+        <span class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true" />
         Loading...</small>
 </div>
