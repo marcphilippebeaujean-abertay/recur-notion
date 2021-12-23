@@ -1,6 +1,5 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
-{% load socialaccount %}
 
 {% block title %}Sign up{% endblock %}
 
@@ -16,7 +15,6 @@
                 </div>
             <button class="btn btn-success mt-2" type="submit" x-bind:disabled="!agreedToTerms">Sign up</button>
         </form>
-        {# include 'account/social_accounts_access.html' #}
     </div>
 </div>
 {% endblock content %}
