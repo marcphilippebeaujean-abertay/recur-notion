@@ -9,9 +9,9 @@
                    type="date"
                    id="{{ recurring_task.pk }}-start-date"
                    class="form-control"
-                   @change="loading = true"
                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
                    hx-trigger="change"
+                   @change="loading = true"
                    x-bind:disabled="loading"
                    value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
         </div>

@@ -7,7 +7,7 @@ from workspaces.models import NotionWorkspaceAccess
 from .service import fetch_notion_workspace_pages_and_convert_to_task_dict
 from .models import RecurringTask
 
-from datetime import date
+from datetime import date, datetime
 
 import logging
 
@@ -50,16 +50,11 @@ def update_recurring_task(request, pk):
     if 'interval' in request.POST:
         task_to_update_model.interval = request.POST['interval']
     if 'start-date' in request.POST:
-        task_to_update_model.start_date = request.POST['start-date']
+        # this variable format is probably breaking the template
+        task_to_update_model.start_date = datetime.strptime(request.POST['start-date'], '%Y-%m-%d').date()
     task_to_update_model.save()
     return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': task_to_update_model,
                                                                   'interval_choices': RecurringTask.TaskIntervals.choices})
-
-
-def get_recurring_tasks_for_notion_task_id(request, notion_task_id):
-    tasks_queryset = request.user.tasks.all().filter(cloned_task_notion_id=notion_task_id)
-    return render(request, "tasks/partials/recurring-tasks-list.html", {'recurring_tasks': tasks_queryset,
-                                                                        'interval_choices': RecurringTask.TaskIntervals.choices})
 
 
 @login_required
