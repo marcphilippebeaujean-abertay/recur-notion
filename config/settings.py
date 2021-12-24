@@ -6,8 +6,13 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-# https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = os.environ.get("DEBUG_MODE", "FALSE") is "TRUE"
+# https://docs.djangoproject.com/en/dev/ref/settings/#
+
+if os.environ.get("DEBUG_MODE"):
+    print("Debug is enabled.")
+    DEBUG = True
+else:
+    DEBUG = False
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
@@ -27,11 +32,12 @@ INSTALLED_APPS = [
     # Third-party
     'allauth',
     'allauth.account',
-    #'allauth.socialaccount',
+    'allauth.socialaccount',
     # for Google OAuth 2.0
-    #'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.google',
     'crispy_forms',
     'django_q',
+    "debug_toolbar",
 
     # Local
     'accounts',
@@ -193,12 +199,22 @@ AUTHENTICATION_BACKENDS = (
 # Social auth providers
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'SCOPE': [
-            'profile',
-            'email',
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        "APP": {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET'),
+            "key": ""
+        },
+        # These are provider-specific settings that can only be
+        # listed here:
+        "SCOPE": [
+            "profile",
+            "email",
         ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+        "AUTH_PARAMS": {
+            "access_type": "online",
         }
     }
 }
