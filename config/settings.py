@@ -186,7 +186,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # DJANGO-ALLAUTH CONFIGS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
-SITE_ID = 2
+SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = 'recurring-tasks-view'
 # https://django-allauth.readthedocs.io/en/latest/views.html#logout-account-logout
