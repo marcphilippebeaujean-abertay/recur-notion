@@ -27,8 +27,9 @@ INSTALLED_APPS = [
     # Third-party
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google', # for Google OAuth 2.0
+    #'allauth.socialaccount',
+    # for Google OAuth 2.0
+    #'allauth.socialaccount.providers.google',
     'crispy_forms',
     'django_q',
 

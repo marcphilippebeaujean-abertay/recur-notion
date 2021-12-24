@@ -5,12 +5,14 @@ asn1crypto==0.24.0
 astroid==2.2.5
 bidict==0.21.2
 blessed==1.19.0
+Brotli==1.0.9
 certifi==2019.3.9
 cffi==1.12.2
 chardet==3.0.4
 charset-normalizer==2.0.9
 click==7.1.2
-cryptography==2.6.1
+conda==4.6.14
+cryptography==36.0.1
 defusedxml==0.7.1
 Django==3.2.10
 django-allauth==0.43.0
@@ -34,6 +36,7 @@ Jinja2==2.7.3
 lazy-object-proxy==1.4.1
 MarkupSafe==0.23
 mccabe==0.6.1
+notion-client==0.8.0
 oauthlib==3.1.1
 psycopg2==2.9.2
 pycosat==0.6.3
