@@ -1,6 +1,8 @@
 <div class="flex mt-1"
      x-data="{ loading: false, deleted: false}"
-     hx-target="this">
+     hx-target="this"
+
+>
     <div class="d-flex d-md-column">
         <div class="col-md-5 col-12 pr-1">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
@@ -10,7 +12,7 @@
                    class="form-control"
                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
                    hx-trigger="change"
-                   @change="loading = true"
+                   @blur="loading = true"
                    x-bind:disabled="loading"
                    value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
         </div>

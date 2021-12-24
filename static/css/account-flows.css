@@ -5,6 +5,5 @@
 }
 
 .asteriskField{
-    color: red !important;
-    font-weight: bold;
+    display: none;
 }
