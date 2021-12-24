@@ -12,7 +12,12 @@
                    class="form-control"
                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
                    hx-trigger="change"
-                   @blur="loading = true"
+                   @change="() => {
+                    // short interval to let htmx send out the post request before disabling the input form
+                    // otherwise, the input form will not have the correct value
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    loading = true";
+                   }
                    x-bind:disabled="loading"
                    value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
         </div>
