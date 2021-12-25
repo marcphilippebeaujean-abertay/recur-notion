@@ -31,14 +31,14 @@ def create_access_workspace_from_user_code(user_model, oauth_code):
         notion_workspace_model.save()
         workspace_access_model = NotionWorkspaceAccess.objects.filter(workspace=notion_workspace_model,
                                                                       owner=user_model).first()
-        if workspace_access_model is None:
+        if workspace_access_model:
+            workspace_access_model.access_token = notion_workspace_auth_data["access_token"]
+        else:
             workspace_access_model = NotionWorkspaceAccess.objects.create(
                 access_token=notion_workspace_auth_data["access_token"],
                 workspace=notion_workspace_model,
                 owner=user_model
             )
-        else:
-            workspace_access_model.access_token = notion_workspace_auth_data["access_token"]
         workspace_access_model.save()
     else:
         raise Exception('Unexpected Error - could not add Notion workspace to Account.')

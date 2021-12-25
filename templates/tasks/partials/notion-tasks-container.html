@@ -1,11 +1,9 @@
 {% block javascript %}
-
 <script type="text/javascript">
-      function changeEventHandler(event) {
+      function spinnerUpdateHandler(event) {
         var elem = document.getElementById("notion-workspace-tasks-container");
-        elem.innerHTML = "<div class='d-flex justify-content-center my-3'><div class='spinner-border margin-auto' role='status'><span class='visually-hidden'>Loading...</span></div></div>";
+        elem.innerHTML = "{% include 'widgets/centered-spinner.html' %}";
       }
-
 </script>
 {% endblock javascript %}
 
@@ -17,7 +15,7 @@
         <input placeholder="Search for Tasks"
                type="text"
                name="query"
-               onkeyup="changeEventHandler(event)"
+               onkeyup="spinnerUpdateHandler(event)"
                class="form-control"
                hx-post="{% url 'get-notion-workspace-tasks' %}"
                hx-trigger="keyup delay:1000ms"
@@ -37,6 +35,7 @@
                class="form-control"
         />
     </form>
+    <small>Not finding what you are looking for? Consider <a href="{% url 'notion-access-prompt' %}">updating access.</a></small>
     <div id="notion-workspace-tasks-container">
         {% include 'widgets/centered-spinner.html' %}
     </div>
