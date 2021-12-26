@@ -52,6 +52,9 @@ def update_recurring_task(request, pk):
     if 'start-date' in request.POST:
         # this variable format is probably breaking the template
         task_to_update_model.start_date = datetime.strptime(request.POST['start-date'], '%Y-%m-%d').date()
+    if 'start-time' in request.POST:
+        # this variable format is probably breaking the template
+        task_to_update_model.start_date = datetime.strptime(request.POST['start-time'], '%Y-%m-%d').time()
     task_to_update_model.save()
     return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': task_to_update_model,
                                                                   'interval_choices': RecurringTask.TaskIntervals.choices})

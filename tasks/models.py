@@ -1,8 +1,10 @@
 from datetime import datetime
 
-from django.utils.timezone import now
+from django.utils.timezone import now, template_localtime
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.utils import timezone
+
 
 # Create your models here.
 from accounts.models import CustomUser
@@ -16,6 +18,7 @@ class RecurringTask(models.Model):
     database_id = models.CharField(max_length=255)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tasks')
     start_date = models.DateField(default=now)
+    start_time = models.DateTimeField(default=timezone.now)
 
     class TaskIntervals(models.TextChoices):
         EVERY_DAY = '1', _('Every Day')

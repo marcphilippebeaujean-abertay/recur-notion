@@ -1,13 +1,22 @@
 <div class="flex mt-1"
-     x-data="{ loading: false, deleted: false}"
+     x-data="{
+        loading: false,
+        deleted: false,
+        localisedStartDate: () => {
+            const unlocalizedDate = new Date('{{ recurring_task.start_time|date:'Y-m-d H:i' }} UTC')
+            const localizedDate = unlocalizedDate.getTimezoneOffset() > 0 ?
+                new Date(unlocalizedDate).addMinutes(yourDate.getTimezoneOffset()) : unlocalizedDate;
+            return localizedDate.toJSON().slice(0,19);
+        }
+     }"
      hx-target="this"
 
 >
     <div class="d-flex d-md-column">
         <div class="col-md-5 col-12 pr-1">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
-            <input name="start-date"
-                   type="date"
+            <input name="start-time"
+                   type="datetime-local"
                    id="{{ recurring_task.pk }}-start-date"
                    class="form-control"
                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
@@ -15,11 +24,10 @@
                    @change="() => {
                     // short interval to let htmx send out the post request before disabling the input form
                     // otherwise, the input form will not have the correct value
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                    loading = true";
-                   }
+                    setTimeout(() => loading = true, 200);
+                   }"
                    x-bind:disabled="loading"
-                   value="{{ recurring_task.start_date|date:'Y-m-d' }}"/>
+                   x-bind:value="localisedStartDate"/>
         </div>
         <div class="col-md-5 col-12 pr-1">
             <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
