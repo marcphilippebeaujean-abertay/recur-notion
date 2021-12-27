@@ -4,7 +4,7 @@ from workspaces.models import NotionWorkspaceAccess
 
 import logging
 import pytz
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
