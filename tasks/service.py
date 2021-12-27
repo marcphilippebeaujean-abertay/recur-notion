@@ -3,12 +3,22 @@ from notion_client import Client
 from workspaces.models import NotionWorkspaceAccess
 
 import logging
+import pytz
+from datetime import date, datetime, timezone
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
 class NotionApiException(Exception):
+    pass
+
+
+class RecurringTaskNotFound(Exception):
+    pass
+
+
+class RecurringTaskBadFormData(Exception):
     pass
 
 
@@ -41,7 +51,7 @@ def fetch_notion_workspace_pages_and_convert_to_task_dict(user_model, query_stri
 
     return [convert_api_page_response_dict_to_task_dict(page_dict=page_dict,
                                                         recurring_task_by_notion_task_id_dict=recurring_task_by_notion_task_id_dict)
-                                                        for page_dict in pages_in_database_list][:10]
+            for page_dict in pages_in_database_list][:10]
 
 
 def convert_api_page_response_dict_to_task_dict(page_dict, recurring_task_by_notion_task_id_dict):
@@ -58,3 +68,25 @@ def convert_api_page_response_dict_to_task_dict(page_dict, recurring_task_by_not
         'db_id': page_dict['parent']['database_id'],
         'recurring_tasks': recurring_task_by_notion_task_id_dict.get(page_dict['id'], [])
     }
+
+
+def update_recurring_task_from_request_data(request_dict, task_pk):
+    try:
+        recurring_task_to_update_model = request_dict.user.tasks.all().filter(pk=task_pk)[0]
+    except IndexError:
+        raise RecurringTaskNotFound()
+    if 'interval' in request_dict.POST:
+        recurring_task_to_update_model.interval = request_dict.POST['interval']
+    elif 'start-time' in request_dict.POST and 'client-timezone' in request_dict.POST:
+        # this variable format is probably breaking the template
+        user_unlocalized_start_datetime = datetime.strptime(request_dict.POST['start-time'], '%Y-%m-%dT%H:%M')
+        # convert from client local timezone to UTC
+        user_timezone = pytz.timezone(request_dict.POST['client-timezone'])
+        localized_user_start_datetime = user_timezone.localize(user_unlocalized_start_datetime)
+        # localize back to UTC
+        start_date_utc_datetime = datetime.fromtimestamp(localized_user_start_datetime.timestamp(), tz=timezone.utc)
+        recurring_task_to_update_model.start_date = start_date_utc_datetime
+    else:
+        raise RecurringTaskBadFormData()
+    recurring_task_to_update_model.save()
+    return recurring_task_to_update_model

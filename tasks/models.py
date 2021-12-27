@@ -3,7 +3,6 @@ from datetime import datetime
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.db import models
-from django.utils import timezone
 
 
 # Create your models here.
@@ -18,7 +17,7 @@ class RecurringTask(models.Model):
     database_id = models.CharField(max_length=255)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tasks')
     start_date = models.DateField(default=now)
-    start_time = models.DateTimeField(default=timezone.now)
+    start_time = models.DateTimeField(default=now)
 
     class TaskIntervals(models.TextChoices):
         EVERY_DAY = '1', _('Every Day')
@@ -34,14 +33,14 @@ class RecurringTask(models.Model):
 
     @property
     def days_till_next_task(self):
-        date_difference = (timezone.now() - datetime.fromisoformat(self.start_time.isoformat())).days
+        date_difference = (now() - datetime.fromisoformat(self.start_time.isoformat())).days
         if date_difference < 0:
             return max(1, abs(date_difference))
         return int(self.interval) - (date_difference % int(self.interval))
 
     @property
     def should_create_task_today(self):
-        date_difference = (timezone.now() - datetime.fromisoformat(self.start_time.isoformat())).days
+        date_difference = (now() - datetime.fromisoformat(self.start_time.isoformat())).days
         if date_difference < 0:
             return False
         if date_difference is 0:

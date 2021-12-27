@@ -4,11 +4,8 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 
 from workspaces.models import NotionWorkspaceAccess
-from .service import fetch_notion_workspace_pages_and_convert_to_task_dict
+from .service import RecurringTaskNotFound, RecurringTaskBadFormData, update_recurring_task_from_request_data,  fetch_notion_workspace_pages_and_convert_to_task_dict
 from .models import RecurringTask
-
-import pytz
-from datetime import date, datetime, timezone
 
 import logging
 
@@ -33,7 +30,6 @@ def create_recurring_task(request):
                                                 cloned_task_notion_id=request.POST['id'],
                                                 cloned_task_url=request.POST['url'],
                                                 database_id=request.POST['database-id'].replace('-', ''),
-                                                start_date=date.today(),
                                                 owner=request.user)
     return render(request, 'tasks/partials/recurring-task-create-form.html', {'recurring_task': task_created,
                                                                               'interval_choices': RecurringTask.TaskIntervals.choices})
@@ -54,23 +50,12 @@ def delete_recurring_task(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task(request, pk):
     try:
-        recurring_task_to_update_model = request.user.tasks.all().filter(pk=pk)[0]
-    except IndexError:
+        recurring_task_to_update_model = update_recurring_task_from_request_data(request_dict=request,
+                                                                                 task_pk=pk)
+    except RecurringTaskNotFound:
         return HttpResponse('Could not find Task for Update', status=404)
-    if 'interval' in request.POST:
-        recurring_task_to_update_model.interval = request.POST['interval']
-    elif 'start-time' in request.POST and 'client-timezone' in request.POST:
-        # this variable format is probably breaking the template
-        user_unlocalized_start_datetime = datetime.strptime(request.POST['start-time'], '%Y-%m-%dT%H:%M')
-        # convert from client local timezone to UTC
-        user_timezone = pytz.timezone(request.POST['client-timezone'])
-        localized_user_start_datetime = user_timezone.localize(user_unlocalized_start_datetime)
-        # localize back to UTC
-        start_date_utc_datetime = datetime.fromtimestamp(localized_user_start_datetime.timestamp(), tz=timezone.utc)
-        recurring_task_to_update_model.start_date = start_date_utc_datetime
-    else:
+    except RecurringTaskBadFormData:
         return HttpResponse('Invalid parameters for updating tasks!', status=403)
-    recurring_task_to_update_model.save()
     return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': recurring_task_to_update_model,
                                                                   'interval_choices': RecurringTask.TaskIntervals.choices})
 
