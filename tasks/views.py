@@ -27,6 +27,7 @@ def recurring_tasks_view(request):
 
 
 @login_required
+@require_http_methods(["POST"])
 def create_recurring_task(request):
     task_created = RecurringTask.objects.create(name=request.POST['name'],
                                                 cloned_task_notion_id=request.POST['id'],
@@ -39,13 +40,18 @@ def create_recurring_task(request):
 
 
 @login_required
+@require_http_methods(["DELETE"])
 def delete_recurring_task(request, pk):
-    task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
+    try:
+        task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
+    except IndexError:
+        return HttpResponse('Could not find recurring task.', status=404)
     task_to_remove_model.delete()
     return HttpResponse("", status=200)
 
 
 @login_required()
+@require_http_methods(["POST"])
 def update_recurring_task(request, pk):
     try:
         recurring_task_to_update_model = request.user.tasks.all().filter(pk=pk)[0]

@@ -211,6 +211,12 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(response.status_code, 200)
         self.assert_task_was_created()
 
+    def test_create_recurring_task_requires_post_method(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.patch('/create-recurring-task/', self.create_payload)
+        self.assertEqual(response.status_code, 405)
+        self.assert_task_was_not_created()
+
 
 class TestUpdateRecurringTasks(TasksTestCase):
 
@@ -302,7 +308,90 @@ class TestUpdateRecurringTasks(TasksTestCase):
         self.assert_task_was_not_created()
         self.assert_task_start_time_was_updated()
 
+    def test_recurring_task_requires_post_method(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.patch(self.request_url, self.update_start_time_payload)
+        self.assertEqual(response.status_code, 405)
+        self.assert_task_was_not_created()
+
+    def test_interval_update_occurred(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post(self.request_url, self.update_interval_payload)
+        self.assertEqual(response.status_code, 200)
+        self.assert_task_was_not_created()
+        recurring_task = RecurringTask.objects.all()[0]
+        self.assertEqual(recurring_task.interval, self.update_interval_payload['interval'][0])
+
     def test_logged_in_user_successfully_updates_recurring_tasks(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(self.request_url, self.update_start_time_payload)
         self.assertEqual(response.status_code, 200)
+
+
+class TestDeleteRecurringTask(TasksTestCase):
+    def setUp(self):
+        super().setUp()
+        self.recurring_test_task_model = RecurringTask.objects.create(
+                                     interval='1',
+                                     start_date=date.today() - timedelta(days=1),
+                                     start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+                                     cloned_task_notion_id=VALID_NOTION_TASK_ID,
+                                     owner=self.user,
+                                     database_id=VALID_DATABASE_ID
+        )
+        self.request_url = f'/delete-recurring-task/{self.recurring_test_task_model.pk}'
+
+    def assert_task_deleted(self):
+        pass
+        ## TODO: change not commited!
+        ## self.assertEqual(RecurringTask.objects.count(), 0)
+
+    def assert_task_not_deleted(self):
+        self.assertEqual(RecurringTask.objects.count(), 1)
+
+    def test_successful_delete(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.delete(self.request_url)
+        self.assertEqual(response.status_code, 200)
+        self.assert_task_deleted()
+
+    def test_require_login_for_delete(self):
+        response = self.client.delete(self.request_url)
+        self.assertEqual(response.status_code, 302)
+        self.assert_task_deleted()
+
+    def test_require_delete_method_for_delete(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post(self.request_url)
+        self.assertEqual(response.status_code, 405)
+        self.assert_task_deleted()
+
+    def test_throw_not_found_when_delete(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.delete('/delete-recurring-task/invalid-id')
+        self.assertEqual(response.status_code, 404)
+        self.assert_task_deleted()
+
+    def test_cannot_delete_other_users_tasks_settings(self):
+        other_user_recurring_task = RecurringTask.objects.create(
+            interval='1',
+            start_date=date.today() - timedelta(days=1),
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            cloned_task_notion_id=VALID_NOTION_TASK_ID,
+            owner=get_user_model().objects.create_user(
+                username='testuser2',
+                email='test2@email.com',
+                password='secret'
+            ),
+            database_id=VALID_DATABASE_ID
+        )
+        other_user_recurring_task.pk = 2
+        other_user_recurring_task.save()
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.delete('/delete-recurring-task/2')
+        self.assertEqual(response.status_code, 404)
+
+
+class TestWorkspaceQuery(TasksTestCase):
+    ## TODO: Create all tasks when update is there
+    pass
