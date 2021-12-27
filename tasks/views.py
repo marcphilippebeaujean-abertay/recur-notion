@@ -7,7 +7,8 @@ from workspaces.models import NotionWorkspaceAccess
 from .service import fetch_notion_workspace_pages_and_convert_to_task_dict
 from .models import RecurringTask
 
-from datetime import date, datetime
+import pytz
+from datetime import date, datetime, timezone
 
 import logging
 
@@ -46,17 +47,25 @@ def delete_recurring_task(request, pk):
 
 @login_required()
 def update_recurring_task(request, pk):
-    task_to_update_model = request.user.tasks.all().filter(pk=pk)[0]
+    try:
+        recurring_task_to_update_model = request.user.tasks.all().filter(pk=pk)[0]
+    except IndexError:
+        return HttpResponse('Could not find Task for Update', status=404)
     if 'interval' in request.POST:
-        task_to_update_model.interval = request.POST['interval']
-    if 'start-date' in request.POST:
+        recurring_task_to_update_model.interval = request.POST['interval']
+    elif 'start-time' in request.POST and 'client-timezone' in request.POST:
         # this variable format is probably breaking the template
-        task_to_update_model.start_date = datetime.strptime(request.POST['start-date'], '%Y-%m-%d').date()
-    if 'start-time' in request.POST:
-        # this variable format is probably breaking the template
-        task_to_update_model.start_date = datetime.strptime(request.POST['start-time'], '%Y-%m-%d').time()
-    task_to_update_model.save()
-    return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': task_to_update_model,
+        user_unlocalized_start_datetime = datetime.strptime(request.POST['start-time'], '%Y-%m-%dT%H:%M')
+        # convert from client local timezone to UTC
+        user_timezone = pytz.timezone(request.POST['client-timezone'])
+        localized_user_start_datetime = user_timezone.localize(user_unlocalized_start_datetime)
+        # localize back to UTC
+        start_date_utc_datetime = datetime.fromtimestamp(localized_user_start_datetime.timestamp(), tz=timezone.utc)
+        recurring_task_to_update_model.start_date = start_date_utc_datetime
+    else:
+        return HttpResponse('Invalid parameters for updating tasks!', status=403)
+    recurring_task_to_update_model.save()
+    return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': recurring_task_to_update_model,
                                                                   'interval_choices': RecurringTask.TaskIntervals.choices})
 
 
