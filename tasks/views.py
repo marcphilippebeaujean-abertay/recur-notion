@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 
 from workspaces.models import NotionWorkspaceAccess
-from .service import RecurringTaskNotFound, RecurringTaskBadFormData, update_recurring_task_from_request_data,  fetch_notion_workspace_pages_and_convert_to_task_dict
+from .service import RecurringTaskNotFound, RecurringTaskBadFormData, update_recurring_task_from_request_data,  fetch_notion_workspace_pages_and_convert_to_task_dict_list
 from .models import RecurringTask
 
 import logging
@@ -63,7 +63,7 @@ def update_recurring_task(request, pk):
 @login_required
 def get_notion_workspace_tasks(request):
     logger.info(f'{request.user.username} fetching notion workspace tasks.')
-    tasks = fetch_notion_workspace_pages_and_convert_to_task_dict(user_model=request.user,
-                                                                  query_string=request.POST['query'])
-    return render(request, "tasks/partials/notion-tasks-list.html", {'tasks': tasks,
+    tasks_list = fetch_notion_workspace_pages_and_convert_to_task_dict_list(user_model=request.user,
+                                                                            query_string=request.POST['query'])
+    return render(request, "tasks/partials/notion-tasks-list.html", {'tasks': tasks_list,
                                                                      'interval_choices': RecurringTask.TaskIntervals.choices})

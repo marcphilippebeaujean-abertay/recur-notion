@@ -22,7 +22,7 @@ class RecurringTaskBadFormData(Exception):
     pass
 
 
-def fetch_notion_workspace_pages_and_convert_to_task_dict(user_model, query_string):
+def fetch_notion_workspace_pages_and_convert_to_task_dict_list(user_model, query_string):
     logger.info(f'Fetching workspace pages')
     notion_workspace_access_grant_model = NotionWorkspaceAccess.objects.filter(owner=user_model).first()
     if notion_workspace_access_grant_model is None:
