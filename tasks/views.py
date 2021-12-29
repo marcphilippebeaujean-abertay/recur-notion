@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 
 from workspaces.models import NotionWorkspaceAccess
-from .service import RecurringTaskNotFound, RecurringTaskBadFormData, update_recurring_task_from_request_data, \
+from .service import RecurringTaskNotFoundException, RecurringTaskBadFormData, update_recurring_task_from_request_data, \
     fetch_notion_workspace_pages_and_convert_to_task_dict_list
 from .models import RecurringTask
 
@@ -40,7 +40,7 @@ def create_recurring_task(request):
 @require_http_methods(["DELETE"])
 def delete_recurring_task(request, pk):
     try:
-        task_to_remove_model = request.user.tasks.all().filter(pk=pk)[0]
+        task_to_remove_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
     except IndexError:
         return HttpResponse('Could not find recurring task.', status=404)
     task_to_remove_model.delete()
@@ -53,7 +53,7 @@ def update_recurring_task(request, pk):
     try:
         recurring_task_to_update_model = update_recurring_task_from_request_data(request_dict=request,
                                                                                  task_pk=pk)
-    except RecurringTaskNotFound:
+    except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
         return HttpResponse('Invalid parameters for updating tasks!', status=403)

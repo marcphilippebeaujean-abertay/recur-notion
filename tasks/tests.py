@@ -6,13 +6,14 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
+from django_q.models import Schedule
+
 from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 from .models import RecurringTask
-
-from .jobs import create_notion_tasks_from_recurring_user_tasks
+from .jobs import create_recurring_task_in_notion
 
 from .notion_api_mock import VALID_NOTION_TASK_ID, VALID_DATABASE_ID, VALID_ACCESS_TOKEN, \
-    create_or_get_mocked_oauth_notion_client, VALID_ACCESS_TOKEN_2
+    create_or_get_mocked_oauth_notion_client
 
 DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME = timezone.now()
 
@@ -47,136 +48,68 @@ class TestCreateTasksJobTest(TasksTestCase):
     @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
     def test_create_scheduled_task_in_notion(self, m):
         # create new recurring task
-        task = RecurringTask.objects.create(interval='1',
+        task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
                                             start_date=date.today() - timedelta(days=1),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=1),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
         # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_create_one_scheduled_task(self, m):
-        # create new recurring task
-        task = RecurringTask.objects.create(interval='1',
-                                            start_date=date.today() - timedelta(days=1),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
-                                            cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                            owner=self.user,
-                                            database_id=VALID_DATABASE_ID)
-        # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
+        create_recurring_task_in_notion(task.pk)
         m.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
 
     @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_no_scheduled_task_for_today(self, m):
+    def test_no_scheduled_task_in_database_throws_exception(self, m):
         # create new recurring task
-        task = RecurringTask.objects.create(interval='7',
+        task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_date=date.today() - timedelta(days=3),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=3),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=3),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
         # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-        m.assert_not_called()
+        self.assertRaises(Exception, lambda x: create_recurring_task_in_notion('invalid_pk'))
 
     @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_create_scheduled_task_from_one_week_ago(self, m):
+    def test_no_workspace_access_in_database_throws_exception(self, m):
         # create new recurring task
-        task = RecurringTask.objects.create(interval='7',
+        task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_date=date.today() - timedelta(days=7),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=7),
-                                            cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                            owner=self.user,
-                                            database_id=VALID_DATABASE_ID)
-        # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-        m.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
-
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_user_has_no_recurring_tasks(self, m):
-        # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-        m.assert_not_called()
-
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_user_has_no_workspace_access(self, m):
-        # create new recurring task
-        task = RecurringTask.objects.create(interval='1',
-                                            start_date=date.today() - timedelta(days=2),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=2),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=7),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
         NotionWorkspaceAccess.objects.all().delete()
         # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-        m.assert_not_called()
+        self.assertRaises(Exception, lambda x: create_recurring_task_in_notion(task.pk))
 
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_two_users_scheduled_tasks_for_today(self, m):
-        new_user = get_user_model().objects.create_user(
-            username='testuser2',
-            email='test2@email.com',
-            password='secret'
-        )
-        new_workspace = NotionWorkspace.objects.create(
-            name='WORKSPACE_NAME2',
-            notion_id='WORKSPACE_ID2',
-            icon_url='icon.svg'
-        )
-        new_workspace_access = NotionWorkspaceAccess.objects.create(
-            access_token=VALID_ACCESS_TOKEN_2,
-            workspace=new_workspace,
-            owner=new_user
-        )
-        # create new recurring task
-        RecurringTask.objects.create(interval='1',
-                                     start_date=date.today() - timedelta(days=1),
-                                     start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
-                                     cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                     owner=self.user,
-                                     database_id=VALID_DATABASE_ID)
-        RecurringTask.objects.create(interval='1',
-                                     start_date=date.today() - timedelta(days=1),
-                                     start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
-                                     cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                     owner=new_user,
-                                     database_id=VALID_DATABASE_ID)
-        # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-        self.assertEqual(m.call_count, 2)
 
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_two_users_scheduled_one_has_no_tasks(self, m):
-        new_user = get_user_model().objects.create_user(
-            username='testuser2',
-            email='test2@email.com',
-            password='secret'
-        )
-        new_workspace = NotionWorkspace.objects.create(
-            name='WORKSPACE_NAME2',
-            notion_id='WORKSPACE_ID2',
-            icon_url='icon.svg'
-        )
-        new_workspace_access = NotionWorkspaceAccess.objects.create(
-            access_token=VALID_ACCESS_TOKEN_2,
-            workspace=new_workspace,
-            owner=new_user
-        )
+class TestDateUntilPreview(TasksTestCase):
+
+    def test_1_day_till_posted_over_1_day_interval(self):
         # create new recurring task
-        RecurringTask.objects.create(interval='1',
-                                     start_date=date.today() - timedelta(days=1),
-                                     start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
-                                     cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                     owner=self.user,
-                                     database_id=VALID_DATABASE_ID)
-        # run the tasks method
-        create_notion_tasks_from_recurring_user_tasks()
-        self.assertEqual(m.call_count, 1)
-        m.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
+        task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+                                            start_date=date.today() - timedelta(days=6),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=7),
+                                            cloned_task_notion_id=VALID_NOTION_TASK_ID,
+                                            owner=self.user,
+                                            database_id=VALID_DATABASE_ID)
+        self.assertEqual(task.days_till_next_task, 1)
+
+    def test_1_day_till_posted_over_7_day_interval(self):
+        # create new recurring task
+        task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
+                                            start_date=date.today() - timedelta(days=6),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=6),
+                                            cloned_task_notion_id=VALID_NOTION_TASK_ID,
+                                            owner=self.user,
+                                            database_id=VALID_DATABASE_ID)
+        self.assertEqual(task.days_till_next_task, 1)
 
 
 class TestCreateRecurringTasks(TasksTestCase):
@@ -201,6 +134,7 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(created_recurring_task.name, self.test_task_name)
         self.assertEqual(created_recurring_task.cloned_task_url, self.test_task_url)
         self.assertEqual(created_recurring_task.owner, self.user)
+        self.assertEqual(Schedule.objects.count(), 1)
 
     def assert_task_was_not_created(self):
         self.assertEqual(RecurringTask.objects.count(), 0)
@@ -217,18 +151,27 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(response.status_code, 405)
         self.assert_task_was_not_created()
 
+    def test_create_recurring_task_also_creates_djangoq_scheduler(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post('/create-recurring-task/', self.create_payload)
+        self.assertEqual(response.status_code, 200)
+        self.assert_task_was_created()
+        scheduled_job = Schedule.objects.all()[0]
+        self.assertTrue(scheduled_job.next_run.timestamp() - datetime.now().timestamp() < 1000)
+        self.assertEqual(scheduled_job.schedule_type, Schedule.DAILY)
+
 
 class TestUpdateRecurringTasks(TasksTestCase):
 
     def setUp(self):
         super().setUp()
         self.recurring_test_task_model = RecurringTask.objects.create(
-                                     interval='1',
-                                     start_date=date.today() - timedelta(days=1),
-                                     start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
-                                     cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                     owner=self.user,
-                                     database_id=VALID_DATABASE_ID
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_date=date.today() - timedelta(days=1),
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            cloned_task_notion_id=VALID_NOTION_TASK_ID,
+            owner=self.user,
+            database_id=VALID_DATABASE_ID
         )
         self.request_url = f'/update-recurring-task/{self.recurring_test_task_model.pk}'
         self.update_start_time_payload = {
@@ -238,7 +181,6 @@ class TestUpdateRecurringTasks(TasksTestCase):
         self.update_interval_payload = {
             'interval': ['7']
         }
-        self.user.save()
 
     def assert_task_was_not_created(self):
         self.assertEqual(RecurringTask.objects.count(), 1)
@@ -250,8 +192,7 @@ class TestUpdateRecurringTasks(TasksTestCase):
         test_update_start_date_utc_datetime = datetime.fromtimestamp(localized_user_start_datetime.timestamp(),
                                                                      tz=timezone.utc)
         recurring_task_from_db = RecurringTask.objects.all()[0]
-        ## TODO Failing because Database Transactions were not commited?
-        # self.assertEqual(recurring_task_from_db.start_time, test_update_start_date_utc_datetime)
+        self.assertEqual(recurring_task_from_db.start_time, test_update_start_date_utc_datetime)
 
     def check_task_was_not_updated(self):
         recurring_task_from_db = RecurringTask.objects.all()[0]
@@ -279,7 +220,7 @@ class TestUpdateRecurringTasks(TasksTestCase):
 
     def test_cannot_update_other_users_tasks_settings(self):
         other_user_recurring_task = RecurringTask.objects.create(
-            interval='1',
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             start_date=date.today() - timedelta(days=1),
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
             cloned_task_notion_id=VALID_NOTION_TASK_ID,
@@ -290,10 +231,9 @@ class TestUpdateRecurringTasks(TasksTestCase):
             ),
             database_id=VALID_DATABASE_ID
         )
-        other_user_recurring_task.pk = 2
-        other_user_recurring_task.save()
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post('/update-recurring-task/2', self.update_start_time_payload)
+        response = self.client.post(f'/update-recurring-task/{other_user_recurring_task.pk}',
+                                    self.update_start_time_payload)
         self.assertEqual(response.status_code, 404)
 
     def test_throw_404_when_not_found(self):
@@ -314,7 +254,7 @@ class TestUpdateRecurringTasks(TasksTestCase):
         self.assertEqual(response.status_code, 405)
         self.assert_task_was_not_created()
 
-    def test_interval_update_occurred(self):
+    def test_logged_in_user_successfully_updates_interval(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(self.request_url, self.update_interval_payload)
         self.assertEqual(response.status_code, 200)
@@ -322,29 +262,34 @@ class TestUpdateRecurringTasks(TasksTestCase):
         recurring_task = RecurringTask.objects.all()[0]
         self.assertEqual(recurring_task.interval, self.update_interval_payload['interval'][0])
 
-    def test_logged_in_user_successfully_updates_recurring_tasks(self):
+    def test_logged_in_user_successfully_updates_start_time(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(self.request_url, self.update_start_time_payload)
         self.assertEqual(response.status_code, 200)
+
+    def test_scheduled_task_start_time_same_as_recurring_task_start_time(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post(self.request_url, self.update_start_time_payload)
+        self.assertEqual(response.status_code, 200)
+        schedule_task = Schedule.objects.all()[0]
+        recurring_task = RecurringTask.objects.all()[0]
+        self.assert_task_start_time_was_updated()
+        self.assertEqual(recurring_task.start_time, schedule_task.next_run)
 
 
 class TestDeleteRecurringTask(TasksTestCase):
     def setUp(self):
         super().setUp()
         self.recurring_test_task_model = RecurringTask.objects.create(
-                                     interval='1',
-                                     start_date=date.today() - timedelta(days=1),
-                                     start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
-                                     cloned_task_notion_id=VALID_NOTION_TASK_ID,
-                                     owner=self.user,
-                                     database_id=VALID_DATABASE_ID
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            cloned_task_notion_id=VALID_NOTION_TASK_ID,
+            owner=self.user,
+            database_id=VALID_DATABASE_ID
         )
         self.request_url = f'/delete-recurring-task/{self.recurring_test_task_model.pk}'
 
     def assert_task_deleted(self):
-        pass
-        ## TODO: change not commited!
-        ## self.assertEqual(RecurringTask.objects.count(), 0)
+        self.assertEqual(RecurringTask.objects.count(), 0)
 
     def assert_task_not_deleted(self):
         self.assertEqual(RecurringTask.objects.count(), 1)
@@ -358,26 +303,26 @@ class TestDeleteRecurringTask(TasksTestCase):
     def test_require_login_for_delete(self):
         response = self.client.delete(self.request_url)
         self.assertEqual(response.status_code, 302)
-        self.assert_task_deleted()
+        self.assert_task_not_deleted()
 
     def test_require_delete_method_for_delete(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(self.request_url)
         self.assertEqual(response.status_code, 405)
-        self.assert_task_deleted()
+        self.assert_task_not_deleted()
 
     def test_throw_not_found_when_delete(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.delete('/delete-recurring-task/invalid-id')
         self.assertEqual(response.status_code, 404)
-        self.assert_task_deleted()
+        self.assert_task_not_deleted()
 
     def test_cannot_delete_other_users_tasks_settings(self):
         other_user_recurring_task = RecurringTask.objects.create(
-            interval='1',
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             start_date=date.today() - timedelta(days=1),
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
-            cloned_task_notion_id=VALID_NOTION_TASK_ID,
+            cloned_task_notion_id=f'{VALID_NOTION_TASK_ID}-3234',
             owner=get_user_model().objects.create_user(
                 username='testuser2',
                 email='test2@email.com',
@@ -385,11 +330,16 @@ class TestDeleteRecurringTask(TasksTestCase):
             ),
             database_id=VALID_DATABASE_ID
         )
-        other_user_recurring_task.pk = 2
-        other_user_recurring_task.save()
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.delete('/delete-recurring-task/2')
+        response = self.client.delete(f'/delete-recurring-task/{other_user_recurring_task.pk}')
         self.assertEqual(response.status_code, 404)
+
+    def test_delete_also_removes_scheduler_task(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.delete(self.request_url)
+        self.assertEqual(response.status_code, 200)
+        self.assert_task_deleted()
+        self.assertEqual(Schedule.objects.count(), 0)
 
 
 class TestWorkspaceQuery(TasksTestCase):
