@@ -17,9 +17,18 @@
                                 notionTaskTitle: '{{notion_task.title}}',
                                 notionTaskId: '{{notion_task.id}}',
                                 notionTaskUrl: '{{notion_task.url}}',
-                                notionDbId: '{{notion_task.db_id}}'
+                                notionDbId: '{{notion_task.db_id}}',
+                                notionTaskProperties: [
+                                    {% for property in notion_task.overrideable_properties %}
+                                    {
+                                        name: '{{ property.name }}',
+                                        value: '{{ property.value }}',
+                                        type: '{{ property.type }}'
+                                    },
+                                    {% endfor %}
+                                ]
                               }">
-                    <h3 class="h6 mt-2">Recurring Task Settings</h3>
+                    <h3 class="h6 mt-2">Schedule Settings</h3>
                     <div id="recurring-tasks-container-{{notion_task.id}}">
                         {% include 'tasks/partials/recurring-tasks-list.html' with recurring_tasks=notion_task.recurring_tasks %}
                     </div>

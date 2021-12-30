@@ -1,11 +1,10 @@
-<div hx-target="this">
-    <div class="flex mt-1"
+<div hx-target="this" class="card">
+    <div class="flex mt-1 card-body"
          x-data="{
             loading: false,
             deleted: false
          }"
     >
-        <div></div>
         <div class="d-flex">
             <div class="col-md-7 col-12">
                 <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
@@ -21,15 +20,13 @@
                        hx-trigger="change"
                        hx-include="[name='client-timezone']"
                        @change="() => {
-                        // short interval to let htmx send out the post request before disabling the input form
-                        // otherwise, the input form will not have the correct value
-                        setTimeout(() => loading = true, 200);
+                           // short interval to let htmx send out the post request before disabling the input form
+                           // otherwise, the input form will not have the correct value
+                           setTimeout(() => loading = true, 200);
                        }"
                        x-bind:value="() => {
                            const localizedDate = new Date({{recurring_task.start_time|date:'U'}} * 1000);
-                           console.log(new Date().getTimezoneOffset());
                            localizedDate.setMinutes(localizedDate.getMinutes() - new Date().getTimezoneOffset());
-                           console.log(localizedDate);
                            let isoString = localizedDate.toISOString();
                            return isoString.substring(0, (isoString.indexOf('T')|0) + 6|0);
                        }"
@@ -40,7 +37,7 @@
                 <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
                 <select class="form-select"
                         name="interval"
-                        @changehttps://www.notion.so/Learn-To-Cook-New-Meal-910d8a3b408b43af90e09661ff282ed1="loading = true"
+                        @change="loading = true"
                         hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
                         hx-trigger="change"
                         x-bind:disabled="loading"

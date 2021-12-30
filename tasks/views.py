@@ -1,4 +1,7 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required
+from django.utils.timezone import now
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
@@ -31,6 +34,7 @@ def create_recurring_task(request):
                                                 cloned_task_notion_id=request.POST['id'],
                                                 cloned_task_url=request.POST['url'],
                                                 database_id=request.POST['database-id'].replace('-', ''),
+                                                start_time=now() + datetime.timedelta(days=1),
                                                 owner=request.user)
     return render(request, 'tasks/partials/recurring-task-create-form.html', {'recurring_task': task_created,
                                                                               'interval_choices': RecurringTask.TaskIntervals.choices})

@@ -70,8 +70,34 @@ def convert_api_page_response_dict_to_task_dict(page_dict, recurring_task_by_not
         'url': page_dict['url'],
         'db_id': page_dict['parent']['database_id'],
         'recurring_tasks': recurring_task_by_notion_task_id_dict.get(page_dict['id'], []),
-        'has_recurring_tasks': len(recurring_task_by_notion_task_id_dict.get(page_dict['id'], [])) > 0
+        'overrideable_properties': create_overridable_properties_dict_from_notion_properties_list(properties_dict)
     }
+
+
+def create_overridable_properties_dict_from_notion_properties_list(notion_properties_dict):
+    overridable_properties_list = []
+    overrideable_properties_types_set = {
+        'title', 'rich_text', 'checkbox', 'email', 'phone_number', 'number', 'url', 'text'
+    }
+    for key, value in notion_properties_dict.items():
+        property_type_string = value['type']
+        if property_type_string in overrideable_properties_types_set:
+            value_string = ''
+            if property_type_string == 'title':
+                value_string = value['title'][0]['plain_text']
+            elif property_type_string == 'text':
+                value_string = value['plain_text']
+            elif property_type_string == 'rich_text':
+                value_string = value['rich_text'][0]['text']['content'] if len(value['rich_text']) else 'None'
+            else:
+                value_string = str(value[property_type_string])
+            properties_simple_dict = {
+                'name': key,
+                'value': value_string,
+                'type': property_type_string
+            }
+            overridable_properties_list.append(properties_simple_dict)
+    return overridable_properties_list
 
 
 def update_recurring_task_from_request_data(request_dict, task_pk):

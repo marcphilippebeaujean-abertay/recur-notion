@@ -152,7 +152,7 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(response.status_code, 200)
         self.assert_task_was_created()
         scheduled_job = Schedule.objects.all()[0]
-        self.assertTrue(scheduled_job.next_run.timestamp() - datetime.now().timestamp() < 1000)
+        self.assertTrue(scheduled_job.next_run.timestamp() - (datetime.now() + timedelta(days=1)).timestamp() < 1000)
         self.assertEqual(scheduled_job.schedule_type, Schedule.DAILY)
 
 

@@ -3,6 +3,7 @@ from datetime import datetime
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.core.serializers.json import DjangoJSONEncoder
 
 from django_q.models import Schedule
 
@@ -25,6 +26,7 @@ class RecurringTask(models.Model):
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tasks')
     start_date = models.DateField(default=now)
     start_time = models.DateTimeField(default=now)
+    override_properties_json_string = models.JSONField(encoder=DjangoJSONEncoder, default=dict)
     scheduler_job = models.OneToOneField(
         Schedule,
         on_delete=models.CASCADE,

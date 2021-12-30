@@ -123,7 +123,7 @@ def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
             else:
                 raise NotionApiMockNotFoundException()
 
-        def create(self, properties, parent):
+        def create(self, properties, parent, icon, cover):
             expected_parent_dict = { 'database_id': VALID_DATABASE_ID }
             expected_properties_dict = json.loads(example_api_result)['properties']
 
