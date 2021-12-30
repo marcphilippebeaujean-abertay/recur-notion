@@ -2,25 +2,28 @@
 
 <div class="mt-2 row">
     {% for notion_task in tasks %}
-    <div class="flex col-12 col-md-6">
-        <hr/>
-        <div class="w-100">
-            <div class="d-flex flex-column">
-                <h3 class="h6">Name</h3>
-                <h2 class="h5">{{notion_task.title}}</h2>
-                <a href="{{ notion_task.url }}" class="mb-0" target=“_blank“ rel=“noopener noreferrer“>View in Notion</a>
-            </div>
-        </div>
-        <div class="d-flex flex-column"
-             x-data="{
-                        notionTaskTitle: '{{notion_task.title}}',
-                        notionTaskId: '{{notion_task.id}}',
-                        notionTaskUrl: '{{notion_task.url}}',
-                        notionDbId: '{{notion_task.db_id}}'
-                      }">
-            <h3 class="h6 mt-2">Recurring Task Settings</h3>
-            <div id="recurring-tasks-container-{{notion_task.id}}">
-                {% include 'tasks/partials/recurring-tasks-list.html' with recurring_tasks=notion_task.recurring_tasks %}
+    <div class="col-12 col-md-6 p-2">
+        <div class="card col-12 col-md-6 w-100">
+            <div class="flex card-body">
+                <div class="w-100">
+                    <div class="d-flex flex-column">
+                        <h3 class="h6">Name</h3>
+                        <h2 class="h5">{{notion_task.title}}</h2>
+                        <a href="{{ notion_task.url }}" class="mb-0" target=“_blank“ rel=“noopener noreferrer“>View in Notion</a>
+                    </div>
+                </div>
+                <div class="d-flex flex-column"
+                     x-data="{
+                                notionTaskTitle: '{{notion_task.title}}',
+                                notionTaskId: '{{notion_task.id}}',
+                                notionTaskUrl: '{{notion_task.url}}',
+                                notionDbId: '{{notion_task.db_id}}'
+                              }">
+                    <h3 class="h6 mt-2">Recurring Task Settings</h3>
+                    <div id="recurring-tasks-container-{{notion_task.id}}">
+                        {% include 'tasks/partials/recurring-tasks-list.html' with recurring_tasks=notion_task.recurring_tasks %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -71,7 +71,11 @@ Q_CLUSTER = {
     'retry': 120,
     'queue_limit': 50,
     'bulk': 10,
-    'orm': 'default'
+    'orm': 'default',
+    'save_limit': 0,
+    'ack_failures': True,
+    'max_attempts': 1,
+    'attempt_count': 1
 }
 
 # URLS

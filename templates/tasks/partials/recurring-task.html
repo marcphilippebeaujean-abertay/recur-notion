@@ -1,85 +1,89 @@
-<div class="flex mt-1"
-     x-data="{
-        loading: false,
-        deleted: false
-     }"
-     hx-target="this"
-
->
-    <div class="d-flex d-md-column">
-        <div class="col-md-5 col-12 pr-1">
-            <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
-            <input name="client-timezone"
-                   type="hidden"
-                   x-bind:value="() => Intl.DateTimeFormat().resolvedOptions().timeZone"
-            />
-            <input name="start-time"
-                   type="datetime-local"
-                   id="{{ recurring_task.pk }}-start-date"
-                   class="form-control"
-                   hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                   hx-trigger="change"
-                   hx-include="[name='client-timezone']"
-                   @change="() => {
-                    // short interval to let htmx send out the post request before disabling the input form
-                    // otherwise, the input form will not have the correct value
-                    setTimeout(() => loading = true, 200);
-                   }"
-                   x-bind:disabled="loading"
-                   x-bind:value="() => {
-                       const unlocalizedDate = new Date('{{ recurring_task.start_time|date:'Y-m-d H:i' }} UTC')
-                       const localizedDate = unlocalizedDate.getTimezoneOffset() > 0 ?
-                           new Date(unlocalizedDate).addMinutes(yourDate.getTimezoneOffset()) : unlocalizedDate;
-                       return localizedDate.toJSON().slice(0,19);
-                   }"/>
-        </div>
-        <div class="col-md-5 col-12 pr-1">
-            <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
-            <select class="form-select"
-                    name="interval"
-                    @change="loading = true"
-                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
-                    hx-trigger="change"
-                    x-bind:disabled="loading"
-                    id="{{ recurring_task.pk }}-interval">
-                {% for choice in interval_choices %}
-                <option value="{{ choice.0 }}"
-                        {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
-                >
-                    {{ choice.1 }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="d-flex flex-column justify-content-end ml-1 col-md-1 col-12">
-            <div class="d-inline-block align-self-end">
-                <input type="hidden" value="{{recurring_task.pk}}" name="task-id"/>
-                <button type="submit"
-                        class="btn btn-danger"
-                        @click="() => {
-                            loading = true;
-                            deleted = true;
-                        }"
+<div hx-target="this">
+    <div class="flex mt-1"
+         x-data="{
+            loading: false,
+            deleted: false
+         }"
+    >
+        <div></div>
+        <div class="d-flex">
+            <div class="col-md-7 col-12">
+                <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
+                <input name="client-timezone"
+                       type="hidden"
+                       x-bind:value="() => Intl.DateTimeFormat().resolvedOptions().timeZone"
+                />
+                <input name="start-time"
+                       type="datetime-local"
+                       id="{{ recurring_task.pk }}-start-date"
+                       class="form-control"
+                       hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
+                       hx-trigger="change"
+                       hx-include="[name='client-timezone']"
+                       @change="() => {
+                        // short interval to let htmx send out the post request before disabling the input form
+                        // otherwise, the input form will not have the correct value
+                        setTimeout(() => loading = true, 200);
+                       }"
+                       x-bind:value="() => {
+                           const localizedDate = new Date({{recurring_task.start_time|date:'U'}} * 1000);
+                           console.log(new Date().getTimezoneOffset());
+                           localizedDate.setMinutes(localizedDate.getMinutes() - new Date().getTimezoneOffset());
+                           console.log(localizedDate);
+                           let isoString = localizedDate.toISOString();
+                           return isoString.substring(0, (isoString.indexOf('T')|0) + 6|0);
+                       }"
+                       x-bind:disabled="loading"
+                       />
+            </div>
+            <div>
+                <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
+                <select class="form-select"
+                        name="interval"
+                        @changehttps://www.notion.so/Learn-To-Cook-New-Meal-910d8a3b408b43af90e09661ff282ed1="loading = true"
+                        hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
+                        hx-trigger="change"
                         x-bind:disabled="loading"
-                        hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
-                        hx-trigger="click"
-                >
-                    <span x-show="!deleted">X</span>
-                    <span x-show="deleted">
-                        <span class="spinner-border spinner-border-sm"
-                              role="status"
-                              aria-hidden="true"></span>
-                    </span>
-                </button>
+                        id="{{ recurring_task.pk }}-interval">
+                    {% for choice in interval_choices %}
+                    <option value="{{ choice.0 }}"
+                            {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
+                    >
+                        {{ choice.1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex flex-column justify-content-end ml-1 col-md-1 col-12">
+                <div class="d-inline-block align-self-end">
+                    <input type="hidden" value="{{recurring_task.pk}}" name="task-id"/>
+                    <button type="submit"
+                            class="btn btn-danger"
+                            @click="() => {
+                                loading = true;
+                                deleted = true;
+                            }"
+                            x-bind:disabled="loading"
+                            hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
+                            hx-trigger="click"
+                    >
+                        <span x-show="!deleted">X</span>
+                        <span x-show="deleted">
+                            <span class="spinner-border spinner-border-sm"
+                                  role="status"
+                                  aria-hidden="true"></span>
+                        </span>
+                    </button>
+                </div>
             </div>
         </div>
+        <small x-show="loading == false"
+               class="text-muted">This task will be created again within {{ recurring_task.days_till_next_task }}
+            day{% if recurring_task.days_till_next_task > 1  %}s {% endif %}.</small>
+        <small x-cloak x-show="loading && !deleted" class="text-muted">
+            <span class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"></span>
+            Loading...</small>
     </div>
-    <small x-show="loading == false"
-           class="text-muted">This task will be created again in {{ recurring_task.days_till_next_task }}
-        days.</small>
-    <small x-cloak x-show="loading && !deleted" class="text-muted">
-        <span class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"></span>
-        Loading...</small>
 </div>

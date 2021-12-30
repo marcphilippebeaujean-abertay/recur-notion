@@ -50,8 +50,7 @@ class TestCreateTasksJobTest(TasksTestCase):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
                                             start_date=date.today() - timedelta(days=1),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
-                                                days=1),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
@@ -64,8 +63,7 @@ class TestCreateTasksJobTest(TasksTestCase):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_date=date.today() - timedelta(days=3),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
-                                                days=3),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=3),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
@@ -77,8 +75,7 @@ class TestCreateTasksJobTest(TasksTestCase):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_date=date.today() - timedelta(days=7),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
-                                                days=7),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=7),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
@@ -93,8 +90,7 @@ class TestDateUntilPreview(TasksTestCase):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
                                             start_date=date.today() - timedelta(days=6),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
-                                                days=7),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=7),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
@@ -104,8 +100,7 @@ class TestDateUntilPreview(TasksTestCase):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_date=date.today() - timedelta(days=6),
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
-                                                days=6),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=6),
                                             cloned_task_notion_id=VALID_NOTION_TASK_ID,
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)

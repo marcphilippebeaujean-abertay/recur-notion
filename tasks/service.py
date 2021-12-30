@@ -3,8 +3,6 @@ from notion_client import Client
 from workspaces.models import NotionWorkspaceAccess
 from .models import RecurringTask
 
-from django_q.models import Schedule
-
 import logging
 import pytz
 from datetime import datetime, timezone
@@ -33,7 +31,7 @@ def fetch_notion_workspace_pages_and_convert_to_task_dict_list(user_model, query
 
     logger.info(f'Fetching Notion Pages with Access Token {notion_workspace_access_grant_model.access_token}')
     client = Client(auth=notion_workspace_access_grant_model.access_token)
-    request_filter_dict = {"filter": {"property": "object", "value": "page"}, "page_size": 20}
+    request_filter_dict = {"filter": {"property": "object", "value": "page"}, "page_size": 100}
     if query_string is not None and len(query_string) > 0:
         request_filter_dict['query'] = query_string
     api_response_object_dict_list = client.search(**request_filter_dict).get("results")
@@ -52,31 +50,34 @@ def fetch_notion_workspace_pages_and_convert_to_task_dict_list(user_model, query
         recurring_task_list.append(recurring_task)
         recurring_task_by_notion_task_id_dict[recurring_task.cloned_task_notion_id] = recurring_task_list
 
-    return [convert_api_page_response_dict_to_task_dict(page_dict=page_dict,
-                                                        recurring_task_by_notion_task_id_dict=recurring_task_by_notion_task_id_dict)
-            for page_dict in pages_in_database_list][:10]
+    tasks_list = [convert_api_page_response_dict_to_task_dict(page_dict=page_dict,
+                                                              recurring_task_by_notion_task_id_dict=recurring_task_by_notion_task_id_dict)
+                  for page_dict in pages_in_database_list][:10]
+    tasks_list.sort(key=lambda task_dict: len(task_dict['recurring_tasks']), reverse=True)
+    return tasks_list
 
 
 def convert_api_page_response_dict_to_task_dict(page_dict, recurring_task_by_notion_task_id_dict):
-    task_title_string = 'Invalid Name'
+    task_title_string = ''
     properties_dict = page_dict['properties']
     for key in properties_dict:
         property_info_dict = properties_dict[key]
-        if 'title' in property_info_dict['type']:
+        if 'title' in property_info_dict['type'] and len(property_info_dict['title']) > 0:
             task_title_string = property_info_dict['title'][0]['plain_text']
     return {
         'title': task_title_string,
         'id': page_dict['id'],
         'url': page_dict['url'],
         'db_id': page_dict['parent']['database_id'],
-        'recurring_tasks': recurring_task_by_notion_task_id_dict.get(page_dict['id'], [])
+        'recurring_tasks': recurring_task_by_notion_task_id_dict.get(page_dict['id'], []),
+        'has_recurring_tasks': len(recurring_task_by_notion_task_id_dict.get(page_dict['id'], [])) > 0
     }
 
 
 def update_recurring_task_from_request_data(request_dict, task_pk):
     try:
-        updated_recurring_task = RecurringTask.objects.filter(owner=request_dict.user, pk=task_pk)\
-                                                      .prefetch_related('scheduler_job')[0]
+        updated_recurring_task = RecurringTask.objects.filter(owner=request_dict.user, pk=task_pk) \
+            .prefetch_related('scheduler_job')[0]
     except IndexError:
         raise RecurringTaskNotFoundException(f'Could not find recurring task that was updated with pk {task_pk}')
     if 'interval' in request_dict.POST:
