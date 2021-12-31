@@ -7,8 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 
 from workspaces.models import NotionWorkspaceAccess
-from .service import RecurringTaskNotFoundException, RecurringTaskBadFormData, update_recurring_task_from_request_data, \
-    fetch_notion_workspace_pages_and_convert_to_task_dict_list
+from .service import RecurringTaskNotFoundException, RecurringTaskBadFormData, update_recurring_task_from_request_data
 from .models import RecurringTask
 
 import logging
@@ -24,20 +23,15 @@ def recurring_tasks_view(request):
     notion_workspace_access_grants_queryset = NotionWorkspaceAccess.objects.filter(owner=request.user)
     if notion_workspace_access_grants_queryset.count() is 0:
         return redirect('notion-access-prompt')
-    return render(request, "tasks/tasks-view.html")
+    return render(request, "tasks/recurring-tasks-list-view.html", {'recurring_tasks': request.user.tasks.all(),
+                                                                    'interval_choices': RecurringTask.TaskIntervals.choices})
 
 
 @login_required
 @require_http_methods(["POST"])
 def create_recurring_task(request):
-    task_created = RecurringTask.objects.create(name=request.POST['name'],
-                                                cloned_task_notion_id=request.POST['id'],
-                                                cloned_task_url=request.POST['url'],
-                                                database_id=request.POST['database-id'].replace('-', ''),
-                                                start_time=now() + datetime.timedelta(days=1),
-                                                owner=request.user)
-    return render(request, 'tasks/partials/recurring-task-create-form.html', {'recurring_task': task_created,
-                                                                              'interval_choices': RecurringTask.TaskIntervals.choices})
+    created_task = RecurringTask.objects.create(start_time=now() + datetime.timedelta(days=1), owner=request.user)
+    return redirect('recurring-task-view', pk=created_task.pk)
 
 
 @login_required
@@ -55,20 +49,25 @@ def delete_recurring_task(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task(request, pk):
     try:
-        recurring_task_to_update_model = update_recurring_task_from_request_data(request_dict=request,
-                                                                                 task_pk=pk)
+        recurring_task_to_update_model = update_recurring_task_from_request_data(request_dict=request, task_pk=pk)
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
         return HttpResponse('Invalid parameters for updating tasks!', status=403)
-    return render(request, 'tasks/partials/recurring-task.html', {'recurring_task': recurring_task_to_update_model,
-                                                                  'interval_choices': RecurringTask.TaskIntervals.choices})
+    if 'update-schedule-only' in request.POST:
+        return render(request, 'tasks/partials/recurring-task-schedule.html', {'recurring_task': recurring_task_to_update_model,
+                                                                               'interval_choices': RecurringTask.TaskIntervals.choices})
+    return HttpResponse(status=200)
 
 
 @login_required
-def get_notion_workspace_tasks(request):
-    logger.info(f'{request.user.username} fetching notion workspace tasks.')
-    tasks_list = fetch_notion_workspace_pages_and_convert_to_task_dict_list(user_model=request.user,
-                                                                            query_string=request.POST['query'])
-    return render(request, "tasks/partials/notion-tasks-list.html", {'tasks': tasks_list,
-                                                                     'interval_choices': RecurringTask.TaskIntervals.choices})
+def get_recurring_tasks(request):
+    return render(request, 'tasks/partials/recurring-tasks-list.html', {'recurring_tasks': request.user.tasks.all(),
+                                                                        'interval_choices': RecurringTask.TaskIntervals.choices})
+
+
+@login_required
+def recurring_task_view(request, pk):
+    return render(request, 'tasks/recurring-task-view.html',
+                  {'recurring_task': RecurringTask.objects.filter(pk=pk, owner=request.user)[0],
+                   'interval_choices': RecurringTask.TaskIntervals.choices})

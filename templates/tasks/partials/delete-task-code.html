@@ -1,0 +1,22 @@
+<div class="d-flex flex-column justify-content-end ml-1 col-md-1 col-12">
+    <div class="d-inline-block align-self-end">
+        <input type="hidden" value="{{recurring_task.pk}}" name="task-id"/>
+        <button type="submit"
+                class="btn btn-danger"
+                @click="() => {
+                    loading = true;
+                    deleted = true;
+                }"
+                x-bind:disabled="loading"
+                hx-delete="{% url 'delete-recurring-task' recurring_task.pk %}"
+                hx-trigger="click"
+        >
+            <span x-show="!deleted">X</span>
+            <span x-show="deleted">
+                <span class="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"></span>
+            </span>
+        </button>
+    </div>
+</div>

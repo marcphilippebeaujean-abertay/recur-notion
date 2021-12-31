@@ -21,9 +21,6 @@ def create_recurring_task_in_notion(task_pk):
     except IndexError:
         logger.error("User did not have a workspace access")
         raise Exception('User did not have a workspace access.')
-    notion_page_resp_dict = client.pages.retrieve(task_model.cloned_task_notion_id)
     create_page_resp_dict = client.pages.create(parent={'database_id': task_model.database_id},
-                                                properties=notion_page_resp_dict['properties'],
-                                                icon=notion_page_resp_dict['icon'],
-                                                cover=notion_page_resp_dict['cover'])
-    logger.debug(f'Created recurring task with id {task_model.cloned_task_notion_id}')
+                                                properties=task_model.properties_json)
+    logger.debug(f'Created recurring task with id {task_model.pk} successfully.')

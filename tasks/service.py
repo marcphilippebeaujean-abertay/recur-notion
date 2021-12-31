@@ -88,7 +88,7 @@ def create_overridable_properties_dict_from_notion_properties_list(notion_proper
             elif property_type_string == 'text':
                 value_string = value['plain_text']
             elif property_type_string == 'rich_text':
-                value_string = value['rich_text'][0]['text']['content'] if len(value['rich_text']) else 'None'
+                value_string = value['rich_text'][0]['text']['content']
             else:
                 value_string = str(value[property_type_string])
             properties_simple_dict = {
@@ -108,6 +108,8 @@ def update_recurring_task_from_request_data(request_dict, task_pk):
         raise RecurringTaskNotFoundException(f'Could not find recurring task that was updated with pk {task_pk}')
     if 'interval' in request_dict.POST:
         updated_recurring_task.interval = request_dict.POST['interval']
+    elif 'task-name' in request_dict.POST:
+        updated_recurring_task.name = request_dict.POST['task-name']
     elif 'start-time' in request_dict.POST and 'client-timezone' in request_dict.POST:
         # this variable format is probably breaking the template
         user_unlocalized_start_datetime = datetime.strptime(request_dict.POST['start-time'], '%Y-%m-%dT%H:%M')

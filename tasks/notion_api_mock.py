@@ -5,7 +5,7 @@ VALID_NOTION_TASK_ID = 'b55c9c91-384d-452b-81db-d1ef79372b75'
 VALID_ACCESS_TOKEN = 'access_123'
 VALID_ACCESS_TOKEN_2 = 'access_122'
 
-example_api_result = """
+EXAMPLE_API_REQUEST = """
 {
   "object": "page",
   "id": "b55c9c91-384d-452b-81db-d1ef79372b75",
@@ -119,13 +119,13 @@ def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
             if not self.is_valid_token:
                 raise NotionApiMockUnauthorizedException()
             if notion_task_id == VALID_NOTION_TASK_ID:
-                return json.loads(example_api_result)
+                return json.loads(EXAMPLE_API_REQUEST)
             else:
                 raise NotionApiMockNotFoundException()
 
-        def create(self, properties, parent, icon, cover):
+        def create(self, properties, parent):
             expected_parent_dict = { 'database_id': VALID_DATABASE_ID }
-            expected_properties_dict = json.loads(example_api_result)['properties']
+            expected_properties_dict = json.loads(EXAMPLE_API_REQUEST)['properties']
 
             if properties != expected_properties_dict or parent != expected_parent_dict:
                 raise NotionApiMockBadRequestException()
