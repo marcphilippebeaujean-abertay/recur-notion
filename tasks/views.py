@@ -45,7 +45,7 @@ def delete_recurring_task(request, pk):
     return HttpResponse("", status=200)
 
 
-@login_required()
+@login_required
 @require_http_methods(["POST"])
 def update_recurring_task(request, pk):
     try:

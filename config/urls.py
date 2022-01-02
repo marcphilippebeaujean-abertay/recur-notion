@@ -7,7 +7,8 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('', include('pages.urls')),
     path('', include('workspaces.urls')),
-    path('', include('tasks.urls'))
+    path('', include('tasks.urls')),
+    path('', include('notion_database.urls'))
 ]
 
 if settings.DEBUG:

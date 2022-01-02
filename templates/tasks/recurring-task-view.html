@@ -5,24 +5,22 @@
 
 {% block content %}
 <div class="d-flex">
-    <div class="col-12 col-md-4 px-2">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title h5">Select Database</h2>
-            </div>
-        </div>
-    </div>
     <div class="w-100 px-2">
         <div class="card">
             <div class="card-body">
-                <label>Name</label>
-                <input value="{{ recurring_task.name }}"
-                       type="text"
-                       class="h5 border-0 w-100"
-                       name="task-name"
-                       hx-trigger="change delay:1s"
-                       hx-post="{% url 'update-recurring-task' pk=recurring_task.pk %}"
-                />
+                <div class="row my-4">
+                    <div class="col-12">
+                        <label>Name</label>
+                        <input value="{{ recurring_task.name }}"
+                               type="text"
+                               class="h3 border-0 w-100"
+                               name="task-name"
+                               hx-trigger="change delay:1s"
+                               hx-post="{% url 'update-recurring-task' pk=recurring_task.pk %}"
+                        />
+                    </div>
+                </div>
+                <h3 class="h5">Schedule</h3>
                 {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
                 <div class="row">
                     <div class="col-12">
@@ -30,6 +28,22 @@
                         </div>
                     </div>
                 </div>
+                <h3 class="h5">Properties</h3>
+                <div class="col-12 col-md-5 form-group">
+                    <label class="mb-2">Database</label>
+                    <input type="hidden"
+                           hx-trigger="load"
+                           hx-get="{% url 'get-workspace-databases' %}"
+                           hx-target="#database-list-container"
+                    >
+                    <div id="database-list-container">
+                        <input list="databases-list" placeholder="Search for Database..." name="databases" id="databases-selector" class="form-control">
+                        <datalist id="databases-list">
+                        </datalist>
+                    </div>
+                </div>
+                <form id="properties-container">
+                </form>
             </div>
         </div>
     </div>

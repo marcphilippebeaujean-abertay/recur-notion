@@ -6,7 +6,7 @@
      hx-target="this"
 >
     <div class="d-flex">
-        <div class="col-md-7 col-12">
+        <div class="col-md-7 col-12 form-group">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
             <input name="client-timezone"
                    type="hidden"
@@ -32,9 +32,9 @@
                        return isoString.substring(0, (isoString.indexOf('T')|0) + 6|0);
                    }"
                    x-bind:disabled="loading"
-                   />
+            />
         </div>
-        <div class="w-100">
+        <div class="w-100 form-group">
             <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
             <select class="form-select"
                     name="interval"
@@ -56,7 +56,7 @@
     </div>
     <small x-show="loading == false"
            class="text-muted">This task will be created again within {{ recurring_task.days_till_next_task }}
-        day{% if recurring_task.days_till_next_task > 1  %}s {% endif %}.</small>
+        day{% if recurring_task.days_till_next_task > 1 %}s {% endif %}.</small>
     <small x-cloak x-show="loading && !deleted" class="text-muted">
         <span class="spinner-border spinner-border-sm"
               role="status"
