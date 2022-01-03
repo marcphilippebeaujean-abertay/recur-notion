@@ -16,7 +16,7 @@
                    type="datetime-local"
                    id="{{ recurring_task.pk }}-start-date"
                    class="form-control"
-                   hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
+                   hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                    hx-trigger="change"
                    hx-include="[name='client-timezone']"
                    hx-vals="js:{'update-schedule-only': true}"
@@ -39,8 +39,7 @@
             <select class="form-select"
                     name="interval"
                     @change="loading = true"
-                    hx-vals="js:{'update-schedule-only': true}"
-                    hx-post="{% url 'update-recurring-task' recurring_task.pk %}"
+                    hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                     hx-trigger="change"
                     x-bind:disabled="loading"
                     id="{{ recurring_task.pk }}-interval">

@@ -1,7 +1,7 @@
 from notion_client import Client
 
-from workspaces.models import NotionWorkspaceAccess
 from .models import RecurringTask
+from notion_database.service import query_user_notion_database_by_id, get_default_value_by_notion_property_type
 
 import logging
 import pytz
@@ -19,10 +19,10 @@ class RecurringTaskBadFormData(Exception):
     pass
 
 
-def update_recurring_task_from_request_data(request_dict, task_pk):
+def update_recurring_task_schedule_from_request_data(request_dict, task_pk):
     try:
-        updated_recurring_task = RecurringTask.objects.filter(owner=request_dict.user, pk=task_pk) \
-            .prefetch_related('scheduler_job')[0]
+        updated_recurring_task = RecurringTask.objects.filter(owner=request_dict.user,
+                                                              pk=task_pk).prefetch_related('scheduler_job')[0]
     except IndexError:
         raise RecurringTaskNotFoundException(f'Could not find recurring task that was updated with pk {task_pk}')
     if 'interval' in request_dict.POST:
@@ -41,5 +41,32 @@ def update_recurring_task_from_request_data(request_dict, task_pk):
         updated_recurring_task.start_date = start_date_utc_datetime
     else:
         raise RecurringTaskBadFormData()
+    updated_recurring_task.save()
+    return updated_recurring_task
+
+
+def update_task_notion_properties_from_request_dict(request_dict, task_pk):
+    try:
+        updated_recurring_task = RecurringTask.objects.filter(owner=request_dict.user,
+                                                              pk=task_pk).prefetch_related('scheduler_job')[0]
+    except IndexError:
+        raise RecurringTaskNotFoundException(f'Could not find recurring task that was updated with pk {task_pk}')
+    request_body_dict = request_dict.POST.dict()
+    notion_database_id_str = request_body_dict.pop('notion-db-id', None)
+    if notion_database_id_str is None:
+        raise RecurringTaskBadFormData(f'You need to provide Database ID to update recurring task properties!')
+    database_dict = query_user_notion_database_by_id(user_model=request_dict.user,
+                                                     database_id_str=notion_database_id_str)
+
+    notion_properties_as_dict_list = []
+
+    notion_properties_container_list = database_dict['properties']
+    for property_container in notion_properties_container_list:
+        # In the Request form data, each value is associated by the id of the Notion property.
+        # The ID of the property is the key.
+        property_container.value = request_body_dict.get(property_container.id,
+                                                         get_default_value_by_notion_property_type(property_container.notion_type))
+        notion_properties_as_dict_list.append(property_container.dict())
+    updated_recurring_task.properties_json = notion_properties_as_dict_list
     updated_recurring_task.save()
     return updated_recurring_task

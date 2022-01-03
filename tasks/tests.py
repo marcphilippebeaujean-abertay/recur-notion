@@ -1,7 +1,7 @@
 import json
 
 import pytz
-from datetime import date, datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -14,8 +14,9 @@ from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 from .models import RecurringTask
 from .jobs import create_recurring_task_in_notion
 
-from .notion_api_mock import VALID_DATABASE_ID, VALID_ACCESS_TOKEN, EXAMPLE_API_REQUEST,\
+from .notion_api_mock import VALID_DATABASE_ID, VALID_ACCESS_TOKEN, EXAMPLE_API_REQUEST, \
     create_or_get_mocked_oauth_notion_client
+import notion_database.notion_mock_api as notion_db_mock
 
 DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME = timezone.now()
 
@@ -51,7 +52,8 @@ class TestCreateTasksJobTest(TasksTestCase):
     def test_create_scheduled_task_in_notion(self, m):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=1),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=1),
                                             owner=self.user,
                                             properties_json=json.loads(EXAMPLE_API_REQUEST)['properties'],
                                             database_id=VALID_DATABASE_ID)
@@ -63,7 +65,8 @@ class TestCreateTasksJobTest(TasksTestCase):
     def test_no_scheduled_task_in_database_throws_exception(self, m):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=3),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=3),
                                             owner=self.user,
                                             properties_json=json.loads(EXAMPLE_API_REQUEST)['properties'],
                                             database_id=VALID_DATABASE_ID)
@@ -74,7 +77,8 @@ class TestCreateTasksJobTest(TasksTestCase):
     def test_no_workspace_access_in_database_throws_exception(self, m):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=7),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=7),
                                             owner=self.user,
                                             properties_json=json.loads(EXAMPLE_API_REQUEST)['properties'],
                                             database_id=VALID_DATABASE_ID)
@@ -88,7 +92,8 @@ class TestDateUntilPreview(TasksTestCase):
     def test_1_day_till_posted_over_1_day_interval(self):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=7),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=7),
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
         self.assertEqual(task.days_till_next_task, 1)
@@ -96,7 +101,8 @@ class TestDateUntilPreview(TasksTestCase):
     def test_1_day_till_posted_over_7_day_interval(self):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
-                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(days=6),
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=6),
                                             owner=self.user,
                                             database_id=VALID_DATABASE_ID)
         self.assertEqual(task.days_till_next_task, 1)
@@ -148,7 +154,7 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(scheduled_job.schedule_type, Schedule.DAILY)
 
 
-class TestUpdateRecurringTasks(TasksTestCase):
+class TestUpdateRecurringTasksSchedule(TasksTestCase):
 
     def setUp(self):
         super().setUp()
@@ -158,7 +164,7 @@ class TestUpdateRecurringTasks(TasksTestCase):
             owner=self.user,
             database_id=VALID_DATABASE_ID
         )
-        self.request_url = f'/update-recurring-task/{self.recurring_test_task_model.pk}'
+        self.request_url = f'/update-recurring-task-schedule/{self.recurring_test_task_model.pk}'
         self.update_start_time_payload = {
             'start-time': ['2021-12-14T09:30'],
             'client-timezone': ['Europe/Berlin', 'Europe/Berlin']
@@ -213,13 +219,13 @@ class TestUpdateRecurringTasks(TasksTestCase):
             database_id=VALID_DATABASE_ID
         )
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(f'/update-recurring-task/{other_user_recurring_task.pk}',
+        response = self.client.post(f'/update-recurring-task-schedule/{other_user_recurring_task.pk}',
                                     self.update_start_time_payload)
         self.assertEqual(response.status_code, 404)
 
     def test_throw_404_when_not_found(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post('/update-recurring-task/4', self.update_start_time_payload)
+        response = self.client.post('/update-recurring-task-schedule/4', self.update_start_time_payload)
         self.assertEqual(response.status_code, 404)
 
     def test_timezone_conversion_occurred_update(self):
@@ -320,6 +326,106 @@ class TestDeleteRecurringTask(TasksTestCase):
         self.assertEqual(Schedule.objects.count(), 0)
 
 
-class TestWorkspaceQuery(TasksTestCase):
-    ## TODO: Create all tasks when update is there
-    pass
+class TestUpdateRecurringTasksProperties(TasksTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.recurring_test_task_model = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            database_id=VALID_DATABASE_ID
+        )
+        self.update_properties_payload_dict = {
+            'notion-db-id': notion_db_mock.VALID_DATABASE_ID,
+            'E%3F%5EI': 'cali@gmail.com',
+            'not-to-be-added': 'empty',
+            'Fq%3Ar': datetime.now(),
+            '%60moG': 'cali',
+            'd%60Tf': 'Me',
+        }
+        self.request_url = f'/update-recurring-task-properties/{self.recurring_test_task_model.pk}'
+
+    def assert_task_was_not_created(self):
+        self.assertEqual(RecurringTask.objects.count(), 1)
+
+    def assert_task_properties_was_updated(self):
+        recurring_task_from_db = RecurringTask.objects.all()[0]
+        properties_json_dict_list = recurring_task_from_db.properties_json
+        properties_id_set = {}
+        for property_dict in properties_json_dict_list:
+            if 'id' not in property_dict or \
+                    'name' not in property_dict or \
+                    'type' not in property_dict:
+                raise Exception(f'Property dict did not have the right format {property_dict}')
+            property_id = property_dict['id']
+            properties_id_set.add(property_id)
+
+            if property_id is 'E%3F%5EI':
+                self.assertEqual(property_dict['type'], 'email')
+                self.assertEqual(property_dict['value'], 'cali@gmail.com')
+        if 'not-to-be-added' in properties_id_set or 'notion-db-id' in properties_id_set or 'd%60Tf' in properties_id_set:
+            raise Exception(f'The task with id {property_id} should not have been added!')
+        self.assertTrue('%7CJhi' in properties_id_set)
+        self.assertTrue('E%3F%5EI' in properties_id_set)
+
+    def check_task_was_not_updated(self):
+        recurring_task_from_db = RecurringTask.objects.all()[0]
+        self.assertEqual(recurring_task_from_db.properties_json, {})
+
+    @mock.patch('notion_database.service.notion_client.Client',
+                side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    def test_only_logged_in_user_can_update_recurring_tasks(self, m):
+        # create new recurring task
+        response = self.client.post(self.request_url, self.update_properties_payload_dict)
+        self.assertEqual(response.status_code, 302)
+        self.check_task_was_not_updated()
+        self.assert_task_was_not_created()
+
+    @mock.patch('notion_database.service.notion_client.Client',
+                side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    def test_cannot_update_other_users_tasks_properties(self, m):
+        other_user_recurring_task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=get_user_model().objects.create_user(
+                username='testuser2',
+                email='test2@email.com',
+                password='secret'
+            ),
+            database_id=VALID_DATABASE_ID
+        )
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post(f'/update-recurring-task-properties/{other_user_recurring_task.pk}',
+                                    self.update_properties_payload_dict)
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('notion_database.service.notion_client.Client',
+                side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    def test_throw_404_when_not_found(self, m):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post('/update-recurring-task-properties/4', self.update_properties_payload_dict)
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('notion_database.service.notion_client.Client',
+                side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    def test_recurring_task_requires_post_method(self, m):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.patch(self.request_url, self.update_properties_payload_dict)
+        self.assertEqual(response.status_code, 405)
+        self.assert_task_was_not_created()
+
+    @mock.patch('notion_database.service.notion_client.Client',
+                side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    def test_logged_in_user_successfully_updates_properties(self, m):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        response = self.client.post(self.request_url, self.update_properties_payload_dict)
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('notion_database.service.notion_client.Client',
+                side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    def test_bad_request_when_trying_to_update_properties_no_db_id(self, m):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        self.update_properties_payload_dict.pop('notion-db-id')
+        response = self.client.post(self.request_url, self.update_properties_payload_dict)
+        self.assertEqual(response.status_code, 403)

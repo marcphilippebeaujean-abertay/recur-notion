@@ -10,11 +10,12 @@
             <div class="card-body">
                 <div class="row my-4">
                     <div class="col-12">
-                        <label>Name</label>
+                        <label for="task-name">Name</label><br/>
                         <input value="{{ recurring_task.name }}"
                                type="text"
                                class="h3 border-0 w-100"
                                name="task-name"
+                               id="task-name"
                                hx-trigger="change delay:1s"
                                hx-post="{% url 'update-recurring-task' pk=recurring_task.pk %}"
                         />
@@ -22,6 +23,7 @@
                 </div>
                 <h3 class="h5">Schedule</h3>
                 {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
+                <hr />
                 <div class="row">
                     <div class="col-12">
                         <div class="my-2 mr-2">
@@ -37,11 +39,18 @@
                            hx-target="#database-list-container"
                     >
                     <div id="database-list-container">
-                        <input list="databases-list" placeholder="Search for Database..." name="databases" id="databases-selector" class="form-control">
+                        <input list="databases-list"
+                               placeholder="Search for Database..."
+                               name="databases"
+                               id="databases-selector"
+                               class="form-control"
+                               value="{{recurring_task.database_name}}"
+                        >
                         <datalist id="databases-list">
                         </datalist>
                     </div>
                 </div>
+                <hr />
                 <form id="properties-container">
                 </form>
             </div>

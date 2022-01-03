@@ -7,7 +7,8 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 
 from workspaces.models import NotionWorkspaceAccess
-from .service import RecurringTaskNotFoundException, RecurringTaskBadFormData, update_recurring_task_from_request_data
+from .service import RecurringTaskNotFoundException, RecurringTaskBadFormData, \
+    update_recurring_task_schedule_from_request_data, update_task_notion_properties_from_request_dict
 from .models import RecurringTask
 
 import logging
@@ -47,9 +48,9 @@ def delete_recurring_task(request, pk):
 
 @login_required
 @require_http_methods(["POST"])
-def update_recurring_task(request, pk):
+def update_recurring_task_schedule(request, pk):
     try:
-        recurring_task_to_update_model = update_recurring_task_from_request_data(request_dict=request, task_pk=pk)
+        recurring_task_to_update_model = update_recurring_task_schedule_from_request_data(request_dict=request, task_pk=pk)
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
@@ -57,6 +58,19 @@ def update_recurring_task(request, pk):
     if 'update-schedule-only' in request.POST:
         return render(request, 'tasks/partials/recurring-task-schedule.html', {'recurring_task': recurring_task_to_update_model,
                                                                                'interval_choices': RecurringTask.TaskIntervals.choices})
+    return HttpResponse(status=200)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_recurring_task_properties(request, pk):
+    try:
+        recurring_task_to_update_model = update_task_notion_properties_from_request_dict(request_dict=request,
+                                                                                         task_pk=pk)
+    except RecurringTaskNotFoundException:
+        return HttpResponse('Could not find Task for Update', status=404)
+    except RecurringTaskBadFormData:
+        return HttpResponse('Invalid parameters for updating tasks!', status=403)
     return HttpResponse(status=200)
 
 
