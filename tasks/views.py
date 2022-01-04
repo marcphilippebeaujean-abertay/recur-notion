@@ -65,8 +65,7 @@ def update_recurring_task_schedule(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task_properties(request, pk):
     try:
-        recurring_task_to_update_model = update_task_notion_properties_from_request_dict(request_dict=request,
-                                                                                         task_pk=pk)
+        update_task_notion_properties_from_request_dict(request_dict=request, task_pk=pk)
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:

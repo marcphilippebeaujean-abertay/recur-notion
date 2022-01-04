@@ -337,14 +337,13 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             database_id=VALID_DATABASE_ID
         )
         self.update_properties_payload_dict = {
-            'notion-db-id': notion_db_mock.VALID_DATABASE_ID,
             'E%3F%5EI': 'cali@gmail.com',
             'not-to-be-added': 'empty',
             'Fq%3Ar': datetime.now(),
             '%60moG': 'cali',
             'd%60Tf': 'Me',
         }
-        self.request_url = f'/update-recurring-task-properties/{self.recurring_test_task_model.pk}'
+        self.request_url = f'/update-recurring-task-properties/{self.recurring_test_task_model.pk}?notion_db_id={notion_db_mock.VALID_DATABASE_ID}'
 
     def assert_task_was_not_created(self):
         self.assertEqual(RecurringTask.objects.count(), 1)
@@ -396,7 +395,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             database_id=VALID_DATABASE_ID
         )
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(f'/update-recurring-task-properties/{other_user_recurring_task.pk}',
+        response = self.client.post(f'/update-recurring-task-properties/{other_user_recurring_task.pk}?notion_db_id={notion_db_mock.VALID_DATABASE_ID}',
                                     self.update_properties_payload_dict)
         self.assertEqual(response.status_code, 404)
 
@@ -404,7 +403,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
                 side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
     def test_throw_404_when_not_found(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post('/update-recurring-task-properties/4', self.update_properties_payload_dict)
+        response = self.client.post(f'/update-recurring-task-properties/4?notion_db_id={notion_db_mock.VALID_DATABASE_ID}', self.update_properties_payload_dict)
         self.assertEqual(response.status_code, 404)
 
     @mock.patch('notion_database.service.notion_client.Client',
@@ -426,6 +425,6 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
                 side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
     def test_bad_request_when_trying_to_update_properties_no_db_id(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        self.update_properties_payload_dict.pop('notion-db-id')
-        response = self.client.post(self.request_url, self.update_properties_payload_dict)
+        request_url_missing_param = f'/update-recurring-task-properties/{self.recurring_test_task_model.pk}'
+        response = self.client.post(request_url_missing_param, self.update_properties_payload_dict)
         self.assertEqual(response.status_code, 403)
