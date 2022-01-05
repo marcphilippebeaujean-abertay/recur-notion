@@ -41,6 +41,7 @@
                     @change="loading = true"
                     hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                     hx-trigger="change"
+                    hx-vals="js:{'update-schedule-only': true}"
                     x-bind:disabled="loading"
                     id="{{ recurring_task.pk }}-interval">
                 {% for choice in interval_choices %}

@@ -2,7 +2,6 @@
 
 {% block title %}Recurring Tasks{% endblock %}
 
-
 {% block content %}
 <div class="d-flex">
     <div class="w-100 px-2">
@@ -17,7 +16,7 @@
                                name="task-name"
                                id="task-name"
                                hx-trigger="change delay:1s"
-                               hx-post="{% url 'update-recurring-task' pk=recurring_task.pk %}"
+                               hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
                         />
                     </div>
                 </div>
@@ -33,26 +32,46 @@
                 <h3 class="h5">Properties</h3>
                 <div class="col-12 col-md-5 form-group">
                     <label class="mb-2">Database</label>
-                    <input type="hidden"
-                           hx-trigger="load"
-                           hx-get="{% url 'get-workspace-databases' %}"
-                           hx-target="#database-list-container"
-                    >
-                    <div id="database-list-container">
-                        <input list="databases-list"
-                               placeholder="Search for Database..."
-                               name="databases"
-                               id="databases-selector"
-                               class="form-control"
-                               value="{{recurring_task.database_name}}"
+
+                    <div x-data="{
+                        currentSelectedDatabaseId: '{{recurring_task.database_id}}'
+                    }">
+                        <input
+                            list="databases-list"
+                            name="selected-db-list-id"
+                            placeholder="Search for Database..."
+                            id="databases-selector"
+                            class="form-control"
+                            hx-trigger="change delay:100ms" {# We use the delay so our on change javascript method can set the selected database id value #}
+                            hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
+                            x-bind:hx-vals='`{"selectedDatabaseId": "${currentSelectedDatabaseId}"}`'
+                            hx-target="#properties-container"
+                            @change="() => {
+                               // insert loading spinner
+                               var propertiesContainerElem = document.getElementById('properties-container');
+                               propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
+                               // we are looking for the options tag with the SAME value as the selector currently has
+                               var shownVal = document.getElementById('databases-selector').value;
+                               console.log(shownVal);
+                               var optionTag = document.querySelector('#option-' + shownVal.replace(' ', ''));
+                               console.log(optionTag);
+                               // extract the real value from the options set and setting it to the current selected id
+                               currentSelectedDatabaseId = optionTag.dataset.realValue;
+                            }"
+                        />
+                        <datalist
+                            id="databases-list"
+                            hx-trigger="load"
+                            hx-get="{% url 'get-workspace-databases' %}"
+                            hx-target="#databases-list"
                         >
-                        <datalist id="databases-list">
                         </datalist>
                     </div>
                 </div>
                 <hr />
-                <form id="properties-container">
-                </form>
+                <div id="properties-container">
+                    {% include 'tasks/partials/recurring-task-update-property-form.html' %}
+                </div>
             </div>
         </div>
     </div>

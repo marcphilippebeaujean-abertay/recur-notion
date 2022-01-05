@@ -50,14 +50,16 @@ def delete_recurring_task(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task_schedule(request, pk):
     try:
-        recurring_task_to_update_model = update_recurring_task_schedule_from_request_data(request_dict=request, task_pk=pk)
+        recurring_task_to_update_model = update_recurring_task_schedule_from_request_data(request_dict=request,
+                                                                                          task_pk=pk)
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
         return HttpResponse('Invalid parameters for updating tasks!', status=403)
     if 'update-schedule-only' in request.POST:
-        return render(request, 'tasks/partials/recurring-task-schedule.html', {'recurring_task': recurring_task_to_update_model,
-                                                                               'interval_choices': RecurringTask.TaskIntervals.choices})
+        return render(request, 'tasks/partials/recurring-task-schedule.html',
+                      {'recurring_task': recurring_task_to_update_model,
+                       'interval_choices': RecurringTask.TaskIntervals.choices})
     return HttpResponse(status=200)
 
 
@@ -65,12 +67,14 @@ def update_recurring_task_schedule(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task_properties(request, pk):
     try:
-        update_task_notion_properties_from_request_dict(request_dict=request, task_pk=pk)
+        updated_recurring_task_model = update_task_notion_properties_from_request_dict(request_dict=request, task_pk=pk)
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
         return HttpResponse('Invalid parameters for updating tasks!', status=403)
-    return HttpResponse(status=200)
+    return render(request, 'tasks/partials/recurring-task-update-property-form.html', {
+        'recurring_task': updated_recurring_task_model,
+    })
 
 
 @login_required
@@ -81,6 +85,21 @@ def get_recurring_tasks(request):
 
 @login_required
 def recurring_task_view(request, pk):
-    return render(request, 'tasks/recurring-task-view.html',
-                  {'recurring_task': RecurringTask.objects.filter(pk=pk, owner=request.user)[0],
-                   'interval_choices': RecurringTask.TaskIntervals.choices})
+    recurring_task_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
+    if recurring_task_model.database_id is None \
+            or recurring_task_model.database_name is None \
+            or recurring_task_model.properties_json == dict():
+        task_database_dict = {
+            'properties': []
+        }
+    else:
+        task_database_dict = {
+            'name': recurring_task_model.database_id,
+            'id': recurring_task_model.database_name,
+            'properties': recurring_task_model.properties_json
+        }
+    return render(request, 'tasks/recurring-task-view.html', {
+        'recurring_task': recurring_task_model,
+        'database': task_database_dict,
+        'interval_choices': RecurringTask.TaskIntervals.choices
+    })

@@ -337,6 +337,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             database_id=VALID_DATABASE_ID
         )
         self.update_properties_payload_dict = {
+            'selectedDatabaseId': 'a9f68551-1cf2-4615-9a41-1f1368ae4f78',
             'E%3F%5EI': 'cali@gmail.com',
             'not-to-be-added': 'empty',
             'Fq%3Ar': datetime.now(),
@@ -363,10 +364,12 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             if property_id is 'E%3F%5EI':
                 self.assertEqual(property_dict['type'], 'email')
                 self.assertEqual(property_dict['value'], 'cali@gmail.com')
-        if 'not-to-be-added' in properties_id_set or 'notion-db-id' in properties_id_set or 'd%60Tf' in properties_id_set:
+        if 'not-to-be-added' in properties_id_set or 'selectedDatabaseId' in properties_id_set or 'd%60Tf' in properties_id_set:
             raise Exception(f'The task with id {property_id} should not have been added!')
         self.assertTrue('%7CJhi' in properties_id_set)
         self.assertTrue('E%3F%5EI' in properties_id_set)
+        self.assertEqual(recurring_task_from_db.database_id, 'a9f68551-1cf2-4615-9a41-1f1368ae4f78')
+        self.assertEqual(recurring_task_from_db.database_name, 'Todo')
 
     def check_task_was_not_updated(self):
         recurring_task_from_db = RecurringTask.objects.all()[0]
@@ -425,6 +428,6 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
                 side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
     def test_bad_request_when_trying_to_update_properties_no_db_id(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        request_url_missing_param = f'/update-recurring-task-properties/{self.recurring_test_task_model.pk}'
-        response = self.client.post(request_url_missing_param, self.update_properties_payload_dict)
+        self.update_properties_payload_dict.pop('selectedDatabaseId')
+        response = self.client.post(self.request_url, self.update_properties_payload_dict)
         self.assertEqual(response.status_code, 403)

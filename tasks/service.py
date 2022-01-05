@@ -51,19 +51,24 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
                                                               pk=task_pk).prefetch_related('scheduler_job')[0]
     except IndexError:
         raise RecurringTaskNotFoundException(f'Could not find recurring task that was updated with pk {task_pk}')
-    if 'notion_db_id' not in request_dict.GET:
+    if 'selectedDatabaseId' not in request_dict.POST:
         raise RecurringTaskBadFormData('Requiring notion db id to fetch parameters')
-    notion_db_id_str = request_dict.GET['notion_db_id']
+    notion_db_id_str = request_dict.POST['selectedDatabaseId']
     database_dict = query_user_notion_database_by_id(user_model=request_dict.user, database_id_str=notion_db_id_str)
+    updated_recurring_task.database_id = notion_db_id_str
+    updated_recurring_task.database_name = database_dict['name']
+
     notion_properties_as_dict_list = []
     notion_properties_container_list = database_dict['properties']
     request_body_dict = request_dict.POST.dict()
+    request_body_dict.pop('selectedDatabaseId')
     for property_container in notion_properties_container_list:
         # In the Request form data, each value is associated by the id of the Notion property.
         # The ID of the property is the key.
         property_container.value = request_body_dict.get(property_container.id,
                                                          get_default_value_by_notion_property_type(property_container.notion_type))
         notion_properties_as_dict_list.append(property_container.dict())
+
     updated_recurring_task.properties_json = notion_properties_as_dict_list
     updated_recurring_task.save()
     return updated_recurring_task

@@ -1,0 +1,7 @@
+{% for notion_database in databases %}
+    <option data-real-value="{{notion_database.id}}"
+            x-bind:id="() => 'option-{{notion_database.name}}'.replace(' ', '')"
+    >
+        {{notion_database.name}}
+    </option>
+{% endfor %}
