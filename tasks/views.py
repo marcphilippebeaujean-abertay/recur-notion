@@ -58,8 +58,7 @@ def update_recurring_task_schedule(request, pk):
         return HttpResponse('Invalid parameters for updating tasks!', status=403)
     if 'update-schedule-only' in request.POST:
         return render(request, 'tasks/partials/recurring-task-schedule.html',
-                      {'recurring_task': recurring_task_to_update_model,
-                       'interval_choices': RecurringTask.TaskIntervals.choices})
+                      {'recurring_task': recurring_task_to_update_model})
     return HttpResponse(status=200)
 
 
@@ -88,5 +87,4 @@ def recurring_task_view(request, pk):
     recurring_task_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
     return render(request, 'tasks/recurring-task-view.html', {
         'recurring_task': recurring_task_model,
-        'interval_choices': RecurringTask.TaskIntervals.choices
     })

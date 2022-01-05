@@ -1,3 +1,5 @@
+{% load task_tags %}
+
 <div class="flex mt-1"
      x-data="{
         loading: false,
@@ -44,6 +46,7 @@
                     hx-vals="js:{'update-schedule-only': true}"
                     x-bind:disabled="loading"
                     id="{{ recurring_task.pk }}-interval">
+                {% interval_choices as interval_choices %}
                 {% for choice in interval_choices %}
                 <option value="{{ choice.0 }}"
                         {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
