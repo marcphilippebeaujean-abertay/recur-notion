@@ -7,7 +7,7 @@
     <div class="w-100 px-2">
         <div class="card">
             <div class="card-body">
-                <div class="row my-4">
+                <div class="row mb-4">
                     <div class="col-12">
                         <label for="task-name">Name</label><br/>
                         <input value="{{ recurring_task.name }}"
@@ -31,7 +31,7 @@
                 </div>
                 <h3 class="h5">Properties</h3>
                 <div class="col-12 col-md-5 form-group">
-                    <label class="mb-2">Database</label>
+                    <label class="mb-2 h6">Database <span class="text-danger text-bold">*</span></label>
 
                     <div x-data="{
                         currentSelectedDatabaseId: '{{recurring_task.database_id}}'
@@ -40,6 +40,7 @@
                             list="databases-list"
                             name="selected-db-list-id"
                             placeholder="Search for Database..."
+                            value="{{recurring_task.database_name}}"
                             id="databases-selector"
                             class="form-control"
                             hx-trigger="change delay:100ms" {# We use the delay so our on change javascript method can set the selected database id value #}
@@ -52,9 +53,7 @@
                                propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
                                // we are looking for the options tag with the SAME value as the selector currently has
                                var shownVal = document.getElementById('databases-selector').value;
-                               console.log(shownVal);
                                var optionTag = document.querySelector('#option-' + shownVal.replace(' ', ''));
-                               console.log(optionTag);
                                // extract the real value from the options set and setting it to the current selected id
                                currentSelectedDatabaseId = optionTag.dataset.realValue;
                             }"
@@ -68,8 +67,7 @@
                         </datalist>
                     </div>
                 </div>
-                <hr />
-                <div id="properties-container">
+                <div id="properties-container" class="mt-4">
                     {% include 'tasks/partials/recurring-task-update-property-form.html' %}
                 </div>
             </div>

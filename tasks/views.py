@@ -86,20 +86,7 @@ def get_recurring_tasks(request):
 @login_required
 def recurring_task_view(request, pk):
     recurring_task_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
-    if recurring_task_model.database_id is None \
-            or recurring_task_model.database_name is None \
-            or recurring_task_model.properties_json == dict():
-        task_database_dict = {
-            'properties': []
-        }
-    else:
-        task_database_dict = {
-            'name': recurring_task_model.database_id,
-            'id': recurring_task_model.database_name,
-            'properties': recurring_task_model.properties_json
-        }
     return render(request, 'tasks/recurring-task-view.html', {
         'recurring_task': recurring_task_model,
-        'database': task_database_dict,
         'interval_choices': RecurringTask.TaskIntervals.choices
     })

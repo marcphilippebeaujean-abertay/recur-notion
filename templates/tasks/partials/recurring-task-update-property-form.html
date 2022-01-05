@@ -6,6 +6,8 @@
       {# requires outter Alpine JS state tracking selected Database ID #}
       hx-vals='{"selectedDatabaseId": "{{recurring_task.database_id}}"}'
       hx-target="#properties-container"
+      x-data="{ loading: false }"
+      @submit="loading = true"
 >
     <div class="d-flex row">
         {% for property in recurring_task.properties_json %}
@@ -15,9 +17,19 @@
                     class="{% if property.notion_type_as_html_form_type == 'checkbox' %} form-check-input {% else %} form-control {% endif %}"
                     name="{{property.id}}"
                     type="{{property.notion_type_as_html_form_type}}"
+                    x-bind:disabled="loading"
             />
         </div>
         {% endfor %}
     </div>
+    <button type="submit"
+            class="btn btn-success mt-2"
+            x-bind:disabled="loading">
+        <span class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+              x-show="loading"></span>
+        Submit
+    </button>
 </form>
 {% endif %}
