@@ -43,7 +43,7 @@
                             value="{{recurring_task.database_name}}"
                             id="databases-selector"
                             class="form-control"
-                            hx-trigger="change delay:100ms" {# We use the delay so our on change javascript method can set the selected database id value #}
+                            hx-trigger="keyup"
                             hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
                             x-bind:hx-vals='`{"selectedDatabaseId": "${currentSelectedDatabaseId}"}`'
                             hx-target="#properties-container"
@@ -53,6 +53,7 @@
                                propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
                                // we are looking for the options tag with the SAME value as the selector currently has
                                var shownVal = document.getElementById('databases-selector').value;
+                               // see template notion_databases/partials/notion-databases-list.html to understand why this works
                                var optionTag = document.querySelector('#option-' + shownVal.replace(' ', ''));
                                // extract the real value from the options set and setting it to the current selected id
                                currentSelectedDatabaseId = optionTag.dataset.realValue;
