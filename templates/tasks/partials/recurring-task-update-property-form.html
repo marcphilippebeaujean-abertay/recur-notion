@@ -4,9 +4,9 @@
 <form
       hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
       {# requires outter Alpine JS state tracking selected Database ID #}
-      hx-vals='{"selectedDatabaseId": "{{recurring_task.database_id}}"}'
-      hx-target="#properties-container"
+      x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
       x-data="{ loading: false }"
+      hx-include=".properties-input"
       @submit="loading = true"
 >
     <div class="d-flex row">
@@ -14,9 +14,11 @@
         <div class="form-group col-6">
             <label>{{property.name}}</label>
             <input
-                    class="{% if property.notion_type_as_html_form_type == 'checkbox' %} form-check-input {% else %} form-control {% endif %}"
+                    class="{% if property.html_form_type == 'checkbox' %} form-check-input {% else %} form-control {% endif %} properties-input"
                     name="{{property.id}}"
-                    type="{{property.notion_type_as_html_form_type}}"
+                    type="{{property.html_form_type}}"
+                    {% if property.value == True %} checked {% endif %}
+                    {% if property.html_form_type != 'checkbox' %}value="{{property.value}}"{% endif %}
                     x-bind:disabled="loading"
             />
         </div>

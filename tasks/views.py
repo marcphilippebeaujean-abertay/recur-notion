@@ -24,8 +24,7 @@ def recurring_tasks_view(request):
     notion_workspace_access_grants_queryset = NotionWorkspaceAccess.objects.filter(owner=request.user)
     if notion_workspace_access_grants_queryset.count() is 0:
         return redirect('notion-access-prompt')
-    return render(request, "tasks/recurring-tasks-list-view.html", {'recurring_tasks': request.user.tasks.all(),
-                                                                    'interval_choices': RecurringTask.TaskIntervals.choices})
+    return render(request, "tasks/recurring-tasks-list-view.html", {'recurring_tasks': request.user.tasks.all()})
 
 
 @login_required
@@ -57,14 +56,15 @@ def update_recurring_task_schedule(request, pk):
     except RecurringTaskBadFormData:
         return HttpResponse('Invalid parameters for updating tasks!', status=403)
     if 'update-schedule-only' in request.POST:
-        return render(request, 'tasks/partials/recurring-task-schedule.html',
-                      {'recurring_task': recurring_task_to_update_model})
+        return render(request, 'tasks/partials/recurring-task-schedule.html', {'recurring_task': recurring_task_to_update_model})
     return HttpResponse(status=200)
 
 
 @login_required
 @require_http_methods(["POST"])
 def update_recurring_task_properties(request, pk):
+    if 'X-Selected-Database-Id' not in request.headers:
+        return HttpResponse('Missing Database ID Header!', status=403)
     try:
         updated_recurring_task_model = update_task_notion_properties_from_request_dict(request_dict=request, task_pk=pk)
     except RecurringTaskNotFoundException:
@@ -78,13 +78,10 @@ def update_recurring_task_properties(request, pk):
 
 @login_required
 def get_recurring_tasks(request):
-    return render(request, 'tasks/partials/recurring-tasks-list.html', {'recurring_tasks': request.user.tasks.all(),
-                                                                        'interval_choices': RecurringTask.TaskIntervals.choices})
+    return render(request, 'tasks/partials/recurring-tasks-list.html', {'recurring_tasks': request.user.tasks.all()})
 
 
 @login_required
 def recurring_task_view(request, pk):
     recurring_task_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
-    return render(request, 'tasks/recurring-task-view.html', {
-        'recurring_task': recurring_task_model,
-    })
+    return render(request, 'tasks/recurring-task-view.html', {'recurring_task': recurring_task_model})

@@ -13,42 +13,46 @@ class NotionApiException(Exception):
 
 
 IGNORED_PROPERTIES_SET = {
-    'relation', 'formula', "rollup", "created_time", "created_by", "last_edited_time", "last_edited_by", "people",
-    "files"
+    'relation', 'formula', "rollup", "created_time", "created_by", "last_edited_time", "last_edited_by", "people", "files"
 }
-
 NOTION_TEXT_PROPERTIES_SET = { 'email', 'phone_number', 'rich_text', 'title' }
-
 NOTION_SELECT_PROPERTIES = { 'multi_select', 'select' }
-
 NOTION_DATE_PROPERTIES_SET = {'last_edited_time', 'created_time', 'date'}
 
 
 class NotionPropertyContainer:
-    def __init__(self, property_dict, name):
-        self.name = name
-        self.id = property_dict['id']
-        self.notion_type = property_dict['type']
-        if self.notion_type in property_dict:
-            self.value = property_dict[self.notion_type]
-        else:
+    def __init__(self, id_str, type_str, name_str, value=None):
+        self.name = name_str
+        self.id = id_str
+        self.notion_type = type_str
+        if value is None:
             self.value = get_default_value_by_notion_property_type(notion_property_type_str=self.notion_type)
+        else:
+            self.value = value
 
     @property
-    def notion_type_as_html_form_type(self):
+    def html_form_type(self):
         if self.notion_type in NOTION_TEXT_PROPERTIES_SET or self.notion_type in NOTION_SELECT_PROPERTIES:
             return 'text'
         if self.notion_type in NOTION_DATE_PROPERTIES_SET:
             return 'datetime-local'
+        if self.notion_type is 'checkbox':
+            return 'checkbox'
         # only expecting 'checkbox' and 'number' to remain as possible values
         return self.notion_type
+
+    @property
+    def html_value(self):
+        return self.value
 
     def dict(self):
         return {
             'id': self.id,
             'type': self.notion_type,
             'value': self.value,
-            'name': self.name
+            'name': self.name,
+            'html_form_type': self.html_form_type,
+            'html_value': self.html_value,
         }
 
 
@@ -85,7 +89,10 @@ def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
         # certain property types are not supported
         if notion_property_dict['type'] in IGNORED_PROPERTIES_SET:
             continue
-        property_dict_list.append(NotionPropertyContainer(property_dict=notion_property_dict, name=property_name))
+        property_container = NotionPropertyContainer(id_str=notion_property_dict['id'],
+                                                     type_str=notion_property_dict['type'],
+                                                     name_str=property_name)
+        property_dict_list.append(property_container)
     return {
         'name': notion_db_dict['title'][0]['text']['content'],
         'id': notion_db_dict['id'],
@@ -98,4 +105,6 @@ def get_default_value_by_notion_property_type(notion_property_type_str):
         return ''
     if notion_property_type_str in NOTION_DATE_PROPERTIES_SET:
         return now()
+    if notion_property_type_str == 'checkbox':
+        return False
     return None

@@ -22,7 +22,7 @@
                 </div>
                 <h3 class="h5">Schedule</h3>
                 {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
-                <hr />
+                <hr/>
                 <div class="row">
                     <div class="col-12">
                         <div class="my-2 mr-2">
@@ -30,24 +30,24 @@
                     </div>
                 </div>
                 <h3 class="h5">Properties</h3>
-                <div class="col-12 col-md-5 form-group">
-                    <label class="mb-2 h6">Database <span class="text-danger text-bold">*</span></label>
-
-                    <div x-data="{
+                <div x-data="{
                         currentSelectedDatabaseId: '{{recurring_task.database_id}}'
                     }">
-                        <input
-                            list="databases-list"
-                            name="selected-db-list-id"
-                            placeholder="Search for Database..."
-                            value="{{recurring_task.database_name}}"
-                            id="databases-selector"
-                            class="form-control"
-                            hx-trigger="keyup"
-                            hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
-                            x-bind:hx-vals='`{"selectedDatabaseId": "${currentSelectedDatabaseId}"}`'
-                            hx-target="#properties-container"
-                            @change="() => {
+                    <div class="col-12 col-md-6 pe-2 form-group">
+                        <label class="mb-2 h6">Database <span class="text-danger text-bold">*</span></label>
+                        <div>
+                            <input
+                                    list="databases-list"
+                                    name="selected-db-list-id"
+                                    placeholder="Search for Database..."
+                                    value="{{recurring_task.database_name}}"
+                                    id="databases-selector"
+                                    class="form-control"
+                                    hx-trigger="change delay:50ms"
+                                    x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": false}`'
+                                    hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
+                                    hx-target="#properties-container"
+                                    @change="() => {
                                // insert loading spinner
                                var propertiesContainerElem = document.getElementById('properties-container');
                                propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
@@ -58,18 +58,19 @@
                                // extract the real value from the options set and setting it to the current selected id
                                currentSelectedDatabaseId = optionTag.dataset.realValue;
                             }"
-                        />
-                        <datalist
-                            id="databases-list"
-                            hx-trigger="load"
-                            hx-get="{% url 'get-workspace-databases' %}"
-                            hx-target="#databases-list"
-                        >
-                        </datalist>
+                            />
+                            <datalist
+                                    id="databases-list"
+                                    hx-trigger="load"
+                                    hx-get="{% url 'get-workspace-databases' %}"
+                                    hx-target="#databases-list"
+                            >
+                            </datalist>
+                        </div>
                     </div>
-                </div>
-                <div id="properties-container" class="mt-4">
-                    {% include 'tasks/partials/recurring-task-update-property-form.html' %}
+                    <div id="properties-container" class="mt-4" hx-target="this">
+                        {% include 'tasks/partials/recurring-task-update-property-form.html' %}
+                    </div>
                 </div>
             </div>
         </div>
