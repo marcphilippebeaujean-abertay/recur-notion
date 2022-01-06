@@ -62,7 +62,10 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
         # In the Request form data, each value is associated by the id of the Notion property.
         # The ID of the property is the key.
         if property_container.notion_type == 'checkbox':
-            property_container.value = request_dict.POST[property_container.id] == 'on'
+            if property_container.id in request_dict.POST:
+                property_container.value = request_dict.POST[property_container.id] == 'on'
+            else:
+                property_container.value = False
         else:
             property_container.value = request_dict.POST.get(property_container.id,
                                                              get_default_value_by_notion_property_type(property_container.notion_type))

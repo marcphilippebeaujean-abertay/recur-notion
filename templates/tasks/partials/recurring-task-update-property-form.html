@@ -19,7 +19,6 @@
                     type="{{property.html_form_type}}"
                     {% if property.value == True %} checked {% endif %}
                     {% if property.html_form_type != 'checkbox' %}value="{{property.value}}"{% endif %}
-                    x-bind:disabled="loading"
             />
         </div>
         {% endfor %}
