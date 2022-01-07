@@ -1,3 +1,5 @@
+{% load notion_database_tags %}
+
 {% if recurring_task.properties_json|length == 0 %}
 <div class="alert alert-danger">Please select a database and set properties for the task!</div>
 {% else %}
@@ -12,14 +14,32 @@
     <div class="d-flex row">
         {% for property in recurring_task.properties_json %}
         <div class="form-group col-6">
-            <label>{{property.name}}</label>
-            <input
-                    class="{% if property.html_form_type == 'checkbox' %} form-check-input {% else %} form-control {% endif %} properties-input"
-                    name="{{property.id}}"
-                    type="{{property.html_form_type}}"
-                    {% if property.value == True %} checked {% endif %}
-                    {% if property.html_form_type != 'checkbox' %}value="{{property.value}}"{% endif %}
-            />
+            <label class="my-1">{{property.name}}</label>
+            <div></div>
+            {% if property.type == 'select' or  property.type == 'multi_select' %}
+                <select
+                        class="form-control properties-input"
+                        name="{{property.id}}"
+                >
+                    {% for option in property.options %}
+                        <option value="{{option.id}}"
+                                {% if property.value == option.id %}
+                                selected
+                                {% endif %}
+                        >
+                            {{option.name}}
+                        </option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <input
+                        class="{% if property.html_form_type == 'checkbox' %} form-check-input {% else %} form-control {% endif %} properties-input"
+                        name="{{property.id}}"
+                        type="{{property.html_form_type}}"
+                        {% if property.value == True %} checked {% endif %}
+                        value="{{property.html_value}}"
+                />
+            {% endif %}
         </div>
         {% endfor %}
     </div>

@@ -1,7 +1,0 @@
-{% for choice in interval_choices %}
-<option value="{{ choice.0 }}"
-        {% if selected_choice in choice.0 %} selected="selected" {% endif %}
->
-    {{ choice.1 }}
-</option>
-{% endfor %}
