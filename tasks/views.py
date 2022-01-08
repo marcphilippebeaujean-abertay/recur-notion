@@ -69,7 +69,7 @@ def update_recurring_task_properties(request, pk):
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
-        return HttpResponse('Invalid parameters for updating tasks!', status=403)
+        return HttpResponse('Invalid parameters for updating tasks!', status=400)
     return render(request, 'tasks/partials/recurring-task-update-property-form.html', {
         'recurring_task': updated_recurring_task_model,
     })

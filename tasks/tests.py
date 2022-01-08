@@ -167,7 +167,6 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
         self.request_url = f'/update-recurring-task-schedule/{self.recurring_test_task_model.pk}'
         self.update_start_time_payload = {
             'start-time': ['2021-12-14T09:30'],
-            'client-timezone': ['Europe/Berlin', 'Europe/Berlin']
         }
         self.update_interval_payload = {
             'interval': ['7']
@@ -194,16 +193,15 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
 
     def test_only_logged_in_user_can_update_recurring_tasks(self):
         # create new recurring task
-        response = self.client.post(self.request_url, self.update_start_time_payload)
+        response = self.client.post(self.request_url, self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Berlin/Europe')
         self.assertEqual(response.status_code, 302)
         self.check_task_was_not_updated()
         self.assert_task_was_not_created()
 
     def test_timezone_required_for_update_recurring_task(self):
-        self.update_start_time_payload.pop('client-timezone')
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(self.request_url, self.update_start_time_payload)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
         self.check_task_was_not_updated()
         self.assert_task_was_not_created()
 
@@ -220,30 +218,30 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
         )
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(f'/update-recurring-task-schedule/{other_user_recurring_task.pk}',
-                                    self.update_start_time_payload)
+                                    self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 404)
 
     def test_throw_404_when_not_found(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post('/update-recurring-task-schedule/4', self.update_start_time_payload)
+        response = self.client.post('/update-recurring-task-schedule/4', self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 404)
 
     def test_timezone_conversion_occurred_update(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(self.request_url, self.update_start_time_payload)
+        response = self.client.post(self.request_url, self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 200)
         self.assert_task_was_not_created()
         self.assert_task_start_time_was_updated()
 
     def test_recurring_task_requires_post_method(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.patch(self.request_url, self.update_start_time_payload)
+        response = self.client.patch(self.request_url, self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 405)
         self.assert_task_was_not_created()
 
     def test_logged_in_user_successfully_updates_interval(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(self.request_url, self.update_interval_payload)
+        response = self.client.post(self.request_url, self.update_interval_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 200)
         self.assert_task_was_not_created()
         recurring_task = RecurringTask.objects.all()[0]
@@ -251,12 +249,12 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
 
     def test_logged_in_user_successfully_updates_start_time(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(self.request_url, self.update_start_time_payload)
+        response = self.client.post(self.request_url, self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 200)
 
     def test_scheduled_task_start_time_same_as_recurring_task_start_time(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(self.request_url, self.update_start_time_payload)
+        response = self.client.post(self.request_url, self.update_start_time_payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
         self.assertEqual(response.status_code, 200)
         schedule_task = Schedule.objects.all()[0]
         recurring_task = RecurringTask.objects.all()[0]
@@ -337,7 +335,6 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             database_id=VALID_DATABASE_ID
         )
         self.update_properties_payload_dict = {
-            'selectedDatabaseId': 'a9f68551-1cf2-4615-9a41-1f1368ae4f78',
             'E%3F%5EI': 'cali@gmail.com',
             'not-to-be-added': 'empty',
             'Fq%3Ar': datetime.now(),
@@ -398,15 +395,18 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             database_id=VALID_DATABASE_ID
         )
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(f'/update-recurring-task-properties/{other_user_recurring_task.pk}?notion_db_id={notion_db_mock.VALID_DATABASE_ID}',
-                                    self.update_properties_payload_dict)
+        response = self.client.post(f'/update-recurring-task-properties/{other_user_recurring_task.pk}',
+                                    self.update_properties_payload_dict,
+                                    HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID)
         self.assertEqual(response.status_code, 404)
 
     @mock.patch('notion_database.service.notion_client.Client',
                 side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
     def test_throw_404_when_not_found(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(f'/update-recurring-task-properties/4?notion_db_id={notion_db_mock.VALID_DATABASE_ID}', self.update_properties_payload_dict)
+        response = self.client.post(f'/update-recurring-task-properties/4',
+                                    self.update_properties_payload_dict,
+                                    HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID)
         self.assertEqual(response.status_code, 404)
 
     @mock.patch('notion_database.service.notion_client.Client',
@@ -421,13 +421,14 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
                 side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
     def test_logged_in_user_successfully_updates_properties(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        response = self.client.post(self.request_url, self.update_properties_payload_dict)
+        response = self.client.post(self.request_url,
+                                    self.update_properties_payload_dict,
+                                    HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID)
         self.assertEqual(response.status_code, 200)
 
     @mock.patch('notion_database.service.notion_client.Client',
                 side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
     def test_bad_request_when_trying_to_update_properties_no_db_id(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
-        self.update_properties_payload_dict.pop('selectedDatabaseId')
         response = self.client.post(self.request_url, self.update_properties_payload_dict)
         self.assertEqual(response.status_code, 403)
