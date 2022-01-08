@@ -1,7 +1,9 @@
 import notion_client
 
 from .models import RecurringTask
-from notion_database.service import query_user_notion_database_by_id
+from notion_database.service import convert_notion_database_resp_dict_to_simple_database_dict
+from notion_properties.service import create_properties_dict_for_create_page_api_request_from_property_dto_list
+from notion_properties.dto import NotionPropertyDto
 
 import logging
 
@@ -22,17 +24,15 @@ def create_recurring_task_in_notion(task_pk):
     except IndexError:
         logger.error("User did not have a workspace access")
         raise Exception('User did not have a workspace access.')
-    # TODO: Logic
     # Fetch the given database from Notion
-    database_dict = query_user_notion_database_by_id(user_model=user, database_id_str=task_model.database_id)
+    notion_database_query_resp_dict = client.databases.retrieve(database_id=task_model.database_id)
+    database_dict = convert_notion_database_resp_dict_to_simple_database_dict(notion_database_query_resp_dict)
     # Check which properties are still in the Database
-    notion_database_property_id_set = set([property_container.id for property_container in database_dict['properties']])
-
-    properties_to_add_dict = [property_dict for property_dict in task_model.properties_json
-                              if property_dict.id in notion_database_property_id_set]
-    # Convert some fields into their notion values
-        # Checkbox
-
-        # Select/Multi Select
+    notion_database_property_id_set = set([property_dto.id for property_dto in database_dict['properties']])
+    property_dto_list = [NotionPropertyDto.from_dto_dict(property_dto) for property_dto in task_model.properties_json
+                         if property_dto['id'] in notion_database_property_id_set]
+    request_properties_dict = create_properties_dict_for_create_page_api_request_from_property_dto_list(property_dto_list)
+    page_parent_dict = {'database_id': task_model.database_id}
+    client.pages.create(parent=page_parent_dict, properties=request_properties_dict)
     # Call the create Notion Page Method
     logger.debug(f'Created recurring task with id {task_model.pk} successfully.')

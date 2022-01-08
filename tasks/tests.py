@@ -128,6 +128,8 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(created_recurring_task.name, 'New Recurring Task')
         self.assertEqual(created_recurring_task.owner, self.user)
         self.assertEqual(Schedule.objects.count(), 1)
+        schedule_object = Schedule.objects.all()[0]
+        self.assertEqual(schedule_object.args, f'{created_recurring_task.pk}')
 
     def assert_task_was_not_created(self):
         self.assertEqual(RecurringTask.objects.count(), 0)

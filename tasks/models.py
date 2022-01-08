@@ -59,9 +59,9 @@ class RecurringTask(models.Model):
         raise Exception(f'Invalid Task Interval, cannot convert {interval_value_string} to Schedule')
 
     def save(self, *args, **kwargs):
-        if self.scheduler_job is None:
-            self.scheduler_job = Schedule.objects.create(func='tasks.jobs.do_task',
-                                                         args=f'{self.pk}',
+        is_scheduler_job_created_from_save = self.scheduler_job is None
+        if is_scheduler_job_created_from_save:
+            self.scheduler_job = Schedule.objects.create(func='tasks.jobs.create_recurring_task_in_notion',
                                                          next_run=self.start_time,
                                                          schedule_type=self.get_interval_as_djangoq_schedule_type()
                                                          )
@@ -71,6 +71,10 @@ class RecurringTask(models.Model):
                 schedule_type=self.get_interval_as_djangoq_schedule_type()
             )
         super(RecurringTask, self).save(*args, **kwargs)
+        if is_scheduler_job_created_from_save:
+            Schedule.objects.filter(id=self.scheduler_job_id).update(
+                args=f'{self.pk}'
+            )
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)

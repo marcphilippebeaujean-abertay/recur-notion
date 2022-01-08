@@ -91,11 +91,7 @@ class TestNotionPropertiesDtoConversions(TestCase):
         property_dto = NotionPropertyDto.from_notion_api_property_dict(TEST_NOTION_API_RESP_PROPERTIES_DICT['Category'],
                                                                        property_name_str='Category')
         self.assertEqual(property_dto.name, 'Category')
-        self.assertEqual(property_dto.value, {
-            'id': '6d112c07-5a69-44d7-8d02-42895b6be454',
-            'name': 'Home',
-            'color': 'yellow'
-          })
+        self.assertEqual(property_dto.value, '6d112c07-5a69-44d7-8d02-42895b6be454')
         self.assertEqual(property_dto.notion_type, 'multi_select')
         self.assertEqual(property_dto.id, '93%3D%3E')
 

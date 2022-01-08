@@ -60,8 +60,7 @@ class NotionPropertyDto:
     @staticmethod
     def get_default_dto_value_by_notion_type(notion_type_str):
         # Assign a default value in case of None
-        if notion_type_str in NOTION_TEXT_PROPERTIES_SET or \
-                notion_type_str in NOTION_SELECT_PROPERTIES:
+        if notion_type_str in NOTION_TEXT_PROPERTIES_SET or notion_type_str in NOTION_SELECT_PROPERTIES:
             return ''
         elif notion_type_str == 'number':
             return 0
@@ -82,6 +81,10 @@ class NotionPropertyDto:
             options_list=dto_dict['options'],
             assign_default_value=False
         )
+
+    @property
+    def is_default_value(self):
+        return self.value == self.get_default_dto_value_by_notion_type(self.notion_type)
 
     @classmethod
     def from_notion_api_property_dict(cls, notion_api_property_dict, property_name_str):
@@ -110,7 +113,9 @@ class NotionPropertyDto:
         if property_type_str == 'multi_select':
             # get the first selected attribute
             # TODO: Rework for multiple selects
-            value = notion_property_value[0] if len(notion_property_value) > 0 else EMPTY_OPTION_DICT
+            value = notion_property_value[0]['id'] if len(notion_property_value) > 0 else ''
+        elif property_type_str == 'select':
+            value = notion_property_value['id']
         elif property_type_str == 'rich_text' or property_type_str == 'title':
             # iterate over each text component (rich text consists of array)
             final_text_str = ''
@@ -130,26 +135,21 @@ class NotionPropertyDto:
 
     # creates a property dictionary we can use to create new properties for a page
     def get_notion_property_api_dict_for_create_page_request(self):
-        create_page_value = None
         if self.notion_type == 'title' or self.notion_type == 'rich_text':
-            create_page_value = [{
-                'type': 'text',
+            return [{
                 'text': {
                     'content': self.value
                 }
             }]
         elif self.notion_type == 'select':
-            create_page_value = {
-                "id": self.value['id']
+            return {
+                "id": self.value
             }
         elif self.notion_type == 'multi_select':
-            create_page_value = [
+            return [
                 {
-                    "id": self.value['id']
+                    "id": self.value
                 }
             ]
         else:
-            create_page_value = self.value
-        return {
-            self.notion_type: create_page_value
-        }
+            return self.value
