@@ -62,8 +62,6 @@ def update_recurring_task_schedule(request, pk):
 @login_required
 @require_http_methods(["POST"])
 def update_recurring_task_properties(request, pk):
-    if 'X-Selected-Database-Id' not in request.headers:
-        return HttpResponse('Missing Database ID Header!', status=403)
     try:
         updated_recurring_task_model = update_task_notion_properties_from_request_dict(request_dict=request, task_pk=pk)
     except RecurringTaskNotFoundException:

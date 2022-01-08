@@ -1,3 +1,4 @@
+import notion_database.service
 from .models import RecurringTask
 from notion_database.service import query_user_notion_database_by_id, get_default_value_by_notion_property_type
 
@@ -61,14 +62,17 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
     for property_container in notion_properties_container_list:
         # In the Request form data, each value is associated by the id of the Notion property.
         # The ID of the property is the key.
-        if property_container.notion_type == 'checkbox':
+        property_type_str = property_container.notion_type
+        if property_type_str in notion_database.service.IGNORED_PROPERTIES_SET:
+            continue
+        if property_type_str == 'checkbox':
             if property_container.id in request_dict.POST:
                 property_container.value = True
             else:
                 property_container.value = False
         else:
             property_container.value = request_dict.POST.get(property_container.id,
-                                                             get_default_value_by_notion_property_type(property_container.notion_type))
+                                                             get_default_value_by_notion_property_type(property_type_str))
         notion_properties_as_dict_list.append(property_container.dict())
     updated_recurring_task.properties_json = notion_properties_as_dict_list
 

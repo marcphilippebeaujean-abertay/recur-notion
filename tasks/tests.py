@@ -361,7 +361,10 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             if property_id is 'E%3F%5EI':
                 self.assertEqual(property_dict['type'], 'email')
                 self.assertEqual(property_dict['value'], 'cali@gmail.com')
-        if 'not-to-be-added' in properties_id_set or 'selectedDatabaseId' in properties_id_set or 'd%60Tf' in properties_id_set:
+        if 'not-to-be-added' in properties_id_set or \
+                'selectedDatabaseId' in properties_id_set or \
+                'd%60Tf' in properties_id_set or \
+                'Fq%3Ar' in properties_id_set: # time field, currently ignored
             raise Exception(f'The task with id {property_id} should not have been added!')
         self.assertTrue('%7CJhi' in properties_id_set)
         self.assertTrue('E%3F%5EI' in properties_id_set)
@@ -431,4 +434,4 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
     def test_bad_request_when_trying_to_update_properties_no_db_id(self, m):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
         response = self.client.post(self.request_url, self.update_properties_payload_dict)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
