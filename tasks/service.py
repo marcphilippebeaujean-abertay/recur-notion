@@ -1,6 +1,7 @@
-import notion_database.service
+from notion_properties.constants import IGNORED_PROPERTIES_SET
 from .models import RecurringTask
-from notion_database.service import query_user_notion_database_by_id, get_default_value_by_notion_property_type
+from notion_database.service import query_user_notion_database_by_id
+
 
 import logging
 import pytz
@@ -63,17 +64,19 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
         # In the Request form data, each value is associated by the id of the Notion property.
         # The ID of the property is the key.
         property_type_str = property_container.notion_type
-        if property_type_str in notion_database.service.IGNORED_PROPERTIES_SET:
+        if property_type_str in IGNORED_PROPERTIES_SET:
             continue
+        # special case checkbox property: input forms only include the field if checkbox is checked. Thus, to get the
+        # right value, we need to just check if the expected checkbox property was in our request dictionary
+        property_is_in_request_form = property_container.id in request_dict.POST
         if property_type_str == 'checkbox':
-            if property_container.id in request_dict.POST:
+            if property_is_in_request_form:
                 property_container.value = True
             else:
                 property_container.value = False
-        else:
-            property_container.value = request_dict.POST.get(property_container.id,
-                                                             get_default_value_by_notion_property_type(property_type_str))
-        notion_properties_as_dict_list.append(property_container.dict())
+        elif property_is_in_request_form:
+            property_container.value = request_dict.POST[property_container.id]
+        notion_properties_as_dict_list.append(property_container.dto_dict())
     updated_recurring_task.properties_json = notion_properties_as_dict_list
 
     should_persist_changes = request_dict.headers.get('X-Persist-Changes', 'false')

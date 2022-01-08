@@ -358,6 +358,11 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             property_id = property_dict['id']
             properties_id_set.add(property_id)
 
+            # this property is a checkbox, but not in our update payload
+            # value should be false
+            if property_id is 'Gwjd':
+                self.assertEqual(property_dict['value'], False)
+
             if property_id is 'E%3F%5EI':
                 self.assertEqual(property_dict['type'], 'email')
                 self.assertEqual(property_dict['value'], 'cali@gmail.com')

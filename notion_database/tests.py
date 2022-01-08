@@ -5,7 +5,8 @@ from unittest import mock
 
 from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 from .notion_mock_api import VALID_ACCESS_TOKEN, VALID_DATABASE_ID, create_or_get_mocked_oauth_notion_client
-from .service import query_user_notion_database_by_id, query_user_notion_databases_list, IGNORED_PROPERTIES_SET
+from .service import query_user_notion_database_by_id, query_user_notion_databases_list
+from notion_properties.constants import IGNORED_PROPERTIES_SET
 
 
 # Create your tests here.

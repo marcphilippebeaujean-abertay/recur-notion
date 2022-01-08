@@ -1,8 +1,9 @@
 from workspaces.models import NotionWorkspaceAccess
 
+from notion_properties.service import get_list_of_property_dtos_from_notion_database_resp_dict
+
 import notion_client
 import logging
-from django.utils.timezone import now
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -10,63 +11,6 @@ logger = logging.getLogger(__name__)
 
 class NotionApiException(Exception):
     pass
-
-
-NOTION_DATE_PROPERTIES_SET = {'last_edited_time', 'created_time', 'date'}
-IGNORED_PROPERTIES_SET = set.union({
-    'relation', 'formula', "rollup", "created_time", "created_by", "last_edited_time",
-    "last_edited_by", "people", "files"
-}, NOTION_DATE_PROPERTIES_SET)
-NOTION_TEXT_PROPERTIES_SET = {'email', 'phone_number', 'rich_text', 'title', 'url'}
-NOTION_SELECT_PROPERTIES = {'multi_select', 'select'}
-EMPTY_OPTION_DICT = {'id': '', 'name': ''}
-
-
-class NotionPropertyContainer:
-    def __init__(self, id_str, type_str, name_str, options_list=None, value=None):
-        self.name = name_str
-        self.id = id_str
-        self.notion_type = type_str
-        self.options_list = None
-        if self.notion_type in NOTION_SELECT_PROPERTIES:
-            if options_list is None:
-                raise Exception('Got a multiselect but options list was not assigned!')
-            else:
-                self.options_list = options_list
-                if EMPTY_OPTION_DICT not in options_list:
-                    self.options_list.append(EMPTY_OPTION_DICT)
-        if value is None:
-            self.value = get_default_value_by_notion_property_type(notion_property_type_str=self.notion_type)
-        else:
-            self.value = value
-
-    @property
-    def html_form_type(self):
-        if self.notion_type in NOTION_TEXT_PROPERTIES_SET or self.notion_type in NOTION_SELECT_PROPERTIES:
-            return 'text'
-        if self.notion_type in NOTION_DATE_PROPERTIES_SET:
-            return 'datetime-local'
-        if self.notion_type == 'checkbox':
-            return 'checkbox'
-        # only expecting 'checkbox' and 'number' to remain as possible values
-        return self.notion_type
-
-    @property
-    def html_value(self):
-        if self.notion_type == 'checkbox':
-            return 'on' if self.value == True else 'off'
-        return self.value
-
-    def dict(self):
-        return {
-            'id': self.id,
-            'type': self.notion_type,
-            'value': self.value,
-            'name': self.name,
-            'html_form_type': self.html_form_type,
-            'html_value': self.html_value,
-            'options': self.options_list
-        }
 
 
 def load_user_notion_client(user_model):
@@ -96,33 +40,8 @@ def query_user_notion_database_by_id(user_model, database_id_str):
 
 
 def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
-    property_dict_list = []
-    for property_name in notion_db_dict['properties'].keys():
-        notion_property_dict = notion_db_dict['properties'][property_name]
-        # certain property types are not supported
-        property_type_str = notion_property_dict['type']
-        if property_type_str in IGNORED_PROPERTIES_SET:
-            continue
-        options_list = None
-        if property_type_str in NOTION_SELECT_PROPERTIES:
-            options_list = notion_property_dict[property_type_str]['options']
-        property_container = NotionPropertyContainer(id_str=notion_property_dict['id'],
-                                                     type_str=property_type_str,
-                                                     name_str=property_name,
-                                                     options_list=options_list)
-        property_dict_list.append(property_container)
     return {
         'name': notion_db_dict['title'][0]['text']['content'],
         'id': notion_db_dict['id'],
-        'properties': property_dict_list
+        'properties': get_list_of_property_dtos_from_notion_database_resp_dict(notion_db_dict=notion_db_dict)
     }
-
-
-def get_default_value_by_notion_property_type(notion_property_type_str):
-    if notion_property_type_str in NOTION_TEXT_PROPERTIES_SET or notion_property_type_str in NOTION_SELECT_PROPERTIES:
-        return ''
-    if notion_property_type_str in NOTION_DATE_PROPERTIES_SET:
-        return now()
-    if notion_property_type_str == 'checkbox':
-        return False
-    return None

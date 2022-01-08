@@ -102,7 +102,6 @@ TEMPLATES = [
             ],
             'libraries': {
                 'task_tags': 'tasks.template_tags',
-                'notion_database_tags': 'notion_database.template_tags'
             }
         },
     },
