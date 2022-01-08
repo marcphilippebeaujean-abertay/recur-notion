@@ -7,11 +7,7 @@ from .models import NotionWorkspace, NotionWorkspaceAccess
 
 
 def create_access_workspace_from_user_code(user_model, oauth_code):
-    auth_payload_dict = {
-        "code": oauth_code,
-        "grant_type": "authorization_code",
-        "redirect_uri": NOTION_OAUTH_CALLBACK
-    }
+    auth_payload_dict = {"grant_type": "authorization_code", "code": oauth_code, "redirect_uri": NOTION_OAUTH_CALLBACK}
     response = requests.post('https://api.notion.com/v1/oauth/token',
                              json=auth_payload_dict,
                              auth=HTTPBasicAuth(NOTION_CLIENT_ID, NOTION_CLIENT_SECRET))
