@@ -7,8 +7,8 @@
      }"
      hx-target="this"
 >
-    <div class="d-flex">
-        <div class="col-md-7 col-12 form-group">
+    <div class="d-flex row">
+        <div class="col-md-6 col-12 form-group">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
             <input name="start-time"
                    type="datetime-local"
@@ -31,7 +31,7 @@
                    x-bind:disabled="loading"
             />
         </div>
-        <div class="w-100 form-group">
+        <div class="col-md-6 col-12 form-group">
             <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
             <select class="form-select"
                     name="interval"

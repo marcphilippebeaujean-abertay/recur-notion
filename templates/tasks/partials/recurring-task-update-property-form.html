@@ -11,7 +11,7 @@
 >
     <div class="d-flex row">
         {% for property in recurring_task.properties_json %}
-        <div class="form-group col-6">
+        <div class="form-group col-12 col-md-6">
             <label class="my-1">{{property.name}}</label>
             <div></div>
             {% if property.type == 'select' or  property.type == 'multi_select' %}
