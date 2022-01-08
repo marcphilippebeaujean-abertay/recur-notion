@@ -4,7 +4,7 @@ from .constants import NOTION_SELECT_PROPERTIES, EMPTY_OPTION_DICT, NOTION_TEXT_
     NOTION_DATE_PROPERTIES_SET
 
 
-# This class is a DTO (Data Transfer Object) responsible for converting notion properties between different Formats.
+# This class is a DTO (Data Transfer Object) responsible for holding and converting notion properties between different Formats.
 #    1. The default API format returned from Notion API
 #    2. A simpler format we can use in HTML templates and to store in the database
 # The reason we need this is that otherwise, a lot of complex business logic would need to take place in the
@@ -36,8 +36,9 @@ class NotionPropertyDto:
             return 'datetime-local'
         if self.notion_type == 'checkbox':
             return 'checkbox'
-        # only expecting 'checkbox' and 'number' to remain as possible values
-        return self.notion_type
+        if self.notion_type == 'number':
+            return 'number'
+        raise Exception('unexpected notion type received! cannot convert to html form')
 
     @property
     def html_value(self):
@@ -106,7 +107,6 @@ class NotionPropertyDto:
         # for select properties we need to choose the currently selected value
         # Ref: https://developers.notion.com/reference/page#property-value-object
         value = None
-
         if property_type_str == 'multi_select':
             # get the first selected attribute
             # TODO: Rework for multiple selects
@@ -127,3 +127,29 @@ class NotionPropertyDto:
                    options_list=None,
                    assign_default_value=False,
                    value=value)
+
+    # creates a property dictionary we can use to create new properties for a page
+    def get_notion_property_api_dict_for_create_page_request(self):
+        create_page_value = None
+        if self.notion_type == 'title' or self.notion_type == 'rich_text':
+            create_page_value = [{
+                'type': 'text',
+                'text': {
+                    'content': self.value
+                }
+            }]
+        elif self.notion_type == 'select':
+            create_page_value = {
+                "id": self.value['id']
+            }
+        elif self.notion_type == 'multi_select':
+            create_page_value = [
+                {
+                    "id": self.value['id']
+                }
+            ]
+        else:
+            create_page_value = self.value
+        return {
+            self.notion_type: create_page_value
+        }
