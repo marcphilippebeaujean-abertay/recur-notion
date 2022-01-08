@@ -12,13 +12,13 @@ class NotionApiException(Exception):
     pass
 
 
-IGNORED_PROPERTIES_SET = {
-    'relation', 'formula', "rollup", "created_time", "created_by", "last_edited_time", "last_edited_by", "people",
-    "files"
-}
+NOTION_DATE_PROPERTIES_SET = {'last_edited_time', 'created_time', 'date'}
+IGNORED_PROPERTIES_SET = set.union({
+    'relation', 'formula', "rollup", "created_time", "created_by", "last_edited_time",
+    "last_edited_by", "people", "files"
+}, NOTION_DATE_PROPERTIES_SET)
 NOTION_TEXT_PROPERTIES_SET = {'email', 'phone_number', 'rich_text', 'title'}
 NOTION_SELECT_PROPERTIES = {'multi_select', 'select'}
-NOTION_DATE_PROPERTIES_SET = {'last_edited_time', 'created_time', 'date'}
 EMPTY_OPTION_DICT = {'id': '', 'name': ''}
 
 
@@ -119,10 +119,8 @@ def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
 
 
 def get_default_value_by_notion_property_type(notion_property_type_str):
-    if notion_property_type_str in NOTION_TEXT_PROPERTIES_SET:
+    if notion_property_type_str in NOTION_TEXT_PROPERTIES_SET or notion_property_type_str in NOTION_SELECT_PROPERTIES:
         return ''
-    if notion_property_type_str in NOTION_SELECT_PROPERTIES:
-        return EMPTY_OPTION_DICT
     if notion_property_type_str in NOTION_DATE_PROPERTIES_SET:
         return now()
     if notion_property_type_str == 'checkbox':

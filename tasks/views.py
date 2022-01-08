@@ -49,12 +49,11 @@ def delete_recurring_task(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task_schedule(request, pk):
     try:
-        recurring_task_to_update_model = update_recurring_task_schedule_from_request_data(request_dict=request,
-                                                                                          task_pk=pk)
+        recurring_task_to_update_model = update_recurring_task_schedule_from_request_data(request=request, task_pk=pk)
     except RecurringTaskNotFoundException:
         return HttpResponse('Could not find Task for Update', status=404)
     except RecurringTaskBadFormData:
-        return HttpResponse('Invalid parameters for updating tasks!', status=403)
+        return HttpResponse('Invalid parameters for updating tasks!', status=400)
     if 'update-schedule-only' in request.POST:
         return render(request, 'tasks/partials/recurring-task-schedule.html', {'recurring_task': recurring_task_to_update_model})
     return HttpResponse(status=200)

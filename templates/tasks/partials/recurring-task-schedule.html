@@ -10,17 +10,12 @@
     <div class="d-flex">
         <div class="col-md-7 col-12 form-group">
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
-            <input name="client-timezone"
-                   type="hidden"
-                   x-bind:value="() => Intl.DateTimeFormat().resolvedOptions().timeZone"
-            />
             <input name="start-time"
                    type="datetime-local"
                    id="{{ recurring_task.pk }}-start-date"
                    class="form-control"
                    hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                    hx-trigger="change"
-                   hx-include="[name='client-timezone']"
                    hx-vals="js:{'update-schedule-only': true}"
                    @change="() => {
                        // short interval to let htmx send out the post request before disabling the input form

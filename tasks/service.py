@@ -17,21 +17,21 @@ class RecurringTaskBadFormData(Exception):
     pass
 
 
-def update_recurring_task_schedule_from_request_data(request_dict, task_pk):
+def update_recurring_task_schedule_from_request_data(request, task_pk):
     try:
-        updated_recurring_task = RecurringTask.objects.filter(owner=request_dict.user,
+        updated_recurring_task = RecurringTask.objects.filter(owner=request.user,
                                                               pk=task_pk).prefetch_related('scheduler_job')[0]
     except IndexError:
         raise RecurringTaskNotFoundException(f'Could not find recurring task that was updated with pk {task_pk}')
-    if 'interval' in request_dict.POST:
-        updated_recurring_task.interval = request_dict.POST['interval']
-    elif 'task-name' in request_dict.POST:
-        updated_recurring_task.name = request_dict.POST['task-name']
-    elif 'start-time' in request_dict.POST and 'client-timezone' in request_dict.POST:
+    if 'interval' in request.POST:
+        updated_recurring_task.interval = request.POST['interval']
+    elif 'task-name' in request.POST:
+        updated_recurring_task.name = request.POST['task-name']
+    elif 'start-time' in request.POST and 'X-Client-Timezone' in request.headers:
         # this variable format is probably breaking the template
-        user_unlocalized_start_datetime = datetime.strptime(request_dict.POST['start-time'], '%Y-%m-%dT%H:%M')
+        user_unlocalized_start_datetime = datetime.strptime(request.POST['start-time'], '%Y-%m-%dT%H:%M')
         # convert from client local timezone to UTC
-        user_timezone = pytz.timezone(request_dict.POST['client-timezone'])
+        user_timezone = pytz.timezone(request.headers['X-Client-Timezone'])
         localized_user_start_datetime = user_timezone.localize(user_unlocalized_start_datetime)
         # localize back to UTC
         start_date_utc_datetime = datetime.fromtimestamp(localized_user_start_datetime.timestamp(), tz=timezone.utc)
@@ -63,7 +63,7 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
         # The ID of the property is the key.
         if property_container.notion_type == 'checkbox':
             if property_container.id in request_dict.POST:
-                property_container.value = request_dict.POST[property_container.id] == 'on'
+                property_container.value = True
             else:
                 property_container.value = False
         else:
