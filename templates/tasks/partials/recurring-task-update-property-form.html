@@ -1,3 +1,5 @@
+{% load notion_property_tags %}
+
 {% if recurring_task.properties_json|length == 0 %}
 <div class="alert alert-danger">Please select a database and set properties for the task!</div>
 {% else %}
@@ -12,7 +14,10 @@
     <div class="d-flex row">
         {% for property in recurring_task.properties_json %}
         <div class="form-group col-12 col-md-6">
-            <label class="my-1">{{property.name}}</label>
+            <label class="my-1">
+                <i class="bi-{% icon_by_property_type property.type %} mr-2 text-bold"></i>
+                &nbsp;{{property.name}}
+            </label>
             <div></div>
             {% if property.type == 'select' or  property.type == 'multi_select' %}
                 <select

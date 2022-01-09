@@ -20,7 +20,7 @@
                         />
                     </div>
                 </div>
-                <h3 class="h5">Schedule</h3>
+                <h3 class="h4">Schedule</h3>
                 {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
                 <hr/>
                 <div class="row">
@@ -29,12 +29,15 @@
                         </div>
                     </div>
                 </div>
-                <h3 class="h5">Properties</h3>
+                <h3 class="h4">Properties</h3>
                 <div x-data="{
                         currentSelectedDatabaseId: '{{recurring_task.database_id}}'
                     }">
                     <div class="col-12 pe-2">
-                        <label class="mb-2 h6">Database <span class="text-danger text-bold">*</span></label>
+                        <label class="mb-2 h5">
+                            <i class="bi-table"></i>
+                            &nbsp;Database
+                            <span class="text-danger text-bold">*</span></label>
                         <div class="form-group">
                             <input
                                     list="databases-list"

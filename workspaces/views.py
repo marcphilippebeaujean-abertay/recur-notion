@@ -7,7 +7,6 @@ from config.settings import NOTION_OAUTH_CALLBACK, NOTION_CLIENT_ID
 from .service import create_access_workspace_from_user_code
 
 import logging
-from requests.utils import requote_uri
 import urllib.parse
 
 logger = logging.getLogger(__name__)
