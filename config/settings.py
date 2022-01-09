@@ -103,6 +103,7 @@ TEMPLATES = [
             'libraries': {
                 'task_tags': 'tasks.template_tags',
                 'notion_property_tags': 'notion_properties.template_tags',
+                'notion_workspace_tags': 'workspaces.template_tags',
             }
         },
     },

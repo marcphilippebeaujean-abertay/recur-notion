@@ -2,6 +2,8 @@
 
 {% block title %}Recurring Tasks{% endblock %}
 
+{% load notion_workspace_tags %}
+
 {% block content %}
 <div class="d-flex">
     <div class="w-100 px-2">
@@ -42,7 +44,11 @@
                         <label class="mb-2 h5">
                             <i class="bi-table"></i>
                             &nbsp;Database
-                            <span class="text-danger text-bold">*</span></label>
+                            <span class="text-danger text-bold">*</span>
+                        </label>
+                        <small class="text-muted">
+                            Can't find the right Database? <a href="{% oauth_url %}">Click here</a> to update Notion permissions.
+                        </small>
                         <div class="form-group">
                             <input
                                     list="databases-list"
