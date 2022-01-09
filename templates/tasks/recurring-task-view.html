@@ -7,7 +7,7 @@
     <div class="w-100 px-2">
         <div class="card">
             <div class="card-body">
-                <div class="row mb-4">
+                <div class="row mb-1">
                     <div class="col-12">
                         <label for="task-name">Name</label><br/>
                         <input value="{{ recurring_task.name }}"
@@ -16,8 +16,13 @@
                                name="task-name"
                                id="task-name"
                                hx-trigger="change delay:1s"
+                               hx-indicator="#task-name-change-loading-indicator"
                                hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
                         />
+                        <small id="task-name-change-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Saving changees...
+                        </small>
                     </div>
                 </div>
                 <h3 class="h4">Schedule</h3>
@@ -51,27 +56,38 @@
                                     hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
                                     hx-target="#properties-container"
                                     @change="() => {
-                               // insert loading spinner
-                               var propertiesContainerElem = document.getElementById('properties-container');
-                               propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
                                // we are looking for the options tag with the SAME value as the selector currently has
                                var shownVal = document.getElementById('databases-selector').value;
                                // see template notion_databases/partials/notion-databases-list.html to understand why this works
                                var optionTag = document.querySelector('#option-' + shownVal.replace(' ', ''));
-                               // extract the real value from the options set and setting it to the current selected id
-                               currentSelectedDatabaseId = optionTag.dataset.realValue;
+                               if(optionTag === null) {
+                                    // reset value if user just put in an invalid option tag
+                                    document.getElementById('databases-selector').value = shownVal;
+                                    return;
+                               } else {
+                                    // extract the real value from the options set and setting it to the current selected id
+                                    currentSelectedDatabaseId = optionTag.dataset.realValue;
+                               }
+                               // insert loading spinner
+                               var propertiesContainerElem = document.getElementById('properties-container');
+                               propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
                             }"
                             />
                             <datalist
                                     id="databases-list"
                                     hx-trigger="load"
                                     hx-get="{% url 'get-workspace-databases' %}"
+                                    hx-indicator="#database-loading-indicator"
                                     hx-target="#databases-list"
                             >
                             </datalist>
+                            <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Loading Workspace Databases...
+                            </small>
                         </div>
                     </div>
-                    <div id="properties-container" class="mt-4" hx-target="this">
+                    <div id="properties-container" class="mt-2" hx-target="this">
                         {% include 'tasks/partials/recurring-task-update-property-form.html' %}
                     </div>
                 </div>
