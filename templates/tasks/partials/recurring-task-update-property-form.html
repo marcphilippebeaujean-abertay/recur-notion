@@ -49,10 +49,13 @@
     <button type="submit"
             class="btn btn-success mt-2"
             x-bind:disabled="loading">
+
         <span class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
               x-show="loading"></span>
+        <i class="bi-s"></i>
+        &nbsp;{{property.name}}
         Submit
     </button>
 </form>

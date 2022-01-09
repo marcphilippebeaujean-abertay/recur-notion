@@ -12,7 +12,7 @@ def icon_by_property_type(notion_type):
         'phone_number': 'telephone',
         'url': 'link',
         'rich_text': 'justify-left',
-        'title': 'type-h1',
+        'title': 'fonts',
         'number': 'hash',
         'checkbox': 'check2-square'
     }

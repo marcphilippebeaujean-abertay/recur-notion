@@ -5,10 +5,21 @@
 
 {% block content %}
 <h1>Recurring Tasks</h1>
-<div>
-    <form action="{%  url 'create-recurring-task' %}" method="POST">
+<div x-data="{ loading: false }">
+    <form action="{%  url 'create-recurring-task' %}"
+          method="POST"
+          @submit="loading = true"
+    >
         {% csrf_token %}
-        <input class="btn btn-success" type="submit" value="+  Add Recurring Task" />
+        <button
+            type="submit"
+            x-bind:disabled="loading"
+            class="btn btn-success"
+        >
+            <i class="bi-plus-circle" x-show="!loading"></i>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+            &nbsp;Create New Recurring Task
+        </button>
     </form>
 </div>
 <div class="row">
@@ -16,7 +27,7 @@
         <div class="my-2 mr-2">
             <div class="d-flex row">
                 {% if recurring_tasks|length == 0 %}
-                 <div class="alert alert-info">No recurring tasks created yet!</div>
+                 <div class="alert alert-info">No data has been scheduled yet!</div>
                 {% else %}
                 {% for recurring_task in recurring_tasks %}
                 <div class="col-12 col-md-6 p-2" id="task-container{{recurring_task.pk}}">
@@ -24,14 +35,16 @@
                         <div class="card-body">
                             <h2 class="h5">{{recurring_task.name}}</h2>
                             {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
-                            <div class="d-flex">
+                            <div class="d-flex mt-2">
                                 <div class="pl-2" x-data="{loading: false}">
                                     <a href="{% url 'recurring-task-view' pk=recurring_task.pk %}"
                                        class="btn btn-info"
                                        @click="loading = true"
                                        x-bind:disabled="loading"
                                     >
-                                        Edit
+                                        <i class="bi-pencil" x-show="!loading"></i>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+                                        &nbsp;Edit
                                     </a>
                                 </div>
                                 <div class="mx-2" x-data="{loading: false}">
@@ -43,7 +56,9 @@
                                         @click="loading = true"
                                         x-bind:disabled="loading"
                                     >
-                                        <span></span>Delete
+                                        <i class="bi-trash" x-show="!loading"></i>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+                                        &nbsp;Delete
                                     </button>
                                 </div>
                             </div>

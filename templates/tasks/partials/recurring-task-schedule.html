@@ -9,7 +9,9 @@
 >
     <div class="d-flex row">
         <div class="col-md-6 col-12 form-group">
-            <label for="{{ recurring_task.pk }}-start-date" class="form-label">Start Date</label>
+            <label for="{{ recurring_task.pk }}-start-date" class="form-label">
+                Start Date
+            </label>
             <input name="start-time"
                    type="datetime-local"
                    id="{{ recurring_task.pk }}-start-date"
@@ -32,7 +34,10 @@
             />
         </div>
         <div class="col-md-6 col-12 form-group">
-            <label for="{{ recurring_task.pk }}-interval" class="form-label">Interval</label>
+            <label for="{{ recurring_task.pk }}-interval" class="form-label">
+                <i class="bi-arrow-repeat"></i>
+                &nbsp;Interval
+            </label>
             <select class="form-select"
                     name="interval"
                     @change="loading = true"
