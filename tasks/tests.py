@@ -86,6 +86,9 @@ class TestCreateTasksJobTest(TasksTestCase):
         # run the tasks method
         self.assertRaises(Exception, lambda x: create_recurring_task_in_notion(task.pk))
 
+    def test_not_calling_any_api_if_database_id_is_not_set(self):
+        raise Exception('Not implemented!')
+
 
 class TestDateUntilPreview(TasksTestCase):
 

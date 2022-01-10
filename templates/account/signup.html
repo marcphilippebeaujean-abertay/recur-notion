@@ -11,9 +11,9 @@
         <form method="post">
             {% csrf_token %}
             {{ form|crispy }}
-            <div>
-            <input type="checkbox" x-model="agreedToTerms" /><span>&nbsp;<span class="fw-bold text-danger">*</span>I have read and agree to the <a href="{% url 'datapolicy' %}">data policy</a> (required)</span>
-                </div>
+            <div class="my-2">
+                <input type="checkbox" x-model="agreedToTerms" /><span>&nbsp;<span class="fw-bold text-danger">*</span>I have read and agree to the <a href="{% url 'datapolicy' %}">data policy</a> (required)</span>
+            </div>
             <button class="btn btn-success mt-2" type="submit" x-bind:disabled="!agreedToTerms">Sign up</button>
         </form>
         {# include 'account/social_accounts_access.html' #}
