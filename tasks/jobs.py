@@ -15,6 +15,9 @@ def create_recurring_task_in_notion(task_pk):
         task_model = RecurringTask.objects.all().filter(pk=task_pk)[0]
     except IndexError:
         raise Exception(f'Task with id {task_pk} be created because it did not exist in Database anymore.')
+    if task_model.database_id is None or task_model.database_id == '':
+        logger.info(f'Database id was not set for Recurring Task with PK {task_pk}! Cannot handle request.')
+        return
     user = task_model.owner
     workspace_access_queryset = user.workspace_access.all()
     if workspace_access_queryset.count is 0:

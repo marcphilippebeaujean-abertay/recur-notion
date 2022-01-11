@@ -1,4 +1,5 @@
 from notion_properties.constants import IGNORED_PROPERTIES_SET
+from notion_properties.dto import NotionPropertyDto
 from .models import RecurringTask
 from notion_database.service import query_user_notion_database_by_id
 
@@ -77,7 +78,20 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
         elif property_is_in_request_form:
             property_container.value = request_dict.POST[property_container.id]
         notion_properties_as_dict_list.append(property_container.dto_dict())
-    updated_recurring_task.properties_json = notion_properties_as_dict_list
+
+    title_was_set = False
+    for property_dict in notion_properties_as_dict_list:
+        if property_dict['type'] == 'title':
+            title_was_set = True
+    if not title_was_set:
+        # We need to add the name property to be the same as the recurring task name
+        task_title_property = NotionPropertyDto(name_str='Name',
+                                                id_str='Name',
+                                                notion_type_str='title',
+                                                value=updated_recurring_task.name,
+                                                assign_default_value=False)
+        notion_properties_as_dict_list.append(task_title_property)
+        updated_recurring_task.properties_json = notion_properties_as_dict_list
 
     should_persist_changes = request_dict.headers.get('X-Persist-Changes', 'false')
     if should_persist_changes == 'true':

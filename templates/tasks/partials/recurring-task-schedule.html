@@ -35,26 +35,32 @@
         </div>
         <div class="col-md-6 col-12 form-group">
             <label for="{{ recurring_task.pk }}-interval" class="form-label">
-                <i class="bi-arrow-repeat"></i>
                 &nbsp;Interval
             </label>
-            <select class="form-select"
-                    name="interval"
-                    @change="loading = true"
-                    hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
-                    hx-trigger="change"
-                    hx-vals="js:{'update-schedule-only': true}"
-                    x-bind:disabled="loading"
-                    id="{{ recurring_task.pk }}-interval">
-                {% interval_choices as interval_choices %}
-                {% for choice in interval_choices %}
-                <option value="{{ choice.0 }}"
-                        {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
-                >
-                    {{ choice.1 }}
-                </option>
-                {% endfor %}
-            </select>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <i class="bi-arrow-repeat mr-2 text-bold"></i>
+                    </div>
+                </div>
+                <select class="form-select"
+                        name="interval"
+                        @change="loading = true"
+                        hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
+                        hx-trigger="change"
+                        hx-vals="js:{'update-schedule-only': true}"
+                        x-bind:disabled="loading"
+                        id="{{ recurring_task.pk }}-interval">
+                    {% interval_choices as interval_choices %}
+                    {% for choice in interval_choices %}
+                    <option value="{{ choice.0 }}"
+                            {% if recurring_task.interval in choice.0 %} selected="selected" {% endif %}
+                    >
+                        {{ choice.1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
     </div>
     <small x-show="loading == false"

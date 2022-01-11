@@ -333,10 +333,12 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
 
     def setUp(self):
         super().setUp()
+        self.default_task_name = 'name'
         self.recurring_test_task_model = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
             owner=self.user,
+            name=self.default_task_name,
             database_id=VALID_DATABASE_ID
         )
         self.update_properties_payload_dict = {
@@ -378,6 +380,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             raise Exception(f'The task with id {property_id} should not have been added!')
         self.assertTrue('%7CJhi' in properties_id_set)
         self.assertTrue('E%3F%5EI' in properties_id_set)
+        self.assertTrue('Name' in properties_id_set)
         self.assertEqual(recurring_task_from_db.database_id, 'a9f68551-1cf2-4615-9a41-1f1368ae4f78')
         self.assertEqual(recurring_task_from_db.database_name, 'Todo')
 

@@ -114,41 +114,32 @@ class TestNotionPropertiesDtoConversions(TestCase):
     def test_convert_multi_select_property_dto_to_api_create_page_dict(self):
         property_dto = NotionPropertyDto.from_notion_api_property_dict(TEST_NOTION_API_RESP_PROPERTIES_DICT['Category'],
                                                                        property_name_str='Category')
-        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), {
-            'multi_select': [
+        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), [
                 {
                     'id': '6d112c07-5a69-44d7-8d02-42895b6be454'
                 }
-            ]
-        })
+            ])
 
     def test_convert_number_property_dto_to_create_page_api_dict(self):
         property_dto = NotionPropertyDto.from_notion_api_property_dict(TEST_NOTION_API_RESP_PROPERTIES_DICT['Amount'],
                                                                        property_name_str='Amount')
-        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), {
-            'number': 690
-        })
+        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), 690)
 
     def test_convert_rich_text_property_dto_to_create_page_api_dict(self):
         property_dto = NotionPropertyDto.from_notion_api_property_dict(TEST_NOTION_API_RESP_PROPERTIES_DICT['Comment'],
                                                                        property_name_str='Comment')
-        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), {
-            'rich_text': [{
-                'type': 'text',
+        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), [{
                 'text': {
                     'content': ''
                 }
             }]
-        })
+        )
 
     def test_convert_title_property_dto_to_create_page_api_dict(self):
         property_dto = NotionPropertyDto.from_notion_api_property_dict(TEST_NOTION_API_RESP_PROPERTIES_DICT['Expense'],
                                                                        property_name_str='Expense')
-        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), {
-            'title': [{
-                'type': 'text',
-                'text': {
-                    'content': 'Rent'
-                }
-            }]
-        })
+        self.assertEqual(property_dto.get_notion_property_api_dict_for_create_page_request(), [{
+            'text': {
+                'content': 'Rent'
+            }
+        }])
