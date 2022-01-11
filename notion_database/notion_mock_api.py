@@ -1,3 +1,5 @@
+import json
+
 VALID_DATABASE_ID = 'a9f68551-1cf2-4615-9a41-1f1368ae4f78'
 VALID_NOTION_TASK_ID = 'b55c9c91-384d-452b-81db-d1ef79372b75'
 VALID_ACCESS_TOKEN = 'access_123'
@@ -641,6 +643,18 @@ MOCK_DATABASE_RESPONSE = {
 }
 
 
+class NotionApiMockNotFoundException(Exception):
+    pass
+
+
+class NotionApiMockUnauthorizedException(Exception):
+    pass
+
+
+class NotionApiMockBadRequestException(Exception):
+    pass
+
+
 def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
     class MockDatabasesApi:
         def __init__(self, is_valid_token):
@@ -655,10 +669,19 @@ def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
             else:
                 raise Exception('Invalid Database ID')
 
+    class MockPagesApi:
+        def __init__(self, is_valid_token):
+            self.is_valid_token = is_valid_token
+
+        def create(self, properties, parent):
+            # TODO: Check for specifics?
+            pass
+
     class MockClient:
         def __init__(self, token):
-            self.token = token
+            self.page_api_mock = None
             self.database_api_mock = None
+            self.token = token
 
         @property
         def client_token_is_valid(self):
@@ -668,6 +691,11 @@ def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
         def databases(self):
             self.database_api_mock = MockDatabasesApi(is_valid_token=self.client_token_is_valid)
             return self.database_api_mock
+
+        @property
+        def pages(self):
+            self.page_api_mock = MockPagesApi(is_valid_token=self.client_token_is_valid)
+            return self.page_api_mock
 
         def search(self, filter, page_size):
             if not self.client_token_is_valid:

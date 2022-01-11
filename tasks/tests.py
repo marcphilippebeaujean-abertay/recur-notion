@@ -14,11 +14,93 @@ from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 from .models import RecurringTask
 from .jobs import create_recurring_task_in_notion
 
-from .notion_api_mock import VALID_DATABASE_ID, VALID_ACCESS_TOKEN, EXAMPLE_API_REQUEST, \
-    create_or_get_mocked_oauth_notion_client
 import notion_database.notion_mock_api as notion_db_mock
+from notion_database.notion_mock_api import VALID_DATABASE_ID, VALID_ACCESS_TOKEN, create_or_get_mocked_oauth_notion_client
 
 DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME = timezone.now()
+
+EXAMPLE_NOTION_PROPERTIES = [
+    {
+        'id': 'E%3F%5EI',
+        'name': 'Property 2',
+        'type': 'email',
+        'value': 'cali@gmail.com',
+        'options': []
+    },
+    {
+        'id': 'Fq%3Ar',
+        'name': 'Deadline',
+        'type': 'date',
+        'value': '2022-01-11T19:12:39+00:00',
+        'options': []
+    },
+    {
+        'id': 'SXQ%7B',
+        'name': 'Property 3',
+        'type': 'phone_number',
+        'value': '12456',
+        'options': []
+    },
+    {
+        'id': '%60moG',
+        'name': 'Status',
+        'type': 'select',
+        'value': '1',
+        'options': [
+            {
+                'id': '1',
+                'name': 'Not started',
+                'color': 'red'
+            },
+            {
+                'id': '2',
+                'name': 'In progress',
+                'color': 'yellow'
+            },
+            {
+                'id': '3',
+                'name': 'Completed',
+                'color': 'green'
+            }
+        ]
+    },
+    # TODO: Support assigning
+    #'Assign': {
+    #    'id': 'd%60Tf',
+    #    'name': 'Assign',
+    #    'type': 'people',
+    #    'people': {}
+    #},
+    {
+        'id': 'qsTb',
+        'name': 'Property 1',
+        'type': 'url',
+        'options': [],
+        'value': ''
+    },
+    {
+        'id': '%7CJhi',
+        'name': 'Property 4',
+        'type': 'rich_text',
+        'options': [],
+        'value': {
+            'text': {
+                'content': 'Rent'
+            }
+        }
+    },
+    {
+        'id': 'title',
+        'name': 'Name',
+        'type': 'title',
+        'options': [],
+        'value': {
+            'text': {
+                'content': 'Rent'
+            }
+        }
+    }
+]
 
 
 class TasksTestCase(TestCase):
@@ -48,46 +130,59 @@ class TestCreateTasksJobTest(TasksTestCase):
         response = self.client.get('/tasks')
         self.assertEqual(response.status_code, 302)
 
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_create_scheduled_task_in_notion(self, m):
+    @mock.patch('tasks.jobs.notion_client.Client', side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    @mock.patch('notion_database.service.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
+    def test_create_scheduled_task_in_notion(self, m1, m2):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
                                             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
                                                 days=1),
                                             owner=self.user,
-                                            properties_json=json.loads(EXAMPLE_API_REQUEST)['properties'],
+                                            properties_json=EXAMPLE_NOTION_PROPERTIES,
                                             database_id=VALID_DATABASE_ID)
         # run the tasks method
         create_recurring_task_in_notion(task.pk)
-        m.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
+        m2.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
 
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_no_scheduled_task_in_database_throws_exception(self, m):
+    @mock.patch('tasks.jobs.notion_client.Client', side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    @mock.patch('notion_database.service.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
+    def test_no_scheduled_task_in_database_throws_exception(self, m1, m2):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
                                                 days=3),
                                             owner=self.user,
-                                            properties_json=json.loads(EXAMPLE_API_REQUEST)['properties'],
+                                            properties_json=EXAMPLE_NOTION_PROPERTIES,
                                             database_id=VALID_DATABASE_ID)
         # run the tasks method
         self.assertRaises(Exception, lambda x: create_recurring_task_in_notion('invalid_pk'))
 
-    @mock.patch('tasks.jobs.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
-    def test_no_workspace_access_in_database_throws_exception(self, m):
+    @mock.patch('tasks.jobs.notion_client.Client', side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    @mock.patch('notion_database.service.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
+    def test_no_workspace_access_in_database_throws_exception(self, m1, m2):
         # create new recurring task
         task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
                                             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
                                                 days=7),
                                             owner=self.user,
-                                            properties_json=json.loads(EXAMPLE_API_REQUEST)['properties'],
+                                            properties_json=EXAMPLE_NOTION_PROPERTIES,
                                             database_id=VALID_DATABASE_ID)
         NotionWorkspaceAccess.objects.all().delete()
         # run the tasks method
         self.assertRaises(Exception, lambda x: create_recurring_task_in_notion(task.pk))
 
-    def test_not_calling_any_api_if_database_id_is_not_set(self):
-        raise Exception('Not implemented!')
+    @mock.patch('tasks.jobs.notion_client.Client', side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client)
+    @mock.patch('notion_database.service.notion_client.Client', side_effect=create_or_get_mocked_oauth_notion_client)
+    def test_not_calling_any_api_if_database_id_is_not_set(self, m1, m2):
+        # create new recurring task
+        task = RecurringTask.objects.create(interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+                                            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME - timedelta(
+                                                days=1),
+                                            owner=self.user,
+                                            properties_json=EXAMPLE_NOTION_PROPERTIES)
+        # run the tasks method
+        create_recurring_task_in_notion(task.pk)
+        m2.assert_not_called()
 
 
 class TestDateUntilPreview(TasksTestCase):
