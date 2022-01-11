@@ -91,7 +91,7 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
                                                 value=updated_recurring_task.name,
                                                 assign_default_value=False)
         notion_properties_as_dict_list.append(task_title_property)
-        updated_recurring_task.properties_json = notion_properties_as_dict_list
+    updated_recurring_task.properties_json = notion_properties_as_dict_list
 
     should_persist_changes = request_dict.headers.get('X-Persist-Changes', 'false')
     if should_persist_changes == 'true':

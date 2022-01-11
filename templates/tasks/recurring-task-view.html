@@ -41,15 +41,19 @@
                         currentSelectedDatabaseId: '{{recurring_task.database_id}}'
                     }">
                     <div class="col-12 pe-2">
-                        <label class="mb-2 h5">
-                            <i class="bi-table"></i>
-                            &nbsp;Database
+                        <label class="mb-1 mt-2 h5">
+                            Database
                             <span class="text-danger text-bold">*</span>
                         </label>
                         <small class="text-muted">
                             Can't find the right Database? <a href="{% oauth_url %}">Click here</a> to update Notion permissions.
                         </small>
-                        <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <i class="bi-table"></i>
+                                </div>
+                            </div>
                             <input
                                     list="databases-list"
                                     name="selected-db-list-id"
@@ -87,11 +91,11 @@
                                     hx-target="#databases-list"
                             >
                             </datalist>
-                            <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
+                        </div>
+                        <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                 Loading Workspace Databases...
-                            </small>
-                        </div>
+                        </small>
                     </div>
                     <div id="properties-container" class="mt-2" hx-target="this">
                         {% include 'tasks/partials/recurring-task-update-property-form.html' %}
