@@ -5,48 +5,20 @@
 
 {% block content %}
 <div class="px-3 py-3">
-    <div class="d-md-flex justify-content-between">
-        <div class="d-flex flex-column justify-content-center">
-            <h1>Add Recurring Tasks To Notion In Seconds</h1>
-            <p class="h5 mb-4">Automate Data Entry without Coding, Complex Tools or Changes to
-                your Notion Tables.</p>
+    <h1 class="mb-4">Painless Recurring Tasks For Notion</h1>
+    <div class="d-md-flex justify-content-between row">
+        <div class="d-flex flex-column justify-content-center col-md-4">
+            <p class="h5 text-muted">Setup a Schedule and <b>Create Data on Autopilot.</b></p>
+            <p class="h6 mt-3"><i class="bi bi-check-lg text-success"></i>&nbsp;Get Started in Seconds</p>
+            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Automatic Timezone Conversion</p>
+            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;No Changes To Tables Required</p>
+            <p class="h6 mb-4"><i class="bi bi-check-lg text-success"></i>&nbsp;No Credit Card Required</p>
             <div>
                 <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Get For Free</a>
-                <p class="small pt-1"><b>No Credit Card Required</b></p>
             </div>
         </div>
-        <img src="{% static 'images/landing-splash.svg' %}" id="landing-splash" alt="Recur logo"/>
-    </div>
-</div>
-
-<div class="px-3 py-3">
-    <div class="d-md-flex justify-content-between">
-        <div class="d-flex flex-column justify-content-center">
-            <h2 class="text-center mb-4">Two-Step Process</h2>
-            <div class="d-flex flex-column flex-md-row justify-content-center">
-                <div class="card m-4">
-                    <div class="card-body">
-                    <h3 class="h4 text-center">Create Page In Notion</h3>
-                    <p class="text-muted text-center">Use any Task in your Workspace Databases</p>
-                    <img src="{% static 'images/notion-task-preview.png' %}"
-                         class="mw-100"
-                         width="400"
-                         height="auto"
-                         alt="Task in Notion"/>
-                        </div>
-                </div>
-                <div class="card m-4">
-                    <div class="card-body">
-                    <h3 class="h4 text-center">Create Schedule</h3>
-                    <p class="text-muted text-center">Define how often and when new tasks are created</p>
-                    <img src="{% static 'images/schedule-task-preview.png' %}"
-                         class="mw-100"
-                         width="400"
-                         height="auto"
-                         alt="Scheduled Task"/>
-                    </div>
-                </div>
-            </div>
+        <div  class="col-md-8">
+            <img src="{% static 'images/recurring-meeting.gif' %}" id="landing-example" alt="Recur logo" class="w-100 h-auto"/>
         </div>
     </div>
 </div>
