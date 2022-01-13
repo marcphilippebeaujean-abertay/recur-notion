@@ -20,6 +20,21 @@ class RecurringTaskBadFormData(Exception):
     pass
 
 
+def update_recurring_task_property_title_from_name(recurring_task):
+    property_json_includes_title = False
+    for property_dict in recurring_task.properties_json:
+        if property_dict['id'] == 'title':
+            property_json_includes_title = True
+            property_dict['value'] = recurring_task.name
+    if not property_json_includes_title:
+        task_title_property_dto = NotionPropertyDto(name_str='Name',
+                                                    id_str='title',
+                                                    notion_type_str='title',
+                                                    value=recurring_task.name,
+                                                    assign_default_value=False)
+        recurring_task.properties_json = [task_title_property_dto.dto_dict()]
+
+
 def update_recurring_task_schedule_from_request_data(request, task_pk):
     try:
         updated_recurring_task = RecurringTask.objects.filter(owner=request.user,
@@ -30,6 +45,7 @@ def update_recurring_task_schedule_from_request_data(request, task_pk):
         updated_recurring_task.interval = request.POST['interval']
     elif 'task-name' in request.POST:
         updated_recurring_task.name = request.POST['task-name']
+        update_recurring_task_property_title_from_name(recurring_task=updated_recurring_task)
     elif 'start-time' in request.POST and 'X-Client-Timezone' in request.headers:
         # this variable format is probably breaking the template
         user_unlocalized_start_datetime = datetime.strptime(request.POST['start-time'], '%Y-%m-%dT%H:%M')
@@ -78,21 +94,8 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
         elif property_is_in_request_form:
             property_container.value = request_dict.POST[property_container.id]
         notion_properties_as_dict_list.append(property_container.dto_dict())
-
-    title_was_set = False
-    for property_dict in notion_properties_as_dict_list:
-        if property_dict['type'] == 'title':
-            title_was_set = True
-    if not title_was_set:
-        # We need to add the name property to be the same as the recurring task name
-        task_title_property = NotionPropertyDto(name_str='Name',
-                                                id_str='Name',
-                                                notion_type_str='title',
-                                                value=updated_recurring_task.name,
-                                                assign_default_value=False)
-        notion_properties_as_dict_list.append(task_title_property)
     updated_recurring_task.properties_json = notion_properties_as_dict_list
-
+    update_recurring_task_property_title_from_name(recurring_task=updated_recurring_task)
     should_persist_changes = request_dict.headers.get('X-Persist-Changes', 'false')
     if should_persist_changes == 'true':
         updated_recurring_task.save()

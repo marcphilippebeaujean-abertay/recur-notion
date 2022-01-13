@@ -12,7 +12,7 @@
             {% csrf_token %}
             {{ form|crispy }}
             <div class="my-2">
-                <input type="checkbox" x-model="agreedToTerms" /><span>&nbsp;<span class="fw-bold text-danger">*</span>&nbsp;I have read and agree to the <a href="{% url 'datapolicy' %}">data policy</a>, as well as essential cookie use.</span>
+                <input type="checkbox" x-model="agreedToTerms" /><span>&nbsp;<span class="fw-bold text-danger">*</span>&nbsp;I have read and agree to the <a href="{% url 'data-policy' %}">data policy</a>, as well as essential cookie use.</span>
             </div>
             <button class="btn btn-success" type="submit" x-bind:disabled="!agreedToTerms">Sign up</button>
         </form>

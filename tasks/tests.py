@@ -262,6 +262,7 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
             owner=self.user,
+            name='lino',
             database_id=VALID_DATABASE_ID
         )
         self.request_url = f'/update-recurring-task-schedule/{self.recurring_test_task_model.pk}'
@@ -332,6 +333,40 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
         self.assertEqual(response.status_code, 200)
         self.assert_task_was_not_created()
         self.assert_task_start_time_was_updated()
+
+    def test_title_logged_in_user(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        new_task_name = 'new_task_name'
+        payload = {
+            'task-name': [new_task_name],
+        }
+        response = self.client.post(self.request_url, payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
+        self.assertEqual(response.status_code, 200)
+        self.assert_task_was_not_created()
+        recurring_task_from_db = RecurringTask.objects.all()[0]
+        self.assertEqual(recurring_task_from_db.name, new_task_name)
+
+    def test_title_update_updates_properties(self):
+        self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
+        new_task_name = 'new_task_name'
+        payload = {
+            'task-name': [new_task_name],
+        }
+        response = self.client.post(self.request_url, payload, HTTP_X_CLIENT_TIMEZONE='Europe/Berlin')
+        self.assertEqual(response.status_code, 200)
+        self.assert_task_was_not_created()
+        recurring_task_from_db = RecurringTask.objects.all()[0]
+        self.assertEqual(len(recurring_task_from_db.properties_json), 1)
+        self.assertEqual(recurring_task_from_db.properties_json[0], {
+            'id': 'title',
+            'type': 'title',
+            'value': new_task_name,
+            'name': 'Name',
+            'options': None,
+            'html_form_type': 'text',
+            'html_value': 'new_task_name'
+        })
+
 
     def test_recurring_task_requires_post_method(self):
         self.client.force_login(get_user_model().objects.get_or_create(username=self.user.username)[0])
