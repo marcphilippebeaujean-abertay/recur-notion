@@ -5,16 +5,18 @@
 {% load notion_workspace_tags %}
 
 {% block content %}
-<div class="d-flex">
+<div class="d-flex" x-data="{
+        databaseSelected: {% if recurring_task.database_id == None or recurring_task.database_id == '' %}false{% else %}true{% endif %}
+    }">
     <div class="w-100 px-2">
         <div class="card">
             <div class="card-body">
-                <div class="row mb-1">
+                <div class="row">
                     <div class="col-12">
                         <label for="task-name">Name</label><br/>
                         <input value="{{ recurring_task.name }}"
                                type="text"
-                               class="h3 border-0 w-100"
+                               class="h3 border-0 w-100 mb-0"
                                name="task-name"
                                id="task-name"
                                hx-trigger="change delay:1s"
@@ -22,18 +24,9 @@
                                hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
                         />
                         <small id="task-name-change-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Saving changees...
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak></span>
+                            Saving changes...
                         </small>
-                    </div>
-                </div>
-                <h3 class="h4">Schedule</h3>
-                {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
-                <hr/>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="my-2 mr-2">
-                        </div>
                     </div>
                 </div>
                 <div x-data="{
@@ -45,7 +38,8 @@
                             <span class="text-danger text-bold">*</span>
                         </label>
                         <small class="text-muted">
-                            Can't find the right Database? <a href="{% oauth_url %}">Click here</a> to update Notion permissions.
+                            Can't find the right Database? <a href="{% oauth_url %}">Click here</a> to update Notion
+                            permissions.
                         </small>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -80,6 +74,7 @@
                                // insert loading spinner
                                var propertiesContainerElem = document.getElementById('properties-container');
                                propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
+                               databaseSelected = true;
                             }"
                             />
                             <datalist
@@ -92,13 +87,19 @@
                             </datalist>
                         </div>
                         <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Loading Workspace Databases...
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading Workspace Databases...
                         </small>
                     </div>
                     <div id="properties-container" class="mt-2" hx-target="this">
                         {% include 'tasks/partials/recurring-task-update-property-form.html' %}
                     </div>
+                </div>
+                <div class="my-2"></div>
+                <div class="py-2" x-cloak x-show="databaseSelected">
+                    <hr/>
+                    <h3 class="h4">Schedule</h3>
+                    {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
                 </div>
             </div>
         </div>
