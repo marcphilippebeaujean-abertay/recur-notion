@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'crispy_forms',
     'django_q',
-    "debug_toolbar",
+    'debug_toolbar',
+    'django_ses',
 
     # Local
     'accounts',
@@ -127,6 +128,8 @@ else:
     DATABASES['default']['HOST'] = os.environ.get('DATABASE_HOST')
     DATABASES['default']['POST'] = os.environ.get('DATABASE_PORT')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # PASSWORDS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
@@ -179,7 +182,19 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django_ses.SESBackend'
+EMAIL_HOST_USER = 'noreply@albert.so'
+DEFAULT_FROM_EMAIL = 'noreply@albert.so'
+
+# These are optional -- if they're set as environment variables they won't
+# need to be set here as well
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY_ID')
+
+# Additionally, if you are not using the default AWS region of us-east-1,
+# you need to specify a region, like so:
+AWS_SES_REGION_NAME = 'us-west-2'
+AWS_SES_REGION_ENDPOINT = 'email.us-west-2.amazonaws.com'
 
 # DJANGO-DEBUG-TOOLBAR CONFIGS
 # ------------------------------------------------------------------------------
