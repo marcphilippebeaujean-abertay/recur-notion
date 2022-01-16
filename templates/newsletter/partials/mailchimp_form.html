@@ -1,0 +1,57 @@
+{% load honeypot %}
+
+<div class="card"
+     id="newsletter-container"
+     x-data="{ agreedToTerms: false, loading: false }"
+     style="max-width:500px;"
+>
+    <div class="card-body">
+        <h3 class="h5">Did you hear the News?</h3>
+        <p class="text-muted">Get the latest Notion awesomeness in your Inbox - Templates, Guides,
+            Automations and more!</p>
+        <form
+                hx-post="{% url 'add-newsletter-member' %}"
+                hx-target="#newsletter-container"
+                @submit="loading = true"
+        >
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <i class="bi-envelope mr-2 text-bold"></i>
+                        </div>
+                    </div>
+                    <input name="email"
+                           type="email"
+                           value="{{email}}"
+                           class="form-control"
+                           placeholder="Your Email..."
+                           required="required"
+                           {% if success != None %}disabled{% endif %}
+                    />
+                    {% render_honeypot_field %}
+                </div>
+                <div class="mt-2">
+                    <input
+                            {% if success != None %}disabled{% endif %}
+                            type="checkbox"
+                            x-model="agreedToTerms"
+                            {% if success != None %}checked{% endif %}
+                    /><span>&nbsp;<span class="fw-bold text-danger">*</span>&nbsp;I have read the <a
+                        href="{% url 'data-policy' %}">data policy</a> and agree to receiving emails from this newsletter.</span>
+                </div>
+            {% if error != None %}
+                <div class="alert alert-danger mt-2 mb-0" x-transition>Sign up failed - are you already subscribed or entered
+                    the wrong Email?
+                </div>
+            {% endif %}
+            {% if success == None %}
+                <button type="submit" class="btn btn-success mt-2" x-bind:disabled="loading || !agreedToTerms">
+                    <span x-cloak class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+                    Subscribe
+                </button>
+            {% else %}
+                <div class="alert alert-success mt-2" x-transition>Thanks for subscribing!</div>
+            {% endif %}
+        </form>
+    </div>
+</div>

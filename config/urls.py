@@ -9,6 +9,7 @@ urlpatterns = [
     path("", include("workspaces.urls")),
     path("", include("tasks.urls")),
     path("", include("notion_database.urls")),
+    path("", include("newsletter.urls")),
 ]
 
 if settings.DEBUG:

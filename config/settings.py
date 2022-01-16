@@ -39,11 +39,14 @@ INSTALLED_APPS = [
     "django_q",
     "debug_toolbar",
     "django_ses",
+    "django_browser_reload",
+    "honeypot",
     # Local
     "accounts",
     "pages",
     "workspaces",
     "tasks",
+    "newsletter",
 ]
 
 # MIDDLEWARE
@@ -161,7 +164,6 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
-
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
@@ -194,6 +196,9 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY_ID")
 # you need to specify a region, like so:
 AWS_SES_REGION_NAME = "us-west-2"
 AWS_SES_REGION_ENDPOINT = "email.us-west-2.amazonaws.com"
+
+MAILCHIMP_SECRET = os.environ.get("MAILCHIMP_KEY")
+MAILCHIMP_SERVER_PREFIX = os.environ.get("MAILCHIMP_SERVER_PREFIX")
 
 # DJANGO-DEBUG-TOOLBAR CONFIGS
 # ------------------------------------------------------------------------------
@@ -255,3 +260,5 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 NOTION_CLIENT_SECRET = os.environ.get("NOTION_CLIENT_SECRET")
 NOTION_CLIENT_ID = os.environ.get("NOTION_CLIENT_ID")
 NOTION_OAUTH_CALLBACK = os.environ.get("NOTION_OAUTH_CALLBACK")
+
+HONEYPOT_FIELD_NAME = "body_2"
