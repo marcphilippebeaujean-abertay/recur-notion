@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('workspaces', '0001_initial'),
+        ("workspaces", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notionworkspace',
-            name='icon_url',
+            model_name="notionworkspace",
+            name="icon_url",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]
