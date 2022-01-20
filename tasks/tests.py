@@ -9,6 +9,7 @@ from django.utils import timezone
 from django_q.models import Schedule
 
 import notion_database.notion_mock_api as notion_db_mock
+from notion_database.models import NotionDatabase
 from notion_database.notion_mock_api import (
     VALID_ACCESS_TOKEN,
     VALID_DATABASE_ID,
@@ -92,6 +93,9 @@ class TasksTestCase(TestCase):
             workspace=self.init_workspace,
             owner=self.user,
         )
+        self.sample_database = NotionDatabase.objects.create(
+            database_id=VALID_DATABASE_ID, database_name="The Database"
+        )
 
 
 class TestCreateTasksJobTest(TasksTestCase):
@@ -118,7 +122,7 @@ class TestCreateTasksJobTest(TasksTestCase):
             - timedelta(days=1),
             owner=self.user,
             properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         # run the tasks method
         create_recurring_task_in_notion(task.pk)
@@ -140,7 +144,7 @@ class TestCreateTasksJobTest(TasksTestCase):
             - timedelta(days=3),
             owner=self.user,
             properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         # run the tasks method
         self.assertRaises(
@@ -163,7 +167,7 @@ class TestCreateTasksJobTest(TasksTestCase):
             - timedelta(days=7),
             owner=self.user,
             properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         NotionWorkspaceAccess.objects.all().delete()
         # run the tasks method
@@ -199,7 +203,7 @@ class TestDateUntilPreview(TasksTestCase):
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
             - timedelta(days=7),
             owner=self.user,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.assertEqual(task.days_till_next_task, 1)
 
@@ -210,7 +214,7 @@ class TestDateUntilPreview(TasksTestCase):
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
             - timedelta(days=6),
             owner=self.user,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.assertEqual(task.days_till_next_task, 1)
 
@@ -281,7 +285,7 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
             owner=self.user,
             name="lino",
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.request_url = (
             f"/update-recurring-task-schedule/{self.recurring_test_task_model.pk}"
@@ -318,7 +322,7 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
             DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
         )
         self.assertEqual(recurring_task_from_db.owner, self.user)
-        self.assertEqual(recurring_task_from_db.database_id, VALID_DATABASE_ID)
+        self.assertEqual(recurring_task_from_db.database.database_id, VALID_DATABASE_ID)
 
     def test_only_logged_in_user_can_update_recurring_tasks(self):
         # create new recurring task
@@ -347,7 +351,7 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
             owner=get_user_model().objects.create_user(
                 username="testuser2", email="test2@email.com", password="secret"
             ),
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
@@ -488,7 +492,7 @@ class TestDeleteRecurringTask(TasksTestCase):
         self.recurring_test_task_model = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             owner=self.user,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.request_url = f"/delete-recurring-task/{self.recurring_test_task_model.pk}"
 
@@ -534,7 +538,7 @@ class TestDeleteRecurringTask(TasksTestCase):
             owner=get_user_model().objects.create_user(
                 username="testuser2", email="test2@email.com", password="secret"
             ),
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
@@ -563,7 +567,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
             owner=self.user,
             name=self.default_task_name,
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.update_properties_payload_dict = {
             "E%3F%5EI": "cali@gmail.com",
@@ -614,7 +618,8 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         self.assertTrue("E%3F%5EI" in properties_id_set)
         self.assertTrue("Name" in properties_id_set)
         self.assertEqual(
-            recurring_task_from_db.database_id, "a9f68551-1cf2-4615-9a41-1f1368ae4f78"
+            recurring_task_from_db.database.database_id,
+            "a9f68551-1cf2-4615-9a41-1f1368ae4f78",
         )
         self.assertEqual(recurring_task_from_db.database_name, "Todo")
 
@@ -646,7 +651,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             owner=get_user_model().objects.create_user(
                 username="testuser2", email="test2@email.com", password="secret"
             ),
-            database_id=VALID_DATABASE_ID,
+            database=self.sample_database,
         )
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]

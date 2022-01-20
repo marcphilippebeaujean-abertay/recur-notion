@@ -8,6 +8,7 @@ from django_q.models import Schedule
 
 # Create your models here.
 from accounts.models import CustomUser
+from notion_database.models import NotionDatabase
 
 
 class RecurringTask(models.Model):
@@ -19,8 +20,13 @@ class RecurringTask(models.Model):
 
     name = models.CharField(max_length=255, default="New Recurring Task")
     # ID used to find original task this one is being cloned from
-    database_id = models.CharField(max_length=255, null=None, blank=None)
-    database_name = models.CharField(max_length=255, null=None, blank=None)
+    database = models.ForeignKey(
+        NotionDatabase,
+        to_field="database_id",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     owner = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="tasks"
     )

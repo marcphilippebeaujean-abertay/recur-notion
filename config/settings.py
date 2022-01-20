@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "workspaces",
     "tasks",
     "newsletter",
+    "notion_database",
 ]
 
 # MIDDLEWARE
@@ -63,6 +64,26 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# LOGGIN
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/tmp/debug.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
 
 # Configure your Q cluster
 # More details https://django-q.readthedocs.io/en/latest/configure.html

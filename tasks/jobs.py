@@ -16,13 +16,19 @@ logger = logging.getLogger(__name__)
 
 
 def create_recurring_task_in_notion(task_pk):
+    logger.info(f"Creating new task for PK: {task_pk}")
     try:
         task_model = RecurringTask.objects.all().filter(pk=task_pk)[0]
     except IndexError:
         raise Exception(
             f"Task with id {task_pk} be created because it did not exist in Database anymore."
         )
-    if task_model.database_id is None or task_model.database_id == "":
+    task_notion_db_model = task_model.database
+    if (
+        task_notion_db_model is None
+        or task_notion_db_model.database_id is None
+        or task_notion_db_model.database_id == ""
+    ):
         logger.info(
             f"Database id was not set for Recurring Task with PK {task_pk}! Cannot handle request."
         )
@@ -39,11 +45,11 @@ def create_recurring_task_in_notion(task_pk):
         logger.error("User did not have a workspace access")
         raise Exception("User did not have a workspace access.")
     # Fetch the given database from Notion
-    notion_database_query_resp_dict = client.databases.retrieve(
-        database_id=task_model.database_id
+    notion_db_schema_resp_dict = client.databases.retrieve(
+        database_id=task_notion_db_model.database_id
     )
     database_dict = convert_notion_database_resp_dict_to_simple_database_dict(
-        notion_database_query_resp_dict
+        notion_db_schema_resp_dict
     )
     # Check which properties are still in the Database
     notion_database_property_id_set = {
@@ -59,7 +65,10 @@ def create_recurring_task_in_notion(task_pk):
             property_dto_list
         )
     )
-    page_parent_dict = {"database_id": task_model.database_id}
+    page_parent_dict = {"database_id": task_notion_db_model.database_id}
     client.pages.create(parent=page_parent_dict, properties=request_properties_dict)
+
+    # task_notion_db_model.properties_schema_json = database_dict
+    task_notion_db_model.save()
     # Call the create Notion Page Method
     logger.debug(f"Created recurring task with id {task_model.pk} successfully.")
