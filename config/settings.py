@@ -204,7 +204,11 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = "django_ses.SESBackend"
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG is True
+    else "django_ses.SESBackend"
+)
 EMAIL_HOST_USER = "noreply@albert.so"
 DEFAULT_FROM_EMAIL = "noreply@albert.so"
 

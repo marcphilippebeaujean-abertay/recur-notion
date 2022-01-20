@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="d-flex" x-data="{
-        databaseSelected: {% if recurring_task.database_id == None or recurring_task.database_id == '' %}false{% else %}true{% endif %}
+        databaseSelected: {% if recurring_task.database == None %}false{% else %}true{% endif %}
     }">
     <div class="w-100 px-2">
         <div class="card">
@@ -30,7 +30,14 @@
                     </div>
                 </div>
                 <div x-data="{
-                        currentSelectedDatabaseId: '{{recurring_task.database_id}}'
+                        currentSelectedDatabaseId:
+                        {% if recurring_task.database is None %}
+                            ''
+                        {% elif recurring_task.database.database_id is None %}
+                            ''
+                        {% else %}
+                            '{{recurring_task.database.database_id}}'
+                        {% endif %}
                     }">
                     <div class="col-12 pe-2">
                         <label class="mb-1 mt-2 h4">
@@ -51,7 +58,9 @@
                                     list="databases-list"
                                     name="selected-db-list-id"
                                     placeholder="Search for Database..."
-                                    value="{{recurring_task.database_name}}"
+                                    {% if recurring_task.database != None and recurring_task.database.database_name != None %}
+                                        value="{{recurring_task.database.database_name}}"
+                                    {% endif %}
                                     id="databases-selector"
                                     class="form-control"
                                     hx-trigger="change delay:50ms"

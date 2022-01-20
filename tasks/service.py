@@ -3,8 +3,10 @@ from datetime import datetime, timezone
 
 import pytz
 
-from notion_database.models import NotionDatabase
-from notion_database.service import query_user_notion_database_by_id
+from notion_database.service import (
+    get_or_update_database_from_simple_database_dict_returning_model,
+    query_user_notion_database_by_id,
+)
 from notion_properties.constants import IGNORED_PROPERTIES_SET
 from notion_properties.dto import NotionPropertyDto
 
@@ -92,15 +94,11 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
     database_dict = query_user_notion_database_by_id(
         user_model=request_dict.user, database_id_str=notion_db_id_str
     )
-    notion_database_model, was_created = NotionDatabase.objects.get_or_create(
-        database_id=notion_db_id_str
+    updated_recurring_task.database = (
+        get_or_update_database_from_simple_database_dict_returning_model(
+            simple_database_dict=database_dict
+        )
     )
-    notion_database_model.database_name = database_dict["name"]
-    notion_database_model.database_id = notion_db_id_str
-    if was_created is False:
-        # TODO: check this query is necessary
-        notion_database_model.save()
-    updated_recurring_task.database = notion_database_model
     notion_properties_as_dict_list = []
     notion_properties_container_list = database_dict["properties"]
     for property_container in notion_properties_container_list:

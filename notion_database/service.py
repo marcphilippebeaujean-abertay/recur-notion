@@ -2,6 +2,7 @@ import logging
 
 import notion_client
 
+from notion_database.models import NotionDatabase
 from notion_properties.service import (
     get_list_of_property_dtos_from_notion_database_resp_dict,
 )
@@ -64,3 +65,18 @@ def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
             notion_db_dict=notion_db_dict
         ),
     }
+
+
+def get_or_update_database_from_simple_database_dict_returning_model(
+    simple_database_dict,
+):
+    db_id_str = simple_database_dict["id"]
+    notion_database_model, was_created = NotionDatabase.objects.get_or_create(
+        database_id=db_id_str
+    )
+    notion_database_model.database_name = simple_database_dict["name"]
+    notion_database_model.database_id = db_id_str
+    if was_created is False:
+        # TODO: check this query is necessary
+        notion_database_model.save()
+    return notion_database_model

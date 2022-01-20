@@ -623,6 +623,43 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         )
         self.assertEqual(recurring_task_from_db.database_name, "Todo")
 
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_update_recurring_task_creates_database(self, m):
+        NotionDatabase.objects.all().delete()
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            self.request_url,
+            self.update_properties_payload_dict,
+            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(NotionDatabase.objects.count(), 1)
+        self.assertEqual(NotionDatabase.objects.all()[0].database_id, VALID_DATABASE_ID)
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_update_recurring_task_does_not_create_new_db_if_already_exists(self, m):
+        self.assertEqual(NotionDatabase.objects.count(), 1)
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            self.request_url,
+            self.update_properties_payload_dict,
+            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(NotionDatabase.objects.count(), 1)
+        self.assertEqual(NotionDatabase.objects.all()[0].database_id, VALID_DATABASE_ID)
+        self.assertEqual(NotionDatabase.objects.all()[0].database_name, "Todo")
+
     def check_task_was_not_updated(self):
         recurring_task_from_db = RecurringTask.objects.all()[0]
         self.assertEqual(recurring_task_from_db.properties_json, {})
