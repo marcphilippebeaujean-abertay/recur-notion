@@ -6,3 +6,7 @@
 .add-recurring-task-btn:hover {
   cursor: pointer;
 }
+
+.bg-muted-on-hover:hover {
+    background-color: rgba(0,0,0,.04);
+}
