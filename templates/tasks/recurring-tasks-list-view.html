@@ -50,7 +50,7 @@
                             <div class="alert alert-danger">Task needs to be initialized.</div>
                             {% else %}
                             <div>
-                                <label class="small muted"><i class="bi bi-table"></i> Database</label>
+                                <label class="form-label"><i class="bi bi-table"></i> Database</label>
                                 <p class="h5">{{recurring_task.database.database_name}}</p>
                             </div>
                             {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
