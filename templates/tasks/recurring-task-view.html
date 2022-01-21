@@ -19,7 +19,7 @@
                                class="h3 border-0 w-100 mb-0 bg-muted-on-hover"
                                name="task-name"
                                id="task-name"
-                               hx-trigger="change delay:1s"
+                               hx-trigger="change"
                                hx-indicator="#task-name-change-loading-indicator"
                                hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
                         />
@@ -64,7 +64,7 @@
                                     id="databases-selector"
                                     class="form-control"
                                     hx-trigger="change delay:50ms"
-                                    x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": false}`'
+                                    x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
                                     hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
                                     hx-target="#properties-container"
                                     @change="() => {
