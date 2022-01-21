@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta, timezone
 from unittest import mock
 
@@ -10,11 +9,7 @@ from django_q.models import Schedule
 
 import notion_database.notion_mock_api as notion_db_mock
 from notion_database.models import NotionDatabase
-from notion_database.notion_mock_api import (
-    VALID_ACCESS_TOKEN,
-    VALID_DATABASE_ID,
-    create_or_get_mocked_oauth_notion_client,
-)
+from notion_database.notion_mock_api import VALID_ACCESS_TOKEN, VALID_DATABASE_ID
 from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 
 from .jobs import create_recurring_task_in_notion
@@ -24,58 +19,119 @@ DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME = timezone.now()
 
 EXAMPLE_NOTION_PROPERTIES = [
     {
-        "id": "E%3F%5EI",
-        "name": "Property 2",
+        "id": "_jFX",
+        "name": "Mail",
         "type": "email",
         "value": "cali@gmail.com",
         "options": [],
     },
+    # TODO: Support date
+    # {
+    #    "id": "Fq%3Ar",
+    #    "name": "Deadline",
+    #    "type": "date",
+    #    "value": "2022-01-11T19:12:39+00:00",
+    #    "options": [],
+    # },
     {
-        "id": "Fq%3Ar",
-        "name": "Deadline",
-        "type": "date",
-        "value": "2022-01-11T19:12:39+00:00",
-        "options": [],
-    },
-    {
-        "id": "SXQ%7B",
-        "name": "Property 3",
+        "id": "s%60lY",
+        "name": "Phone Number",
         "type": "phone_number",
         "value": "12456",
         "options": [],
     },
     {
-        "id": "%60moG",
-        "name": "Status",
-        "type": "select",
-        "value": "1",
+        "id": "s%60lddfY",
+        "name": "None Existing Property",
+        "type": "phone_number",
+        "value": "12456",
         "options": [
-            {"id": "1", "name": "Not started", "color": "red"},
-            {"id": "2", "name": "In progress", "color": "yellow"},
-            {"id": "3", "name": "Completed", "color": "green"},
+            {
+                "id": "a946e6f5-fa09-4d30-bb2e-ff91f639b77b",
+                "name": "test1",
+                "color": "green",
+            },
+            {
+                "id": "7f7cce89-2594-40c8-8b8b-813c7cbf4f27",
+                "name": "test2",
+                "color": "red",
+            },
+        ],
+    },
+    {
+        "id": "s%60lY",
+        "name": "None Existing Property",
+        "type": "none_existing_type",
+        "value": "12456",
+        "options": [
+            {
+                "id": "a946e6f5-fa09-4d30-bb2e-ff91f639b77b",
+                "name": "test1",
+                "color": "green",
+            },
+            {
+                "id": "7f7cce89-2594-40c8-8b8b-813c7cbf4f27",
+                "name": "test2",
+                "color": "red",
+            },
+        ],
+    },
+    {
+        "id": "%3E%5Dqm",
+        "name": "Tags",
+        "type": "multi_select",
+        "value": "a946e6f5-fa09-4d30-bb2e-ff91f639b77b",
+        "options": [
+            {
+                "id": "a946e6f5-fa09-4d30-bb2e-ff91f639b77b",
+                "name": "test1",
+                "color": "green",
+            },
+            {
+                "id": "7f7cce89-2594-40c8-8b8b-813c7cbf4f27",
+                "name": "test2",
+                "color": "red",
+            },
+        ],
+    },
+    {
+        "id": "epmG",
+        "name": "Category",
+        "type": "select",
+        "value": "b7c6b95b-7142-4f0b-ad9c-a81b472503c6",
+        "options": [
+            {
+                "id": "b7c6b95b-7142-4f0b-ad9c-a81b472503c6",
+                "name": "test1",
+                "color": "yellow",
+            },
+            {
+                "id": "988be32c-6ec9-46fc-9665-d9e82dd8a96e",
+                "name": "test2",
+                "color": "yellow",
+            },
         ],
     },
     # TODO: Support assigning
-    #'Assign': {
+    # 'Assign': {
     #    'id': 'd%60Tf',
     #    'name': 'Assign',
     #    'type': 'people',
     #    'people': {}
     # },
-    {"id": "qsTb", "name": "Property 1", "type": "url", "options": [], "value": ""},
     {
-        "id": "%7CJhi",
-        "name": "Property 4",
-        "type": "rich_text",
+        "id": "atrI",
+        "name": "URL",
+        "type": "url",
         "options": [],
-        "value": {"text": {"content": "Rent"}},
+        "value": "http://helloworld.com",
     },
     {
         "id": "title",
         "name": "Name",
         "type": "title",
         "options": [],
-        "value": {"text": {"content": "Rent"}},
+        "value": "Rent",
     },
 ]
 
@@ -106,15 +162,7 @@ class TestCreateTasksJobTest(TasksTestCase):
         response = self.client.get("/tasks")
         self.assertEqual(response.status_code, 302)
 
-    @mock.patch(
-        "tasks.jobs.notion_client.Client",
-        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
-    )
-    @mock.patch(
-        "notion_database.service.notion_client.Client",
-        side_effect=create_or_get_mocked_oauth_notion_client,
-    )
-    def test_create_scheduled_task_in_notion(self, m1, m2):
+    def test_create_scheduled_task_in_notion(self):
         # create new recurring task
         task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
@@ -126,17 +174,57 @@ class TestCreateTasksJobTest(TasksTestCase):
         )
         # run the tasks method
         create_recurring_task_in_notion(task.pk)
-        m2.assert_called_once_with(auth=VALID_ACCESS_TOKEN)
 
-    @mock.patch(
-        "tasks.jobs.notion_client.Client",
-        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
-    )
-    @mock.patch(
-        "notion_database.service.notion_client.Client",
-        side_effect=create_or_get_mocked_oauth_notion_client,
-    )
-    def test_no_scheduled_task_in_database_throws_exception(self, m1, m2):
+    def test_create_scheduled_task_in_notion_despite_wrong_type_for_property(self):
+        # create new recurring task
+        task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
+            - timedelta(days=1),
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        for property_dict in task.properties_json:
+            if property_dict["type"] == "select":
+                property_dict["type"] = "multi_select"
+        task.save()
+        # run the tasks method
+        create_recurring_task_in_notion(task.pk)
+
+    def test_create_scheduled_task_in_notion_despite_wrong_id_for_option(self):
+        self.sample_database.database_id = "wrong_database_id"
+        self.sample_database.save()
+        task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
+            - timedelta(days=1),
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        # run the tasks method
+        create_recurring_task_in_notion(task.pk)
+        self.assertEqual(RecurringTask.objects.get(pk=task.pk).database, None)
+
+    def test_reset_database_for_scheduled_task_in_notion_with_wrong_database_id(self):
+        # create new recurring task
+        task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
+            - timedelta(days=1),
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        for property_dict in task.properties_json:
+            if property_dict["type"] == "select":
+                property_dict["value"] = "invalid_option_id"
+        task.save()
+        # run the tasks method
+        create_recurring_task_in_notion(task.pk)
+
+    def test_no_scheduled_task_in_database_throws_exception(self):
         # create new recurring task
         task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
@@ -151,15 +239,7 @@ class TestCreateTasksJobTest(TasksTestCase):
             Exception, lambda x: create_recurring_task_in_notion("invalid_pk")
         )
 
-    @mock.patch(
-        "tasks.jobs.notion_client.Client",
-        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
-    )
-    @mock.patch(
-        "notion_database.service.notion_client.Client",
-        side_effect=create_or_get_mocked_oauth_notion_client,
-    )
-    def test_no_workspace_access_in_database_throws_exception(self, m1, m2):
+    def test_no_workspace_access_in_database_throws_exception(self):
         # create new recurring task
         task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
@@ -173,15 +253,7 @@ class TestCreateTasksJobTest(TasksTestCase):
         # run the tasks method
         self.assertRaises(Exception, lambda x: create_recurring_task_in_notion(task.pk))
 
-    @mock.patch(
-        "tasks.jobs.notion_client.Client",
-        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
-    )
-    @mock.patch(
-        "notion_database.service.notion_client.Client",
-        side_effect=create_or_get_mocked_oauth_notion_client,
-    )
-    def test_not_calling_any_api_if_database_id_is_not_set(self, m1, m2):
+    def test_not_calling_any_api_if_database_id_is_not_set(self):
         # create new recurring task
         task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
@@ -192,7 +264,6 @@ class TestCreateTasksJobTest(TasksTestCase):
         )
         # run the tasks method
         create_recurring_task_in_notion(task.pk)
-        m2.assert_not_called()
 
 
 class TestDateUntilPreview(TasksTestCase):
@@ -619,7 +690,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         self.assertTrue("Name" in properties_id_set)
         self.assertEqual(
             recurring_task_from_db.database.database_id,
-            "a9f68551-1cf2-4615-9a41-1f1368ae4f78",
+            VALID_DATABASE_ID,
         )
         self.assertEqual(recurring_task_from_db.database_name, "Todo")
 
@@ -635,7 +706,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         response = self.client.post(
             self.request_url,
             self.update_properties_payload_dict,
-            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+            HTTP_X_SELECTED_DATABASE_ID=VALID_DATABASE_ID,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(NotionDatabase.objects.count(), 1)

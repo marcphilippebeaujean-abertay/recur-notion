@@ -11,3 +11,7 @@ class Imprint(TemplateView):
 
 class DataPolicy(TemplateView):
     template_name = "pages/data-policy.html"
+
+
+class TermsOfService(TemplateView):
+    template_name = "pages/terms-of-service.html"

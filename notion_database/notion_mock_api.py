@@ -1,8 +1,8 @@
-import json
+import os
 
-VALID_DATABASE_ID = "a9f68551-1cf2-4615-9a41-1f1368ae4f78"
+VALID_DATABASE_ID = os.environ.get("TEST_DATABASE_ID")
 VALID_NOTION_TASK_ID = "b55c9c91-384d-452b-81db-d1ef79372b75"
-VALID_ACCESS_TOKEN = "access_123"
+VALID_ACCESS_TOKEN = os.environ.get("TEST_NOTION_SECRET")
 VALID_ACCESS_TOKEN_2 = "access_122"
 
 MOCK_DATABASE_RESPONSE = {
@@ -10,7 +10,7 @@ MOCK_DATABASE_RESPONSE = {
     "results": [
         {
             "object": "database",
-            "id": "a9f68551-1cf2-4615-9a41-1f1368ae4f78",
+            "id": VALID_DATABASE_ID,
             "cover": None,
             "icon": {"type": "emoji", "emoji": "✅"},
             "created_time": "2021-09-12T17:03:00.000Z",

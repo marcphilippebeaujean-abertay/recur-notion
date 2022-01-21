@@ -1,6 +1,8 @@
 import logging
 
+import httpx
 import notion_client
+from notion_client import APIResponseError
 
 from notion_database.service import (
     convert_notion_database_resp_dict_to_simple_database_dict,
@@ -45,9 +47,15 @@ def create_recurring_task_in_notion(task_pk):
         logger.error("User did not have a workspace access")
         raise Exception("User did not have a workspace access.")
     # Fetch the given database from Notion
-    notion_db_schema_resp_dict = client.databases.retrieve(
-        database_id=task_notion_db_model.database_id
-    )
+    try:
+        notion_db_schema_resp_dict = client.databases.retrieve(
+            database_id=task_notion_db_model.database_id
+        )
+    except (httpx.HTTPStatusError, APIResponseError) as error:
+        logger.info("Failed to retrieve Database for Task!")
+        task_model.database = None
+        task_model.save()
+        return
     database_dict = convert_notion_database_resp_dict_to_simple_database_dict(
         notion_db_schema_resp_dict
     )
