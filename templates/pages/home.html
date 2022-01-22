@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load webp_converter %}
 
 {% block title %}Home page{% endblock title %}
 
@@ -11,7 +12,8 @@
             <p class="h5 text-muted">Setup a Schedule.<br /><b>Create Data on Autopilot.</b></p>
             <p class="h6 mt-3"><i class="bi bi-check-lg text-success"></i>&nbsp;Get Started in Seconds</p>
             <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Automatic Timezone Conversion</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;No Changes To Tables Required</p>
+            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;No Tutorial Required</p>
+            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;No Changes To Your Data Required</p>
             <p class="h6 mb-4"><i class="bi bi-check-lg text-success"></i>&nbsp;<b>No Credit Card Required</b></p>
             <div>
                 <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Get For Free</a>
@@ -23,35 +25,34 @@
         </div>
     </div>
 </div>
-<div class="py-4"></div>
 <div class="px-3 py-4 mt-4">
     <div class="d-flex flex-column justify-content-center pb-4">
         <h2 class="mt-0 text-center">Simple By Design</h2>
     </div>
     <div class="d-md-flex justify-content-between row">
-        <div class="col-md-4 col-12 mt-2 justify-content-center">
-            <h3 class="h4 mb-3 text-center">Link Your Database</h3>
+        <div class="col-md-4 col-12 mt-2 justify-content-center"  style="transform: rotate(1.5deg);">
+            <h3 class="h4 mb-3 text-center">Choose A Database</h3>
             <div class="card steps-card m-auto">
                 <div class="card-body">
-                    <img src="{% static 'images/database-preview.png' %}" class="w-100" alt="Daily standup preview"/>
+                    <img src="{% static_webp 'images/database-preview.png' %}" class="w-100" alt="Daily standup preview"/>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-12 mt-2 justify-content-center">
+        <div class="col-md-4 col-12 mt-2 justify-content-center" style="transform: rotate(-1deg);">
             <div>
-                <h3 class="h4 mb-3 text-center">Set Task Properties</h3>
+                <h3 class="h4 mb-3 text-center">Set Properties</h3>
             </div>
             <div class="card steps-card m-auto">
                 <div class="card-body">
-                    <img src="{% static 'images/properties-preview.png' %}" class="w-100" alt="Daily standup preview"/>
+                    <img src="{% static_webp 'images/properties-preview.png' %}" class="w-100" alt="Daily standup preview"/>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-12 mt-2 justify-content-center">
-            <h3 class="h4 mb-3 text-center">Create a Schedule</h3>
+        <div class="col-md-4 col-12 mt-2 justify-content-center" style="transform: rotate(-2deg);">
+            <h3 class="h4 mb-3 text-center">Create The Schedule</h3>
             <div class="card steps-card m-auto">
                 <div class="card-body">
-                    <img src="{% static 'images/daily-standup-preview.png' %}" class="w-100"
+                    <img src="{% static_webp 'images/daily-standup-preview.png' %}" class="w-100"
                          alt="Daily standup preview"/>
                 </div>
             </div>
@@ -63,13 +64,13 @@
 <div class="my-4 py-4">
     <div class="row d-flex">
         <div class="col-12 col-md-6">
-            <img src="{% static 'images/albert.png' %}" class="w-100"
+            <img src="{% static_webp 'images/albert.png' %}" class="w-100"
                  alt="Albert mascott"/>
         </div>
         <div class="col-12 col-md-6 d-flex flex-column justify-content-center">
             <div>
-                <h2 class="h2 pt-4 mt-4">Meet Albert</h2>
-                <p class="h5 my-4">He is here to make Notion automation easy and accessible for everyone.</p>
+                <h2 class="h2 pt-4 mt-4">Meet <b>Albert</b></h2>
+                <p class="h5 my-4">Here to make Notion Automation accessible for Everyone.</p>
                 {% include 'newsletter/partials/mailchimp_form.html' with email="" %}
             </div>
         </div>

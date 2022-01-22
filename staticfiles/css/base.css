@@ -2,3 +2,8 @@
 @import "footer.css";
 @import "landing-page.css";
 @import "recurring-tasks.css";
+
+/** Use to hide alpinejs elements before load **/
+[x-cloak] {
+    display: none !important;
+}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django_ses",
     "django_browser_reload",
     "honeypot",
+    "webp_converter",
     # Local
     "accounts",
     "pages",
@@ -71,7 +72,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {
         "file": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.FileHandler",
             "filename": "/tmp/debug.log",
         },
@@ -123,6 +124,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "webp_converter.context_processors.webp_support",
             ],
             "libraries": {
                 "task_tags": "tasks.template_tags",
@@ -195,6 +197,11 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [str(BASE_DIR.joinpath("static"))]
 # http://whitenoise.evans.io/en/stable/django.html#add-compression-and-caching-support
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# MEDIA
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # DJANGO-CRISPY-FORMS CONFIGS
 # ------------------------------------------------------------------------------

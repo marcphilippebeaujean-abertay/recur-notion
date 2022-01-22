@@ -14,4 +14,4 @@ media
 /venv
 /.idea
 *.env
-/staticfiles
+/staticfiles/*
