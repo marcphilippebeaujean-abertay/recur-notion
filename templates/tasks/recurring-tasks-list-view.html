@@ -39,10 +39,10 @@
                                    name="task-name"
                                    id="task-name"
                                    hx-trigger="change"
-                                   hx-indicator="#task-name-change-loading-indicator"
+                                   hx-indicator="#task-name-change-loading-indicator-{{recurring_task.id}}"
                                    hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
                             />
-                            <small id="task-name-change-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
+                            <small id="task-name-change-loading-indicator-{{recurring_task.id}}" class="htmx-indicator my-0 mx-0 text-muted">
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                 Saving changes...
                             </small>
