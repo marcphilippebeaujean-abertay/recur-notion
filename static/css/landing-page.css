@@ -16,3 +16,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.highlight {
+    background-color: rgba(25, 135, 84, 0.1);
+    text-decoration: underline #198754;
+}
