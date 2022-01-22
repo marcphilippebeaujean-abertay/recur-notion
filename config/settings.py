@@ -224,8 +224,8 @@ EMAIL_BACKEND = (
     if DEBUG is True
     else "django_ses.SESBackend"
 )
-EMAIL_HOST_USER = "noreply@albert.so"
-DEFAULT_FROM_EMAIL = "noreply@albert.so"
+EMAIL_HOST_USER = "hello@albert.so"
+DEFAULT_FROM_EMAIL = "hello@albert.so"
 
 # These are optional -- if they're set as environment variables they won't
 # need to be set here as well
@@ -234,8 +234,8 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY_ID")
 
 # Additionally, if you are not using the default AWS region of us-east-1,
 # you need to specify a region, like so:
-AWS_SES_REGION_NAME = "us-west-2"
-AWS_SES_REGION_ENDPOINT = "email.us-west-2.amazonaws.com"
+AWS_SES_REGION_NAME = "us-east-1"
+AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
 
 MAILCHIMP_SECRET = os.environ.get("MAILCHIMP_KEY")
 MAILCHIMP_SERVER_PREFIX = os.environ.get("MAILCHIMP_SERVER_PREFIX")
