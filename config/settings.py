@@ -155,6 +155,15 @@ else:
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+# CACHE
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "caching_table",
+    }
+}
+
 # PASSWORDS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
