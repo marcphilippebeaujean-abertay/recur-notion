@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load page_basics %}
 
 {% block title %}Home page{% endblock title %}
 
@@ -9,11 +10,36 @@
     <div class="d-md-flex justify-content-between row">
         <div class="d-flex flex-column justify-content-center col-md-4">
             <p class="h5 text-muted">Setup a Schedule.<br /><b>Create Data on Autopilot.</b></p>
-            <p class="h6 mt-3"><i class="bi bi-check-lg text-success"></i>&nbsp;Get Started in Seconds</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Automatic Timezone Conversion</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;No Tutorial Required</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;No Changes To Your Data Required</p>
-            <p class="h6 mb-4"><i class="bi bi-check-lg text-success"></i>&nbsp;<b>No Credit Card Required</b></p>
+            <p class="h6 mt-3">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;Get Started in Seconds</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;Automatic Timezone Conversion</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;No Tutorial Required</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;No Changes To Your Data Required</p>
+            <p class="h6 mb-4">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;<b>No Credit Card Required</b></p>
             <div>
                 <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Get For Free</a>
             </div>
@@ -30,10 +56,30 @@
         <div class="d-flex flex-column justify-content-center col-md-6 mb-4">
             <h2 class="mb-4 h3">Say <span class="highlight">"Goodbye"</span> To Tedious <span class="highlight">Data Entry</span></h2>
             <p class="h6">Works great for:</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Todo Lists</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Expense Tracking</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Meetings</p>
-            <p class="h6"><i class="bi bi-check-lg text-success"></i>&nbsp;Reminders</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;Todo Lists</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;Expense Tracking</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;Meetings</p>
+            <p class="h6">
+                <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    {% endautoescape %}
+                </span>&nbsp;Reminders</p>
             <p class="h6">...and much more.</p>
         </div>
         <div class="col-md-6">

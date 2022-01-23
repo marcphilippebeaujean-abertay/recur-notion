@@ -1,4 +1,5 @@
 {% load honeypot %}
+{% load page_basics %}
 
 <div class="card"
      id="newsletter-container"
@@ -16,7 +17,11 @@
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <div class="input-group-text">
-                            <i class="bi-envelope mr-2 text-bold"></i>
+                            <span class="mr-2 text-bold">
+                            {% autoescape off %}
+                                {% bootstrap_icon_by_icon_name icon_name='envelope' %}
+                            {% endautoescape %}
+                            </span>
                         </div>
                     </div>
                     <input name="email"
