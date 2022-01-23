@@ -1,5 +1,5 @@
 <div class="col-12 p-2 d-flex flex-row" id="task-container{{recurring_task.pk}}">
-    <div class="col-4 pl-4 mt-1">
+    <div class="col-4 pl-4 mt-1 me-2">
         <input
                value="{{ recurring_task.name }}"
                type="text"
@@ -16,7 +16,7 @@
             Saving changes...
         </small>
         {% if recurring_task.database is None or recurring_task.database.database_id is None %}
-    <div class="alert alert-danger col-2 mx-2">Missing Database.</div>
+    <div class="alert alert-danger"><i class="bi bi-exclamation-octagon"></i> Missing Database.</div>
     {% else %}
     <div class="col-2 text-small text-muted">
         <small class="d-flex"><i class="bi bi-table"></i>&nbsp;{{recurring_task.database.database_name}}</small>

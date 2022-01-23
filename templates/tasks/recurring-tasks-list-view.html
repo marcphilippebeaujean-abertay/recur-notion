@@ -17,7 +17,7 @@
                 class="btn btn-success"
         >
             <i class="bi-plus-circle" x-show="!loading"></i>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak x-show="loading"></span>
             &nbsp;Create New Recurring Task
         </button>
     </form>
@@ -29,12 +29,12 @@
                 {% if recurring_tasks|length == 0 %}
                 <div class="alert alert-info">No data has been scheduled yet!</div>
                 {% else %}
+                <hr class="my-1 d-none d-md-block" />
                 {% for recurring_task in recurring_tasks %}
                     <div class="d-md-none">
                         {% include "tasks/partials/recurring-task-list-element-phone.html" with recurring_task=recurring_task %}
                     </div>
                     <div class="d-none d-md-block">
-                        <hr class="my-1" />
                         {% include "tasks/partials/recurring-task-list-element-desktop.html" with recurring_task=recurring_task %}
                     </div>
                 {% endfor %}

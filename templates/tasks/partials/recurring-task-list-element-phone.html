@@ -16,7 +16,7 @@
                 Saving changes...
             </small>
             {% if recurring_task.database is None or recurring_task.database.database_id is None %}
-            <div class="alert alert-danger">Task needs to be initialized.</div>
+            <div class="alert alert-danger"><i class="bi bi-exclamation-octagon"></i> Missing Database.</div>
             {% else %}
             <div>
                 <label class="form-label"><i class="bi bi-table"></i>&nbsp;Database</label>
