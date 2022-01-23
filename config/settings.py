@@ -130,6 +130,7 @@ TEMPLATES = [
                 "task_tags": "tasks.template_tags",
                 "notion_property_tags": "notion_properties.template_tags",
                 "notion_workspace_tags": "workspaces.template_tags",
+                "page_basics": "pages.template_tags",
             },
         },
     },

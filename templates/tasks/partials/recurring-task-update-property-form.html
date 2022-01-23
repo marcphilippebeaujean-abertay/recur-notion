@@ -1,4 +1,5 @@
 {% load notion_property_tags %}
+{% load page_basics %}
 
 {% if recurring_task.properties_json|length == 0 %}
 <div class="alert alert-danger">Please select a database to set properties for the task!</div>
@@ -25,7 +26,11 @@
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <div class="input-group-text">
-                                <i class="bi-{% icon_by_property_type property.type %} mr-2 text-bold"></i>
+                                <span class="mr-2">
+                                    {% autoescape off %}
+                                        {% icon_by_property_type property.type %}
+                                    {% endautoescape %}
+                                </span>
                             </div>
                         </div>
                         <select
@@ -54,7 +59,11 @@
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <div class="input-group-text">
-                                <i class="bi-{% icon_by_property_type property.type %} mr-2 text-bold"></i>
+                                <span class="mr-2">
+                                    {% autoescape off %}
+                                        {% icon_by_property_type property.type %}
+                                    {% endautoescape %}
+                                </span>
                             </div>
                         </div>
                         <input
@@ -72,14 +81,11 @@
     <button type="submit"
             class="btn btn-success mt-2"
             x-bind:disabled="loading">
-
         <span class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
               x-show="loading"></span>
-        <i class="bi-s"></i>
-        &nbsp;{{property.name}}
-        Save Changes
+        &nbsp;Save Changes
     </button>
 </form>
 {% endif %}

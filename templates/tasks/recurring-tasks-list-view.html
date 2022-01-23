@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
 
 {% block title %}Recurring Tasks{% endblock %}
+{% load page_basics %}
 
 
 {% block content %}
@@ -16,7 +17,11 @@
                 x-bind:disabled="loading"
                 class="btn btn-success"
         >
-            <i class="bi-plus-circle" x-show="!loading"></i>
+            <span x-show="!loading">
+                            {% autoescape off %}
+                                {% bootstrap_icon_by_icon_name icon_name='plus-circle' %}
+                            {% endautoescape %}
+            </span>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                   x-show="loading"></span>
             &nbsp;Create New Recurring Task

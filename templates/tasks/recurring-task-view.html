@@ -3,6 +3,7 @@
 {% block title %}Recurring Tasks{% endblock %}
 
 {% load notion_workspace_tags %}
+{% load page_basics %}
 
 {% block content %}
 <div class="d-flex" x-data="{
@@ -51,7 +52,11 @@
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
-                                    <i class="bi-table"></i>
+                                    <span>
+                                    {% autoescape off %}
+                                        {% bootstrap_icon_by_icon_name icon_name='table' %}
+                                    {% endautoescape %}
+                                    </span>
                                 </div>
                             </div>
                             <input

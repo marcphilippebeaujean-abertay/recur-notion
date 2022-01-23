@@ -1,5 +1,7 @@
 from django import template
 
+from pages.template_tags import bootstrap_icon_by_icon_name
+
 register = template.Library()
 
 
@@ -16,7 +18,7 @@ def icon_by_property_type(notion_type):
         "number": "hash",
         "checkbox": "check2-square",
     }
-    return icon_by_property_type[notion_type]
+    return bootstrap_icon_by_icon_name(icon_by_property_type[notion_type])
 
 
 # alarm

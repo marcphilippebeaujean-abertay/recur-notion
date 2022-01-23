@@ -1,3 +1,6 @@
+{% load page_basics %}
+
+
 <div class="col-12 col-md-6 p-2" id="task-container{{recurring_task.pk}}">
     <div class="card">
         <div class="card-body">
@@ -16,10 +19,16 @@
                 Saving changes...
             </small>
             {% if recurring_task.database is None or recurring_task.database.database_id is None %}
-            <div class="alert alert-danger"><i class="bi bi-exclamation-octagon"></i> Missing Database.</div>
+            <div class="alert alert-danger">{% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='exclamation-octagon' %}
+                    {% endautoescape %}
+                     &nbsp;Missing Database.</div>
             {% else %}
             <div>
-                <label class="form-label"><i class="bi bi-table"></i>&nbsp;Database</label>
+                <label class="form-label">{% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='table' %}
+                    {% endautoescape %}
+                     &nbsp;&nbsp;Database</label>
                 <p class="h5">{{recurring_task.database.database_name}}</p>
             </div>
             {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
@@ -31,7 +40,11 @@
                        @click="loading = true"
                        x-bind:disabled="loading"
                     >
-                        <i class="bi-pencil" x-show="!loading"></i>
+                        <span x-show="!loading">
+                            {% autoescape off %}
+                                {% bootstrap_icon_by_icon_name icon_name='pencil' %}
+                            {% endautoescape %}
+                        </span>
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                               x-show="loading"></span>
                         &nbsp;Edit
@@ -46,7 +59,11 @@
                             @click="loading = true"
                             x-bind:disabled="loading"
                     >
-                        <i class="bi-trash" x-show="!loading"></i>
+                        <span x-show="!loading">
+                            {% autoescape off %}
+                                {% bootstrap_icon_by_icon_name icon_name='trash' %}
+                            {% endautoescape %}
+                        </span>
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                               x-show="loading"></span>
                         &nbsp;Delete
