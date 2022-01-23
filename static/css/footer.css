@@ -28,7 +28,7 @@ body {
   bottom: 0px;
   width: 100%;
   height: 250px; /* Set the fixed height of the footer here */
-  line-height: 80px; /* Vertically center the text there */
+  line-height: 40px; /* Vertically center the text there */
 }
 
 .footer-link {
@@ -36,6 +36,6 @@ body {
   color: rgba(0,0,0,.55) !important;
 }
 
-.link-wrapper {
-    height: 40px;
+.footer-link:hover {
+  color: rgba(0,0,0,.70) !important;
 }

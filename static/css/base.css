@@ -22,3 +22,8 @@
 .top-margin-for-header {
     height: 100px;
 }
+
+.icon-wrapper{
+    position: relative;
+    bottom: 1.5px;
+}

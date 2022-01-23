@@ -15,7 +15,7 @@
         <button
                 type="submit"
                 x-bind:disabled="loading"
-                class="btn btn-success"
+                class="btn btn-success position-relative"
         >
             <span x-show="!loading">
                             {% autoescape off %}
@@ -24,7 +24,7 @@
             </span>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                   x-show="loading"></span>
-            &nbsp;Create New Recurring Task
+            &nbsp;Create Task
         </button>
     </form>
 </div>
@@ -33,9 +33,14 @@
         <div class="my-2 mr-2">
             <div class="d-flex row">
                 {% if recurring_tasks|length == 0 %}
-                <div class="alert alert-info">No data has been scheduled yet!</div>
+                <div class="alert alert-info mt-2">
+                    <span>
+                        {% autoescape off %}
+                            {% bootstrap_icon_by_icon_name icon_name='info-circle' %}
+                        {% endautoescape %}
+                    </span>
+                    &nbsp;Click on "Create Task" to get started.</div>
                 {% else %}
-                <!-- Desktop Table Header -->
                 <div class="d-none d-md-block mt-4">
                     <div class="d-flex row">
                         <div class="col-4">
@@ -51,16 +56,19 @@
                         </div>
                     </div>
                     <hr class="my-1"/>
+                    </div>
                 </div>
+                {% endif %}
                 {% for recurring_task in recurring_tasks %}
                 <div class="d-md-none">
                     {% include "tasks/partials/recurring-task-list-element-phone.html" with recurring_task=recurring_task %}
                 </div>
                 <div class="d-none d-md-block">
+                    <!-- Desktop Table Header -->
+                <div class="d-none d-md-block">
                     {% include "tasks/partials/recurring-task-list-element-desktop.html" with recurring_task=recurring_task %}
                 </div>
                 {% endfor %}
-                {% endif %}
             </div>
         </div>
     </div>
