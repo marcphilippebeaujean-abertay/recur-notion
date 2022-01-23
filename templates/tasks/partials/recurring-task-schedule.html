@@ -9,15 +9,20 @@
 >
     <div class="d-flex row">
         <div class="col-md-6 col-12 form-group">
+            {% if hide_labels is None or hide_labels == False %}
             <label for="{{ recurring_task.pk }}-start-date" class="form-label">
                 Starting From
             </label>
+            {% endif %}
             <input name="start-time"
                    type="datetime-local"
                    id="{{ recurring_task.pk }}-start-date"
                    class="form-control"
                    hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                    hx-trigger="change"
+                   {% if hide_labels is not None and hide_labels == True %}
+                   hx-headers='{"X-Hide-Labels": true}'
+                   {% endif %}
                    hx-vals="js:{'update-schedule-only': true}"
                    @change="() => {
                        // short interval to let htmx send out the post request before disabling the input form
@@ -34,9 +39,11 @@
             />
         </div>
         <div class="col-md-6 col-12 form-group">
+            {% if hide_labels is None or hide_labels == False %}
             <label for="{{ recurring_task.pk }}-interval" class="form-label">
                 &nbsp;Repeats
             </label>
+            {% endif %}
             <div class="input-group">
                 <div class="input-group-prepend">
                     <div class="input-group-text">
@@ -49,6 +56,9 @@
                         hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                         hx-trigger="change"
                         hx-vals="js:{'update-schedule-only': true}"
+                        {% if hide_labels is not None and hide_labels == True %}
+                        hx-headers='{"X-Hide-Labels": true}'
+                        {% endif %}
                         x-bind:disabled="loading"
                         id="{{ recurring_task.pk }}-interval">
                     {% interval_choices as interval_choices %}

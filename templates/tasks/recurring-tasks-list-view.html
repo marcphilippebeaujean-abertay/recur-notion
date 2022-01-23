@@ -30,63 +30,13 @@
                 <div class="alert alert-info">No data has been scheduled yet!</div>
                 {% else %}
                 {% for recurring_task in recurring_tasks %}
-                <div class="col-12 col-md-6 p-2" id="task-container{{recurring_task.pk}}">
-                    <div class="card">
-                        <div class="card-body">
-                            <input value="{{ recurring_task.name }}"
-                                   type="text"
-                                   class="h3 border-0 w-100 mb-0 bg-muted-on-hover"
-                                   name="task-name"
-                                   id="task-name"
-                                   hx-trigger="change"
-                                   hx-indicator="#task-name-change-loading-indicator-{{recurring_task.id}}"
-                                   hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
-                            />
-                            <small id="task-name-change-loading-indicator-{{recurring_task.id}}" class="htmx-indicator my-0 mx-0 text-muted">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Saving changes...
-                            </small>
-                            {% if recurring_task.database is None or recurring_task.database.database_id is None %}
-                            <div class="alert alert-danger">Task needs to be initialized.</div>
-                            {% else %}
-                            <div>
-                                <label class="form-label"><i class="bi bi-table"></i> Database</label>
-                                <p class="h5">{{recurring_task.database.database_name}}</p>
-                            </div>
-                            {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
-                            {% endif %}
-                            <div class="d-flex mt-2">
-                                <div class="pl-2" x-data="{loading: false}">
-                                    <a href="{% url 'recurring-task-view' pk=recurring_task.pk %}"
-                                       class="btn btn-primary"
-                                       @click="loading = true"
-                                       x-bind:disabled="loading"
-                                    >
-                                        <i class="bi-pencil" x-show="!loading"></i>
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                                              x-show="loading"></span>
-                                        &nbsp;Edit
-                                    </a>
-                                </div>
-                                <div class="mx-2" x-data="{loading: false}">
-                                    <button
-                                            class="btn btn-danger mr-2"
-                                            hx-target="#task-container{{recurring_task.pk}}"
-                                            hx-delete="{%url 'delete-recurring-task' pk=recurring_task.pk %}"
-                                            hx-swap="outerHTML"
-                                            @click="loading = true"
-                                            x-bind:disabled="loading"
-                                    >
-                                        <i class="bi-trash" x-show="!loading"></i>
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                                              x-show="loading"></span>
-                                        &nbsp;Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="d-md-none">
+                        {% include "tasks/partials/recurring-task-list-element-phone.html" with recurring_task=recurring_task %}
                     </div>
-                </div>
+                    <div class="d-none d-md-block">
+                        <hr class="my-1" />
+                        {% include "tasks/partials/recurring-task-list-element-desktop.html" with recurring_task=recurring_task %}
+                    </div>
                 {% endfor %}
                 {% endif %}
             </div>

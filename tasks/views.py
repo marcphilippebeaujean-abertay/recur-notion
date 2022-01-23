@@ -76,7 +76,10 @@ def update_recurring_task_schedule(request, pk):
         return render(
             request,
             "tasks/partials/recurring-task-schedule.html",
-            {"recurring_task": recurring_task_to_update_model},
+            {
+                "recurring_task": recurring_task_to_update_model,
+                "hide_labels": request.headers.get("X-Hide-Labels", False) == "true",
+            },
         )
     return HttpResponse(status=200)
 
