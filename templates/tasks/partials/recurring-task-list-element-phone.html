@@ -56,16 +56,18 @@
                             hx-target="#task-container{{recurring_task.pk}}"
                             hx-delete="{%url 'delete-recurring-task' pk=recurring_task.pk %}"
                             hx-swap="outerHTML"
+                            hx-confirm="Are you sure you wish to delete this Task?"
+                            hx-indicator=".delete-indication-{{recurring_task.pk}}"
                             @click="loading = true"
                             x-bind:disabled="loading"
                     >
-                        <span x-show="!loading">
+                        <span x-show="!loading" class="hide-on-indicator delete-indication--{{recurring_task.pk}}">
                             {% autoescape off %}
                                 {% bootstrap_icon_by_icon_name icon_name='trash' %}
                             {% endautoescape %}
                         </span>
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
-                              x-show="loading"></span>
+                        <span class="spinner-border spinner-border-sm my-indicator delete-indication--{{recurring_task.pk}}"
+                              role="status" aria-hidden="true" x-cloak></span>
                         &nbsp;Delete
                     </button>
                 </div>

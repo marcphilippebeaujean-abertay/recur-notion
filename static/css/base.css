@@ -19,6 +19,16 @@
     display:inline;
 }
 
+.hide-on-indicator{
+    display:inline;
+}
+.htmx-request .hide-on-indicator{
+    display:inline;
+}
+.htmx-request..hide-on-indicator{
+    display:inline;
+}
+
 .top-margin-for-header {
     height: 100px;
 }
