@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Email already in use{% endblock %}
+
+
+{% block content %}
+<div class="card account-flow-card">
+    <div class="card-body">
+        <h2 class="h4">Email Already in Use</h2>
+        <div class="alert alert-danger">It looks like the Email you are using for your {{account.get_provider.name}} account is already in use! Please use that Email to <a href="{% url 'account_login' %}">Sign In</a>.</div>
+        <a href="{% url 'account_reset_password' %}" class="mt-4">Forgot Your Password?</a>
+    </div>
+</div>
+{% endblock content %}
