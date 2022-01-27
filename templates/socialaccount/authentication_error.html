@@ -1,11 +1,14 @@
-{% extends "socialaccount/base.html" %}
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
 
-{% load i18n %}
+{% block title %}Error with Social Login{% endblock %}
 
-{% block head_title %}{% trans "Social Network Login Failure" %}{% endblock %}
 
 {% block content %}
-<h1>{% trans "Social Network Login Failure" %}</h1>
-
-<p>{% trans "An error occurred while attempting to login via your social network account." %}</p>
+<div class="card account-flow-card">
+    <div class="card-body">
+        <h2 class="h4">Oop! Something went Wrong.</h2>
+        <div class="alert alert-danger">There was an error trying to Sign you in with your Social Account. You can retry or use another method <a href="{% url 'account_login' %}">here</a>.</div>
+    </div>
+</div>
 {% endblock %}
