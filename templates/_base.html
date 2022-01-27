@@ -39,6 +39,7 @@
                     <div class="collapse navbar-collapse d-md-flex flex-row-reverse" id="navbarNavDropdown">
                         {% if user.is_authenticated %}
                         <ul class="navbar-nav">
+                            <span class="py-2 d-md-none" ></span>
                             <li class="nav-item">
                                 <a class="nav-link {% if 'tasks' in request.path %} active {% endif %}"
                                    href="/tasks">
@@ -81,6 +82,7 @@
                         </ul>
                         {% else %}
                         <ul class="navbar-nav">
+                            <span class="py-2 d-md-none" ></span>
                             <li class="nav-item">
                                 <a class="nav-link {% if 'login' in request.path %} active {% endif %}"
                                    href="{% url 'account_login' %}">
