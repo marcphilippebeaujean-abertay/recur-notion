@@ -266,11 +266,11 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 # Social auth providers
+# For each OAuth based provider, either add a ``SocialApp``
+# (``socialaccount`` app) containing the required client
+# credentials, or list them here:
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        # For each OAuth based provider, either add a ``SocialApp``
-        # (``socialaccount`` app) containing the required client
-        # credentials, or list them here:
         "APP": {
             "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
             "secret": os.environ.get("GOOGLE_CLIENT_SECRET"),
@@ -295,6 +295,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 
 # INTERNAL

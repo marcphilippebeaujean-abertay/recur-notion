@@ -1,7 +1,18 @@
 {% load socialaccount %}
 
-<hr />
-<a href="{% provider_login_url 'google' %}" class="btn border rounded mt-2">
-    <img src="https://freesvg.org/img/1534129544.png" alt="Google Icon" width="30" height="30">
-    <span class="mx-2">Login with Google</span>
-</a>
+<div class="w-100 mt-2">
+    <div class="d-flex py-2">
+        <div class="flex-grow w-100">
+            <hr/>
+        </div>
+        <div class="mx-auto px-2"><span class="h4 text-muted">OR</span></div>
+        <div class="flex-grow w-100">
+            <hr/>
+        </div>
+    </div>
+
+    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-success mt-2">
+        <img src="https://freesvg.org/img/1534129544.png" alt="Google Icon" width="30" height="30">
+        <span class="mx-2">Login with Google</span>
+    </a>
+</div>

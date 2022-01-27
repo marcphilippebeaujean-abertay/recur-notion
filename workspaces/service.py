@@ -10,6 +10,10 @@ from config.settings import (
 from .models import NotionWorkspace, NotionWorkspaceAccess
 
 
+class NotionAccessTokenInvalidException(Exception):
+    pass
+
+
 def create_access_workspace_from_user_code(user_model, oauth_code):
     auth_payload_dict = {
         "grant_type": "authorization_code",

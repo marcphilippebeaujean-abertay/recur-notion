@@ -6,89 +6,89 @@
 {% else %}
 <h3 class="h5">Properties</h3>
 <form
-      hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
-      {# requires outter Alpine JS state tracking selected Database ID #}
-      x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
-      x-data="{ loading: false, changed: false }"
-      hx-include=".properties-input"
-      @submit="loading = true"
+        hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
+        hx-trigger="every 5s changed"
+        {# requires outter Alpine JS state tracking selected Database ID #}
+        x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
+        x-data="{ loading: false, changed: false }"
+        hx-include=".properties-input"
+        hx-swap="none"
+        @submit="loading = true"
+        hx-indicator="#properties-form-save-indicator"
 >
     <div class="d-flex row">
         {% for property in recurring_task.properties_json %}
-            {# do not show the title attributes because we do not want to show them here #}
-            {% if property.type != 'title' %}
-                <div class="form-group col-12 col-md-6">
-                    <label class="my-1">
-                        &nbsp;{{property.name}}
-                    </label>
-                    <div></div>
-                    {% if property.type == 'select' or  property.type == 'multi_select' %}
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">
+        {# do not show the title attributes because we do not want to show them here #}
+        {% if property.type != 'title' %}
+        <div class="form-group col-12 col-md-6">
+            <label class="my-1">
+                &nbsp;{{property.name}}
+            </label>
+            <div></div>
+            {% if property.type == 'select' or property.type == 'multi_select' %}
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
                                 <span class="mr-2">
                                     {% autoescape off %}
                                         {% icon_by_property_type property.type %}
                                     {% endautoescape %}
                                 </span>
-                            </div>
-                        </div>
-                        <select
-                                class="form-control properties-input"
-                                name="{{property.id}}"
-                                @change="changed = true"
-                        >
-                            {% for option in property.options %}
-                                <option value="{{option.id}}"
-                                        {% if property.value == option.id %}
-                                        selected
-                                        {% endif %}
-                                >
-                                    {{option.name}}
-                                </option>
-                            {% endfor %}
-                        </select>
                     </div>
-                    {% elif property.type == 'checkbox' %}
-                        <input
-                                class="form-check-input properties-input"
-                                name="{{property.id}}"
-                                type="checkbox"
-                                @change="changed = true"
-                                {% if property.value == True %} checked {% endif %}
-                        />
-                    {% else %}
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">
-                                <span class="mr-2">
-                                    {% autoescape off %}
-                                        {% icon_by_property_type property.type %}
-                                    {% endautoescape %}
-                                </span>
-                            </div>
-                        </div>
-                        <input
-                                class="form-control properties-input"
-                                name="{{property.id}}"
-                                type="{{property.html_form_type}}"
-                                value="{{property.html_value}}"
-                                @change="changed = true"
-                        />
-                    </div>
-                    {% endif %}
                 </div>
+                <select
+                        class="form-control properties-input"
+                        name="{{property.id}}"
+                        @change="changed = true"
+                >
+                    {% for option in property.options %}
+                    <option value="{{option.id}}"
+                            {% if property.value == option.id %}
+                            selected
+                            {% endif %}
+                    >
+                        {{option.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% elif property.type == 'checkbox' %}
+            <input
+                    class="form-check-input properties-input"
+                    name="{{property.id}}"
+                    type="checkbox"
+                    @change="changed = true"
+                    {% if property.value == True %} checked {% endif %}
+            />
+            {% else %}
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                                <span class="mr-2">
+                                    {% autoescape off %}
+                                        {% icon_by_property_type property.type %}
+                                    {% endautoescape %}
+                                </span>
+                    </div>
+                </div>
+                <input
+                        class="form-control properties-input"
+                        name="{{property.id}}"
+                        type="{{property.html_form_type}}"
+                        value="{{property.html_value}}"
+                        @change="changed = true"
+                />
+            </div>
             {% endif %}
+        </div>
+        {% endif %}
         {% endfor %}
     </div>
-    <button type="submit"
-            class="btn btn-success mt-2"
-            x-bind:disabled="loading || !changed">
-        <span class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-              x-show="loading"></span>
-        &nbsp;Save Changes
-    </button>
 </form>
+<div>
+    <p class="small htmx-indicator text-muted mt-1" id="properties-form-save-indicator" x-cloak>
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Saving Changes...
+    </p>
+</div>
 {% endif %}

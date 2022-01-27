@@ -105,14 +105,13 @@
                             Loading Workspace Databases...
                         </small>
                     </div>
-                    <div id="properties-container" class="mt-2" hx-target="this">
+                    <div id="properties-container" class="mt-4" hx-target="this">
                         {% include 'tasks/partials/recurring-task-update-property-form.html' %}
                     </div>
                 </div>
                 <div class="my-2"></div>
                 <div class="py-2" x-cloak x-show="databaseSelected">
-                    <hr/>
-                    <h3 class="h4">Schedule</h3>
+                    <h3 class="h5">Schedule</h3>
                     {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
                 </div>
             </div>
