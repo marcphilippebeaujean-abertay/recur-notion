@@ -11,7 +11,10 @@ from .notion_mock_api import (
     VALID_DATABASE_ID,
     create_or_get_mocked_oauth_notion_client,
 )
-from .service import query_user_notion_database_by_id, query_user_notion_databases_list
+from .service import (
+    query_user_notion_database_with_api_by_id,
+    query_user_notion_databases_list,
+)
 
 
 # Create your tests here.
@@ -114,7 +117,9 @@ class TestGetSingleDatabaseProperties(TestDatabaseResponseConversion):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
-        db_dict = query_user_notion_database_by_id(self.user, VALID_DATABASE_ID)
+        db_dict = query_user_notion_database_with_api_by_id(
+            self.user, VALID_DATABASE_ID
+        )
         for property_container in db_dict["properties"]:
             if property_container.notion_type in IGNORED_PROPERTIES_SET:
                 raise Exception(

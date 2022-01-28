@@ -6,7 +6,7 @@ from notion_client import APIResponseError
 
 from notion_database.service import (
     get_or_update_database_from_simple_database_dict_returning_model,
-    query_user_notion_database_by_id,
+    query_user_notion_database_with_api_by_id,
 )
 from notion_properties.constants import IGNORED_PROPERTIES_SET
 from notion_properties.dto import NotionPropertyDto
@@ -93,39 +93,51 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
     if "X-Selected-Database-Id" not in request_dict.headers:
         raise RecurringTaskBadFormData("No selected database id in the request header!")
     notion_db_id_str = request_dict.headers["X-Selected-Database-Id"]
-    try:
-        database_dict = query_user_notion_database_by_id(
-            user_model=request_dict.user, database_id_str=notion_db_id_str
+    task_database = updated_recurring_task.database
+    if (
+        task_database is None
+        or task_database.database_id != notion_db_id_str
+        or task_database.properties_schema_json == dict()
+    ):
+        try:
+            database_dict = query_user_notion_database_with_api_by_id(
+                user_model=request_dict.user, database_id_str=notion_db_id_str
+            )
+        except APIResponseError as error:
+            if error.code == "unauthorized":
+                raise NotionAccessTokenInvalidException()
+        task_database = (
+            get_or_update_database_from_simple_database_dict_returning_model(
+                simple_database_dict=database_dict
+            )
         )
-    except APIResponseError as error:
-        if error.code == "unauthorized":
-            raise NotionAccessTokenInvalidException()
-    updated_recurring_task.database = (
-        get_or_update_database_from_simple_database_dict_returning_model(
-            simple_database_dict=database_dict
-        )
-    )
+
     notion_properties_as_dict_list = []
-    notion_properties_container_list = database_dict["properties"]
-    for notion_property_container in notion_properties_container_list:
+    notion_property_dict_list = task_database.properties_schema_json
+    for notion_property_dict in notion_property_dict_list:
         # In the Request form data, each value is associated by the id of the Notion property.
         # The ID of the property is the key.
-        property_type_str = notion_property_container.notion_type
+        notion_property_container_dto = NotionPropertyDto.from_dto_dict(
+            notion_property_dict
+        )
+        property_type_str = notion_property_container_dto.notion_type
         if property_type_str in IGNORED_PROPERTIES_SET:
             continue
         # special case checkbox property: input forms only include the field if checkbox is checked. Thus, to get the
         # right value, we need to just check if the expected checkbox property was in our request dictionary
-        property_is_in_request_form = notion_property_container.id in request_dict.POST
+        property_is_in_request_form = (
+            notion_property_container_dto.id in request_dict.POST
+        )
         if property_type_str == "checkbox":
             if property_is_in_request_form:
-                notion_property_container.value = True
+                notion_property_container_dto.value = True
             else:
-                notion_property_container.value = False
+                notion_property_container_dto.value = False
         elif property_is_in_request_form:
-            notion_property_container.value = request_dict.POST[
-                notion_property_container.id
+            notion_property_container_dto.value = request_dict.POST[
+                notion_property_container_dto.id
             ]
-        notion_properties_as_dict_list.append(notion_property_container.dto_dict())
+        notion_properties_as_dict_list.append(notion_property_container_dto.dto_dict())
     updated_recurring_task.properties_json = notion_properties_as_dict_list
     update_recurring_task_property_title_from_name(
         recurring_task=updated_recurring_task

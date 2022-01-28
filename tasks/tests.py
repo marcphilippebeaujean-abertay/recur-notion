@@ -307,7 +307,7 @@ class TestCreateRecurringTasks(TasksTestCase):
     def assert_task_was_created(self):
         self.assertEqual(RecurringTask.objects.count(), 1)
         created_recurring_task = RecurringTask.objects.all()[0]
-        self.assertEqual(created_recurring_task.name, "New Recurring Task")
+        self.assertEqual(created_recurring_task.name, "New Page")
         self.assertEqual(created_recurring_task.owner, self.user)
         self.assertEqual(Schedule.objects.count(), 1)
         schedule_object = Schedule.objects.all()[0]

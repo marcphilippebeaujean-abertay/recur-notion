@@ -1,11 +1,11 @@
 {% extends '_base.html' %}
 
-{% block title %}Recurring Tasks{% endblock %}
+{% block title %}Scheduled Pages{% endblock %}
 {% load page_basics %}
 
 
 {% block content %}
-<h1>Recurring Tasks</h1>
+<h1>Scheduled Pages</h1>
 <div x-data="{ loading: false }">
     <form action="{%  url 'create-recurring-task' %}"
           method="POST"
@@ -24,7 +24,7 @@
             </span>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                   x-show="loading"></span>
-            &nbsp;Create Task
+            &nbsp;Create Scheduled Page
         </button>
     </form>
 </div>
@@ -39,13 +39,13 @@
                             {% bootstrap_icon_by_icon_name icon_name='info-circle' %}
                         {% endautoescape %}
                     </span>
-                    &nbsp;Click on "Create Task" to get started.</div>
+                    &nbsp;No Pages available - click on "Create Scheduled Page" to get started.</div>
                 {% else %}
                 <!-- Desktop Table Header -->
                 <div class="d-none d-md-block mt-4">
                     <div class="d-flex row">
                         <div class="col-4">
-                            <p class="h6 ms-2 text-muted">Task Name</p>
+                            <p class="h6 ms-2 text-muted">Page Name</p>
                         </div>
                         <div class="col-8 d-flex">
                             <div class="col-5">

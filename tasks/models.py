@@ -18,7 +18,7 @@ class RecurringTask(models.Model):
         EVERY_30_DAYS = "30", _("Every 30 Days")
         EVERY_365_DAYS = "365", _("Every 365 Days")
 
-    name = models.CharField(max_length=255, default="New Recurring Task")
+    name = models.CharField(max_length=255, default="New Page")
     # ID used to find original task this one is being cloned from
     database = models.ForeignKey(
         NotionDatabase,

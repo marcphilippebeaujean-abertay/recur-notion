@@ -2,12 +2,12 @@
 {% load page_basics %}
 
 {% if recurring_task.properties_json|length == 0 %}
-<div class="alert alert-danger">Please select a database to set properties for the task!</div>
+<div class="alert alert-danger">Please select a Database for your Page!</div>
 {% else %}
 <h3 class="h5">Properties</h3>
 <form
         hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
-        hx-trigger="every 5s changed"
+        hx-trigger="change delay:200ms"
         {# requires outter Alpine JS state tracking selected Database ID #}
         x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
         x-data="{ loading: false, changed: false }"

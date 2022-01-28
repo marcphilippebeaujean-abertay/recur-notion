@@ -50,7 +50,7 @@ def query_user_notion_databases_list(user_model, query_string):
     ]
 
 
-def query_user_notion_database_by_id(user_model, database_id_str):
+def query_user_notion_database_with_api_by_id(user_model, database_id_str):
     database_dict = load_user_notion_client(user_model=user_model).databases.retrieve(
         database_id=database_id_str
     )
@@ -76,6 +76,10 @@ def get_or_update_database_from_simple_database_dict_returning_model(
     )
     notion_database_model.database_name = simple_database_dict["name"]
     notion_database_model.database_id = db_id_str
+    notion_database_model.properties_schema_json = [
+        properties_dto.dto_dict()
+        for properties_dto in simple_database_dict["properties"]
+    ]
     if was_created is False:
         # TODO: check this query is necessary
         notion_database_model.save()
