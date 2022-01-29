@@ -47,59 +47,74 @@ def update_recurring_task_property_title_from_name(recurring_task):
         recurring_task.properties_json = [task_title_property_dto.dto_dict()]
 
 
-def update_recurring_task_schedule_from_request_data(request, task_pk):
+def query_task_with_scheduler_job_prefetch(user, task_pk):
     try:
-        updated_recurring_task = RecurringTask.objects.filter(
-            owner=request.user, pk=task_pk
-        ).prefetch_related("scheduler_job")[0]
+        return RecurringTask.objects.filter(owner=user, pk=task_pk).prefetch_related(
+            "scheduler_job"
+        )[0]
     except IndexError:
         raise RecurringTaskNotFoundException(
             f"Could not find recurring task that was updated with pk {task_pk}"
         )
-    if "interval" in request.POST:
-        updated_recurring_task.interval = request.POST["interval"]
-    elif "task-name" in request.POST:
-        updated_recurring_task.name = request.POST["task-name"]
-        update_recurring_task_property_title_from_name(
-            recurring_task=updated_recurring_task
-        )
-    elif "start-time" in request.POST and "X-Client-Timezone" in request.headers:
-        # this variable format is probably breaking the template
-        user_unlocalized_start_datetime = datetime.strptime(
-            request.POST["start-time"], "%Y-%m-%dT%H:%M"
-        )
-        # convert from client local timezone to UTC
-        user_timezone = pytz.timezone(request.headers["X-Client-Timezone"])
-        localized_user_start_datetime = user_timezone.localize(
-            user_unlocalized_start_datetime
-        )
-        # localize back to UTC
-        start_date_utc_datetime = datetime.fromtimestamp(
-            localized_user_start_datetime.timestamp(), tz=timezone.utc
-        )
-        updated_recurring_task.start_time = start_date_utc_datetime
-        updated_recurring_task.start_date = start_date_utc_datetime
-    else:
-        raise RecurringTaskBadFormData()
+
+
+def update_recurring_task_interval(user, task_pk, interval_value_str):
+    updated_recurring_task = query_task_with_scheduler_job_prefetch(user, task_pk)
+    updated_recurring_task.interval = interval_value_str
     updated_recurring_task.save()
     return updated_recurring_task
 
 
-def update_task_notion_database_from_request_dict(request_dict, task_pk):
+def update_recurring_task_name(user, task_pk, new_task_name_str):
+    updated_recurring_task = query_task_with_scheduler_job_prefetch(user, task_pk)
+    updated_recurring_task.name = new_task_name_str
+    update_recurring_task_property_title_from_name(
+        recurring_task=updated_recurring_task
+    )
+    updated_recurring_task.save()
+    return updated_recurring_task
+
+
+def update_recurring_task_start_time(
+    user, task_pk, start_time_as_string, client_timezone
+):
+    updated_recurring_task = query_task_with_scheduler_job_prefetch(
+        user=user, task_pk=task_pk
+    )
+    if start_time_as_string is None or client_timezone is None:
+        raise RecurringTaskBadFormData()
+    # this variable format is probably breaking the template
+    user_unlocalized_start_datetime = datetime.strptime(
+        start_time_as_string, "%Y-%m-%dT%H:%M"
+    )
+    # convert from client local timezone to UTC
+    user_timezone = pytz.timezone(client_timezone)
+    localized_user_start_datetime = user_timezone.localize(
+        user_unlocalized_start_datetime
+    )
+    # localize back to UTC
+    start_date_utc_datetime = datetime.fromtimestamp(
+        localized_user_start_datetime.timestamp(), tz=timezone.utc
+    )
+    updated_recurring_task.start_time = start_date_utc_datetime
+    updated_recurring_task.start_date = start_date_utc_datetime
+    updated_recurring_task.save()
+    return updated_recurring_task
+
+
+def update_task_notion_database_from_request_dict(user, database_id, task_pk):
     try:
         recurring_task_model_to_be_updated = RecurringTask.objects.filter(
-            owner=request_dict.user, pk=task_pk
-        ).prefetch_related("scheduler_job")[0]
+            owner=user, pk=task_pk
+        ).prefetch_related("database")[0]
     except IndexError:
         raise RecurringTaskNotFoundException(
             f"Could not find recurring task that was updated with pk {task_pk}"
         )
-    if "X-Selected-Database-Id" not in request_dict.headers:
-        raise RecurringTaskBadFormData("No selected database id in the request header!")
-    notion_db_id_str = request_dict.headers["X-Selected-Database-Id"]
+    notion_db_id_str = database_id
     try:
         task_database_dict = query_user_notion_database_with_api_by_id_as_dict(
-            user_model=request_dict.user, database_id_str=notion_db_id_str
+            user_model=user, database_id_str=notion_db_id_str
         )
         task_database = (
             get_or_update_database_from_simple_database_dict_returning_model(
@@ -119,15 +134,12 @@ def update_task_notion_database_from_request_dict(request_dict, task_pk):
     return recurring_task_model_to_be_updated
 
 
-def update_task_notion_properties_from_request_dict(request_dict, task_pk):
-    try:
-        updated_recurring_task = RecurringTask.objects.filter(
-            owner=request_dict.user, pk=task_pk
-        ).prefetch_related("scheduler_job")[0]
-    except IndexError:
-        raise RecurringTaskNotFoundException(
-            f"Could not find recurring task that was updated with pk {task_pk}"
-        )
+def update_task_notion_properties_from_request_dict(
+    user, property_value_by_id_dict, task_pk
+):
+    updated_recurring_task = query_task_with_scheduler_job_prefetch(
+        user=user, task_pk=task_pk
+    )
     task_database = updated_recurring_task.database
     if task_database is None:
         raise RecurringTaskMissingDatabaseException(
@@ -135,7 +147,7 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
         )
     updated_recurring_task.properties_json = create_notion_task_property_list(
         db_schema_dict_list=task_database.properties_schema_json,
-        id_value_dict=request_dict.POST,
+        id_value_dict=property_value_by_id_dict,
     )
     update_recurring_task_property_title_from_name(
         recurring_task=updated_recurring_task
