@@ -70,6 +70,8 @@
                                 type="{{property.html_form_type}}"
                                 value="{{property.html_value}}"
                                 @change="changed = true"
+                                @keyup="changed = true"
+                                step="any"
                         />
                     </div>
                     {% endif %}
@@ -79,7 +81,7 @@
     </div>
     <button type="submit"
             class="btn btn-success mt-4"
-            x-bind:disabled="loading">
+            x-bind:disabled="loading || !changed">
         <span class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
