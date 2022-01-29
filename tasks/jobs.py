@@ -52,6 +52,8 @@ def create_recurring_task_in_notion(task_pk):
             database_id=task_notion_db_model.database_id
         )
     except (httpx.HTTPStatusError, APIResponseError) as error:
+        if error.code == "unauthorized":
+            raise Exception("invalid api token")
         logger.info("Failed to retrieve Database for Task!")
         task_model.database = None
         task_model.save()

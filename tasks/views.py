@@ -14,7 +14,6 @@ from .service import (
     RecurringTaskBadFormData,
     RecurringTaskMissingDatabaseException,
     RecurringTaskNotFoundException,
-    query_task_with_scheduler_job_prefetch,
     update_recurring_task_interval,
     update_recurring_task_name,
     update_recurring_task_start_time,

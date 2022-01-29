@@ -40,7 +40,7 @@ EXAMPLE_NOTION_PROPERTIES = [
         "value": "12456",
         "options": [],
     },
-    {"id": "g%3Cjh", "name": "Nr", "type": "number", "value": 3, "options": []},
+    {"id": "g%3Cjh", "name": "Nr", "type": "number", "value": 3.3, "options": []},
     {
         "id": "s%60lddfY",
         "name": "None Existing Property",
