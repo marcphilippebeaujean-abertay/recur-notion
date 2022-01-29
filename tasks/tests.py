@@ -698,7 +698,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         "notion_database.service.notion_client.Client",
         side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
     )
-    def test_update_recurring_task_creates_database(self, m):
+    def test_missing_database_for_recurring_task_throws_404(self, m):
         NotionDatabase.objects.all().delete()
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
@@ -708,28 +708,8 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             self.update_properties_payload_dict,
             HTTP_X_SELECTED_DATABASE_ID=VALID_DATABASE_ID,
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(NotionDatabase.objects.count(), 1)
-        self.assertEqual(NotionDatabase.objects.all()[0].database_id, VALID_DATABASE_ID)
-
-    @mock.patch(
-        "notion_database.service.notion_client.Client",
-        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
-    )
-    def test_update_recurring_task_does_not_create_new_db_if_already_exists(self, m):
-        self.assertEqual(NotionDatabase.objects.count(), 1)
-        self.client.force_login(
-            get_user_model().objects.get_or_create(username=self.user.username)[0]
-        )
-        response = self.client.post(
-            self.request_url,
-            self.update_properties_payload_dict,
-            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(NotionDatabase.objects.count(), 1)
-        self.assertEqual(NotionDatabase.objects.all()[0].database_id, VALID_DATABASE_ID)
-        self.assertEqual(NotionDatabase.objects.all()[0].database_name, "Todo")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(NotionDatabase.objects.count(), 0)
 
     def check_task_was_not_updated(self):
         recurring_task_from_db = RecurringTask.objects.all()[0]
@@ -815,15 +795,152 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+
+class TestUpdateRecurringTasksDatabase(TasksTestCase):
+    def setUp(self):
+        super().setUp()
+        self.default_task_name = "name"
+        self.old_database = NotionDatabase.objects.create(
+            database_id="old_db_id",
+            database_name="old_db_name",
+            properties_schema_json=dict(),
+        )
+        self.recurring_test_task_model = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            name=self.default_task_name,
+            database=self.old_database,
+            properties_json=dict(),
+        )
+        self.request_url = (
+            f"/update-recurring-task-database/{self.recurring_test_task_model.pk}"
+        )
+
+    def assert_task_was_not_created(self):
+        self.assertEqual(RecurringTask.objects.count(), 1)
+
+    def assert_database_was_not_updated(self):
+        task_database_from_db = RecurringTask.objects.get(
+            pk=self.recurring_test_task_model.pk
+        ).database
+        self.assertEqual(
+            task_database_from_db.database_id, self.old_database.database_id
+        )
+        self.assertEqual(
+            task_database_from_db.database_name, self.old_database.database_name
+        )
+        self.assertEqual(
+            task_database_from_db.properties_schema_json,
+            self.old_database.properties_schema_json,
+        )
+
+    def assert_database_was_updated(self):
+        self.assertEqual(NotionDatabase.objects.count(), 1)
+        notion_database_model = NotionDatabase.objects.all()[0]
+        self.assertEqual(notion_database_model.database_id, VALID_DATABASE_ID)
+        self.assertEqual(
+            notion_database_model.database_name, notion_db_mock.VALID_DATABASE_NAME
+        )
+        self.assertGreater(len(notion_database_model.properties_schema_json), 0)
+        self.assertNotEqual(RecurringTask.objects.all()[0].properties_json, dict())
+
     @mock.patch(
         "notion_database.service.notion_client.Client",
         side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
     )
-    def test_bad_request_when_trying_to_update_properties_no_db_id(self, m):
+    def test_only_logged_in_user_can_update_recurring_tasks(self, m):
+        # create new recurring task
+        response = self.client.post(self.request_url)
+        self.assertEqual(response.status_code, 302)
+        self.assert_database_was_not_updated()
+        self.assert_task_was_not_created()
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_cannot_update_other_users_tasks_database(self, m):
+        other_user_recurring_task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=get_user_model().objects.create_user(
+                username="testuser2", email="test2@email.com", password="secret"
+            ),
+            database=self.sample_database,
+        )
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
         response = self.client.post(
-            self.request_url, self.update_properties_payload_dict
+            f"/update-recurring-task-database/{other_user_recurring_task.pk}",
+            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assert_database_was_not_updated()
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_throw_404_when_not_found(self, m):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            f"/update-recurring-task-database/4",
+            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assert_database_was_not_updated()
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_throw_403_when_request_header_is_missing(self, m):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            self.request_url,
         )
         self.assertEqual(response.status_code, 400)
+        self.assert_database_was_not_updated()
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_update_recurring_task_database_creates_database(self, m):
+        NotionDatabase.objects.all().delete()
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            self.request_url,
+            HTTP_X_SELECTED_DATABASE_ID=VALID_DATABASE_ID,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assert_database_was_updated()
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=notion_db_mock.create_or_get_mocked_oauth_notion_client,
+    )
+    def test_update_recurring_task_does_not_create_new_db_if_already_exists(self, m):
+        NotionDatabase.objects.all().delete()
+        NotionDatabase.objects.create(
+            database_id=VALID_DATABASE_ID,
+            database_name=notion_db_mock.VALID_DATABASE_NAME,
+        )
+        self.assertEqual(NotionDatabase.objects.count(), 1)
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            self.request_url,
+            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assert_database_was_updated()

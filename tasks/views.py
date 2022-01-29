@@ -12,8 +12,10 @@ from workspaces.models import NotionWorkspaceAccess
 from .models import RecurringTask
 from .service import (
     RecurringTaskBadFormData,
+    RecurringTaskMissingDatabaseException,
     RecurringTaskNotFoundException,
     update_recurring_task_schedule_from_request_data,
+    update_task_notion_database_from_request_dict,
     update_task_notion_properties_from_request_dict,
 )
 
@@ -89,6 +91,30 @@ def update_recurring_task_schedule(request, pk):
 def update_recurring_task_properties(request, pk):
     try:
         updated_recurring_task_model = update_task_notion_properties_from_request_dict(
+            request_dict=request, task_pk=pk
+        )
+    except RecurringTaskNotFoundException:
+        return HttpResponse("Could not find Task for Update", status=404)
+    except RecurringTaskBadFormData:
+        return HttpResponse("Invalid parameters for updating tasks!", status=400)
+    except RecurringTaskMissingDatabaseException:
+        return HttpResponse(
+            "No Database assigned to task so properties cannot be updated.", status=400
+        )
+    return render(
+        request,
+        "tasks/partials/recurring-task-update-property-form.html",
+        {
+            "recurring_task": updated_recurring_task_model,
+        },
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_recurring_task_database(request, pk):
+    try:
+        updated_recurring_task_model = update_task_notion_database_from_request_dict(
             request_dict=request, task_pk=pk
         )
     except RecurringTaskNotFoundException:

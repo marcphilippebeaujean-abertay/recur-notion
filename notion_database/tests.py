@@ -12,7 +12,7 @@ from .notion_mock_api import (
     create_or_get_mocked_oauth_notion_client,
 )
 from .service import (
-    query_user_notion_database_with_api_by_id,
+    query_user_notion_database_with_api_by_id_as_dict,
     query_user_notion_databases_list,
 )
 
@@ -117,7 +117,7 @@ class TestGetSingleDatabaseProperties(TestDatabaseResponseConversion):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
-        db_dict = query_user_notion_database_with_api_by_id(
+        db_dict = query_user_notion_database_with_api_by_id_as_dict(
             self.user, VALID_DATABASE_ID
         )
         for property_container in db_dict["properties"]:

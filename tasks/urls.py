@@ -6,6 +6,7 @@ from .views import (
     get_recurring_tasks,
     recurring_task_view,
     recurring_tasks_view,
+    update_recurring_task_database,
     update_recurring_task_properties,
     update_recurring_task_schedule,
 )
@@ -28,6 +29,11 @@ urlpatterns = [
         "update-recurring-task-properties/<int:pk>",
         update_recurring_task_properties,
         name="update-recurring-task-properties",
+    ),
+    path(
+        "update-recurring-task-database/<int:pk>",
+        update_recurring_task_database,
+        name="update-recurring-task-database",
     ),
     path("tasks", recurring_tasks_view, name="recurring-tasks-view"),
 ]

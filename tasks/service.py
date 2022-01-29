@@ -6,7 +6,7 @@ from notion_client import APIResponseError
 
 from notion_database.service import (
     get_or_update_database_from_simple_database_dict_returning_model,
-    query_user_notion_database_with_api_by_id,
+    query_user_notion_database_with_api_by_id_as_dict,
 )
 from notion_properties.constants import IGNORED_PROPERTIES_SET
 from notion_properties.dto import NotionPropertyDto
@@ -23,6 +23,10 @@ class RecurringTaskNotFoundException(Exception):
 
 
 class RecurringTaskBadFormData(Exception):
+    pass
+
+
+class RecurringTaskMissingDatabaseException(Exception):
     pass
 
 
@@ -81,9 +85,9 @@ def update_recurring_task_schedule_from_request_data(request, task_pk):
     return updated_recurring_task
 
 
-def update_task_notion_properties_from_request_dict(request_dict, task_pk):
+def update_task_notion_database_from_request_dict(request_dict, task_pk):
     try:
-        updated_recurring_task = RecurringTask.objects.filter(
+        recurring_task_model_to_be_updated = RecurringTask.objects.filter(
             owner=request_dict.user, pk=task_pk
         ).prefetch_related("scheduler_job")[0]
     except IndexError:
@@ -93,28 +97,56 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
     if "X-Selected-Database-Id" not in request_dict.headers:
         raise RecurringTaskBadFormData("No selected database id in the request header!")
     notion_db_id_str = request_dict.headers["X-Selected-Database-Id"]
-    task_database = updated_recurring_task.database
-    if (
-        task_database is None
-        or task_database.database_id != notion_db_id_str
-        or task_database.properties_schema_json == dict()
-    ):
-        try:
-            database_dict = query_user_notion_database_with_api_by_id(
-                user_model=request_dict.user, database_id_str=notion_db_id_str
-            )
-        except APIResponseError as error:
-            if error.code == "unauthorized":
-                raise NotionAccessTokenInvalidException()
+    try:
+        task_database_dict = query_user_notion_database_with_api_by_id_as_dict(
+            user_model=request_dict.user, database_id_str=notion_db_id_str
+        )
         task_database = (
             get_or_update_database_from_simple_database_dict_returning_model(
-                simple_database_dict=database_dict
+                simple_database_dict=task_database_dict
             )
         )
+        recurring_task_model_to_be_updated.database = task_database
+        recurring_task_model_to_be_updated.properties_json = (
+            create_notion_task_property_list(
+                task_database.properties_schema_json, dict()
+            )
+        )
+        recurring_task_model_to_be_updated.save()
+    except APIResponseError as error:
+        if error.code == "unauthorized":
+            raise NotionAccessTokenInvalidException()
+    return recurring_task_model_to_be_updated
 
+
+def update_task_notion_properties_from_request_dict(request_dict, task_pk):
+    try:
+        updated_recurring_task = RecurringTask.objects.filter(
+            owner=request_dict.user, pk=task_pk
+        ).prefetch_related("scheduler_job")[0]
+    except IndexError:
+        raise RecurringTaskNotFoundException(
+            f"Could not find recurring task that was updated with pk {task_pk}"
+        )
+    task_database = updated_recurring_task.database
+    if task_database is None:
+        raise RecurringTaskMissingDatabaseException(
+            f"Could not find a database for task with id {task_pk}"
+        )
+    updated_recurring_task.properties_json = create_notion_task_property_list(
+        db_schema_dict_list=task_database.properties_schema_json,
+        id_value_dict=request_dict.POST,
+    )
+    update_recurring_task_property_title_from_name(
+        recurring_task=updated_recurring_task
+    )
+    updated_recurring_task.save()
+    return updated_recurring_task
+
+
+def create_notion_task_property_list(db_schema_dict_list, id_value_dict):
     notion_properties_as_dict_list = []
-    notion_property_dict_list = task_database.properties_schema_json
-    for notion_property_dict in notion_property_dict_list:
+    for notion_property_dict in db_schema_dict_list:
         # In the Request form data, each value is associated by the id of the Notion property.
         # The ID of the property is the key.
         notion_property_container_dto = NotionPropertyDto.from_dto_dict(
@@ -125,24 +157,15 @@ def update_task_notion_properties_from_request_dict(request_dict, task_pk):
             continue
         # special case checkbox property: input forms only include the field if checkbox is checked. Thus, to get the
         # right value, we need to just check if the expected checkbox property was in our request dictionary
-        property_is_in_request_form = (
-            notion_property_container_dto.id in request_dict.POST
-        )
+        property_is_in_request_form = notion_property_container_dto.id in id_value_dict
         if property_type_str == "checkbox":
             if property_is_in_request_form:
                 notion_property_container_dto.value = True
             else:
                 notion_property_container_dto.value = False
         elif property_is_in_request_form:
-            notion_property_container_dto.value = request_dict.POST[
+            notion_property_container_dto.value = id_value_dict[
                 notion_property_container_dto.id
             ]
         notion_properties_as_dict_list.append(notion_property_container_dto.dto_dict())
-    updated_recurring_task.properties_json = notion_properties_as_dict_list
-    update_recurring_task_property_title_from_name(
-        recurring_task=updated_recurring_task
-    )
-    should_persist_changes = request_dict.headers.get("X-Persist-Changes", "false")
-    if should_persist_changes == "true":
-        updated_recurring_task.save()
-    return updated_recurring_task
+    return notion_properties_as_dict_list

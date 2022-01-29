@@ -1,6 +1,7 @@
 import os
 
 VALID_DATABASE_ID = os.environ.get("TEST_DATABASE_ID")
+VALID_DATABASE_NAME = "Todo"
 VALID_NOTION_TASK_ID = "b55c9c91-384d-452b-81db-d1ef79372b75"
 VALID_ACCESS_TOKEN = os.environ.get("TEST_NOTION_SECRET")
 VALID_ACCESS_TOKEN_2 = "access_122"
@@ -27,7 +28,7 @@ MOCK_DATABASE_RESPONSE = {
                         "code": False,
                         "color": "default",
                     },
-                    "plain_text": "Todo",
+                    "plain_text": VALID_DATABASE_NAME,
                     "href": None,
                 }
             ],

@@ -25,7 +25,8 @@
                                hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
                         />
                         <small id="task-name-change-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak></span>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                                  x-cloak></span>
                             Saving changes...
                         </small>
                     </div>
@@ -64,13 +65,13 @@
                                     name="selected-db-list-id"
                                     placeholder="Search for Database..."
                                     {% if recurring_task.database != None and recurring_task.database.database_name != None %}
-                                        value="{{recurring_task.database.database_name}}"
+                                    value="{{recurring_task.database.database_name}}"
                                     {% endif %}
                                     id="databases-selector"
                                     class="form-control"
                                     hx-trigger="change delay:50ms"
-                                    x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
-                                    hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
+                                    x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}"}`'
+                                    hx-post="{% url 'update-recurring-task-database' pk=recurring_task.pk %}"
                                     hx-target="#properties-container"
                                     @change="() => {
                                // we are looking for the options tag with the SAME value as the selector currently has
@@ -105,14 +106,21 @@
                             Loading Workspace Databases...
                         </small>
                     </div>
-                    <div id="properties-container" class="mt-4" hx-target="this">
-                        {% include 'tasks/partials/recurring-task-update-property-form.html' %}
+                    <div class="my-2"></div>
+                    <div class="py-2" x-cloak x-show="databaseSelected">
+                        {% if recurring_task.database is None %}
+                        <div class="alert alert-success">Awesome! Your Page is now being Scheduled.</div>
+                        {% endif %}
+                        <h3 class="h5">Schedule</h3>
+                        {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
                     </div>
-                </div>
-                <div class="my-2"></div>
-                <div class="py-2" x-cloak x-show="databaseSelected">
-                    <h3 class="h5">Schedule</h3>
-                    {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
+                    <div id="properties-container" class="mt-4" hx-target="this">
+                        {% if recurring_task.properties_json|length == 0 %}
+                            <div class="alert alert-danger">Please select a database for the Page!</div>
+                        {% else %}
+                            {% include 'tasks/partials/recurring-task-update-property-form.html' %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
