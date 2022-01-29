@@ -109,7 +109,7 @@
                     <div class="my-2"></div>
                     <div class="py-2" x-cloak x-show="databaseSelected">
                         {% if recurring_task.database is None %}
-                        <div class="alert alert-success">Awesome! Your Page is now being Scheduled.</div>
+                        <div class="alert alert-success" x-transition>Awesome! Your Page is now being Scheduled.</div>
                         {% endif %}
                         <h3 class="h5">Schedule</h3>
                         {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
