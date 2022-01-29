@@ -175,6 +175,10 @@ def create_notion_task_property_list(db_schema_dict_list, id_value_dict):
                 notion_property_container_dto.value = True
             else:
                 notion_property_container_dto.value = False
+        elif property_type_str == "number" and property_is_in_request_form:
+            notion_property_container_dto.value = float(
+                id_value_dict[notion_property_container_dto.id]
+            )
         elif property_is_in_request_form:
             notion_property_container_dto.value = id_value_dict[
                 notion_property_container_dto.id
