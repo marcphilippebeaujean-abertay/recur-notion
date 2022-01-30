@@ -40,9 +40,9 @@
                     {% autoescape off %}
                         {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
                     {% endautoescape %}
-                </span>&nbsp;<b>No Credit Card Required</b></p>
+                </span>&nbsp;<b>It's Free</b></p>
             <div>
-                <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Get For Free</a>
+                <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Click Here To Start</a>
             </div>
         </div>
         <div class="col-md-8">
@@ -61,7 +61,7 @@
         <div class="d-flex flex-column justify-content-center col-md-5 px-2 mb-4">
             <h2 class="h3">Say <span class="highlight">"Goodbye"</span> To Tedious <span
                     class="highlight">Data Entry</span></h2>
-            <p class="h6 my-2">Edit all your Scheduled Pages from one Dashboard, quickly and easily.</p>
+            <p class="h6 my-2">Edit all your Scheduled Pages from one Dashboard, <b>designed for Notion users.</b></p>
             <p class="h6 my-2 pb-2">Works great for:</p>
             <div class="d-flex row">
                 <div class="col-6">
@@ -135,6 +135,15 @@
             </div>
         </div>
         <div class="col-md-4 col-12 mt-4 justify-content-center">
+            <h3 class="h5 mb-3 text-center">Create The Schedule</h3>
+            <div class="card steps-card m-auto">
+                <div class="card-body">
+                    <img src="{% static 'images/daily-standup-preview.png' %}" width="250" height="100"
+                         alt="Schedule creator preview"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12 mt-4 justify-content-center">
             <div>
                 <div>
                 <h3 class="h5 mb-3 text-center">Set Notion Properties</h3>
@@ -144,15 +153,6 @@
                 <div class="card-body">
                     <img src="{% static 'images/properties-preview.png' %}" width="250" height="120"
                          alt="Set properties preview"/>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <h3 class="h5 mb-3 text-center">Create The Schedule</h3>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/daily-standup-preview.png' %}" width="250" height="100"
-                         alt="Schedule creator preview"/>
                 </div>
             </div>
         </div>

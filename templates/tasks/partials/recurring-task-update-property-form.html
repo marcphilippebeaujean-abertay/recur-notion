@@ -88,4 +88,17 @@
               x-show="loading"></span>
         &nbsp;Save Properties
     </button>
+    <br />
+    {% if show_changed != None and show_changed == True %}
+    <small x-cloak x-show="!changed" x-transition>
+        <span class="text-success">
+        {% autoescape off %}
+            {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
+        {% endautoescape %}
+    </span>Changes Saved</small>
+    {% else %}
+    <small x-cloak x-show="!changed" class="text-muted">
+        No unsaved changes.
+    </small>
+    {% endif %}
 </form>

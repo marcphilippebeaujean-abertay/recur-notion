@@ -7,7 +7,8 @@
 
 {% block content %}
 <div class="d-flex" x-data="{
-        databaseSelected: {% if recurring_task.database == None %}false{% else %}true{% endif %}
+        databaseSelected: {% if recurring_task.database == None %}false{% else %}true{% endif %},
+        databaseChanged: false
     }">
     <div class="w-100 px-2">
         <div class="card">
@@ -90,6 +91,7 @@
                                var propertiesContainerElem = document.getElementById('properties-container');
                                propertiesContainerElem.innerHTML = `{% include 'widgets/centered-spinner.html' %}`;
                                databaseSelected = true;
+                               databaseChanged = true;
                             }"
                             />
                             <datalist
@@ -101,6 +103,15 @@
                             >
                             </datalist>
                         </div>
+                        <div>
+                            <small x-cloak x-show="databaseChanged" x-transition>
+                                <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
+                                {% endautoescape %}
+                                </span>Database Change Saved
+                            </small>
+                        </div>
                         <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             Loading Workspace Databases...
@@ -108,9 +119,6 @@
                     </div>
                     <div class="my-2"></div>
                     <div class="py-2" x-cloak x-show="databaseSelected">
-                        {% if recurring_task.database is None %}
-                        <div class="alert alert-success" x-transition>Awesome! Your Page is now being Scheduled.</div>
-                        {% endif %}
                         <h3 class="h5">Schedule</h3>
                         {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
                     </div>

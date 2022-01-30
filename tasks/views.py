@@ -99,6 +99,7 @@ def update_recurring_task_schedule(request, pk):
             {
                 "recurring_task": recurring_task_to_update_model,
                 "hide_labels": request.headers.get("X-Hide-Labels", False) == "true",
+                "show_changed": True,
             },
         )
     return HttpResponse(status=200)
@@ -122,9 +123,7 @@ def update_recurring_task_properties(request, pk):
     return render(
         request,
         "tasks/partials/recurring-task-update-property-form.html",
-        {
-            "recurring_task": updated_recurring_task_model,
-        },
+        {"recurring_task": updated_recurring_task_model, "show_changed": True},
     )
 
 
