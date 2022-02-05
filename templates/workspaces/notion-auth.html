@@ -7,12 +7,17 @@
 {% load notion_workspace_tags %}
 
 <div class="card account-flow-card">
-    <div class="card-body">
+    <div class="card-body" x-data="{loading: false}">
         <h1 class="h4">Connect Notion</h1>
         <p class="mb-4">We need permission to access your Workspace - don't worry, we play nice!</p>
         <a href="{% oauth_url %}"
-           class="btn btn-success mt-2">
-            <span class="mx-2">Connect Notion</span>
+           class="btn btn-success mt-2"
+           x-bind:disabled="loading"
+        >
+            <span class="mx-2" @click="loading = true">
+                <span x-cloak class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+                Connect Notion
+            </span>
         </a>
     </div>
 </div>
