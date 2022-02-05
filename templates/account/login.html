@@ -15,10 +15,10 @@
                 Log in
             </button>
         </form>
-        <p  class="mt-4">
-        <a href="{% url 'account_reset_password' %}">Forgot Password</a> or
-        <a href="{% url 'account_signup' %}">Need an Account?</a>
-            </p>
+        <p  class="mt-2 mb-2">
+            <a href="{% url 'account_reset_password' %}">Forgot Password</a> or
+            <a href="{% url 'account_signup' %}">Need an Account?</a>
+        </p>
         {% include 'account/social_accounts_access.html' %}
     </div>
 </div>
