@@ -19,6 +19,9 @@
                 Sign up
            </button>
         </form>
+        <p class="mt-4">
+            Already have an Account? <a href="{% url 'account_login' %}">Log In</a>
+        </p>
         {% include 'account/social_accounts_access.html' %}
     </div>
 </div>
