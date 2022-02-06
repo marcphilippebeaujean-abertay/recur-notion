@@ -78,7 +78,7 @@
                                // we are looking for the options tag with the SAME value as the selector currently has
                                var shownVal = document.getElementById('databases-selector').value;
                                // see template notion_databases/partials/notion-databases-list.html to understand why this works
-                               var optionTag = document.querySelector('#option-' + shownVal.replace(' ', ''));
+                               var optionTag = document.querySelector('#option-' + shownVal.replace(/ +/g,'_'));
                                if(optionTag === null) {
                                     // reset value if user just put in an invalid option tag
                                     document.getElementById('databases-selector').value = shownVal;
