@@ -599,7 +599,7 @@ class TestDeleteRecurringTask(TasksTestCase):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
-        response = self.client.delete("/delete-recurring-task/invalid-id")
+        response = self.client.delete("/delete-recurring-task/42069")
         self.assertEqual(response.status_code, 404)
         self.assert_task_not_deleted()
 

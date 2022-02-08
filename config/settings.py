@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "taggit",  # required by wagtail
+    "modelcluster",  # required by wagtail
     # for Google OAuth 2.0
     "allauth.socialaccount.providers.google",
     "crispy_forms",
@@ -42,6 +44,18 @@ INSTALLED_APPS = [
     "django_browser_reload",
     "honeypot",
     "webp_converter",
+    # Wagtail
+    "wagtail.contrib.forms",
+    "wagtail.contrib.redirects",
+    "wagtail.embeds",
+    "wagtail.sites",
+    "wagtail.users",
+    "wagtail.snippets",
+    "wagtail.documents",
+    "wagtail.images",
+    "wagtail.search",
+    "wagtail.admin",
+    "wagtail.core",
     # Local
     "accounts",
     "pages",
@@ -49,6 +63,7 @@ INSTALLED_APPS = [
     "tasks",
     "newsletter",
     "notion_database",
+    "blog",
 ]
 
 # MIDDLEWARE
@@ -64,27 +79,30 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
-# LOGGIN
+# LOGGING
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
     "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": "/tmp/debug.log",
-        },
+        "mail_admins": {
+            "level": "ERROR",
+            "filters": ["require_debug_false"],
+            "class": "django.utils.log.AdminEmailHandler",
+        }
     },
     "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
+        "django.request": {
+            "handlers": ["mail_admins"],
+            "level": "ERROR",
             "propagate": True,
         },
     },
 }
+
 
 # Configure your Q cluster
 # More details https://django-q.readthedocs.io/en/latest/configure.html
@@ -305,3 +323,26 @@ NOTION_CLIENT_ID = os.environ.get("NOTION_CLIENT_ID")
 NOTION_OAUTH_CALLBACK = os.environ.get("NOTION_OAUTH_CALLBACK")
 
 HONEYPOT_FIELD_NAME = "Full Name"
+
+# WAGTAIL SETTINGS
+
+# This is the human-readable name of your Wagtail install
+# which welcomes users upon login to the Wagtail admin.
+WAGTAIL_SITE_NAME = "Albert - Recurring Tasks For Notion"
+
+# Replace the search backend
+# WAGTAILSEARCH_BACKENDS = {
+#  'default': {
+#    'BACKEND': 'wagtail.search.backends.elasticsearch5',
+#    'INDEX': 'myapp'
+#  }
+# }
+
+# Wagtail email notifications from address
+# WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = 'wagtail@myhost.io'
+
+# Wagtail email notification format
+# WAGTAILADMIN_NOTIFICATION_USE_HTML = True
+
+# Reverse the default case-sensitive handling of tags
+TAGGIT_CASE_INSENSITIVE = True

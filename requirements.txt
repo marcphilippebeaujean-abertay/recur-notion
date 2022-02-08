@@ -58,6 +58,7 @@ sqlparse==0.4.2
 typed-ast==1.5.1
 typing-extensions==4.0.1
 urllib3==1.26.8
+wagtail==2.15.3
 wcwidth==0.2.5
 Werkzeug==2.0.2
 whitenoise[brotli]==5.3.0
