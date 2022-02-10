@@ -17,6 +17,8 @@ from .models import RecurringTask
 
 DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME = timezone.now()
 
+
+CATEGORY_FIELD_ID = "epmG"
 EXAMPLE_NOTION_PROPERTIES = [
     {
         "id": "_jFX",
@@ -96,7 +98,7 @@ EXAMPLE_NOTION_PROPERTIES = [
         ],
     },
     {
-        "id": "epmG",
+        "id": CATEGORY_FIELD_ID,
         "name": "Category",
         "type": "select",
         "value": "b7c6b95b-7142-4f0b-ad9c-a81b472503c6",
@@ -156,6 +158,17 @@ class TasksTestCase(TestCase):
 
 
 class TestCreateTasksJobTest(TasksTestCase):
+    def setUp(self):
+        super().setUp()
+        # create new recurring task
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+
     def test_client_no_existing_workspace_user(self):
         self.client.force_login(
             get_user_model().objects.get_or_create(username="newtestuser")[0]
@@ -164,107 +177,52 @@ class TestCreateTasksJobTest(TasksTestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_create_scheduled_task_in_notion(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=1),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database=self.sample_database,
-        )
         # run the tasks method
-        create_recurring_task_in_notion(task.pk)
+        create_recurring_task_in_notion(self.task.pk)
 
     def test_create_scheduled_task_in_notion_despite_wrong_type_for_property(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=1),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database=self.sample_database,
-        )
-        for property_dict in task.properties_json:
-            if property_dict["type"] == "select":
+        list_of_property_ids_to_change_back = []
+        for property_dict in self.task.properties_json:
+            if property_dict["type"] == "phone_number":
                 property_dict["type"] = "multi_select"
-        task.save()
+                list_of_property_ids_to_change_back.append(property_dict["id"])
+        self.task.save()
         # run the tasks method
-        create_recurring_task_in_notion(task.pk)
+        create_recurring_task_in_notion(self.task.pk)
 
-    def test_create_scheduled_task_in_notion_despite_wrong_id_for_option(self):
-        self.sample_database.database_id = "wrong_database_id"
-        self.sample_database.save()
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=1),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database=self.sample_database,
-        )
-        # run the tasks method
-        create_recurring_task_in_notion(task.pk)
-        self.assertEqual(RecurringTask.objects.get(pk=task.pk).database, None)
-
-    def test_reset_database_for_scheduled_task_in_notion_with_wrong_database_id(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=1),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database=self.sample_database,
-        )
-        for property_dict in task.properties_json:
+    def test_invalid_option_id_in_recurring_task(self):
+        properties_dict_list = self.task.properties_json
+        for property_dict in properties_dict_list:
             if property_dict["type"] == "select":
                 property_dict["value"] = "invalid_option_id"
-        task.save()
+        self.task.properties_json = properties_dict_list
+        self.task.save()
         # run the tasks method
-        create_recurring_task_in_notion(task.pk)
+        create_recurring_task_in_notion(self.task.pk)
+
+    def test_reset_database_for_scheduled_task_in_notion_with_wrong_database_id(self):
+        self.sample_database.database_id = "wrong_database_id"
+        self.sample_database.save()
+        self.task.database = self.sample_database
+        self.task.save()
+        # run the tasks method
+        create_recurring_task_in_notion(self.task.pk)
+        self.assertEqual(RecurringTask.objects.get(pk=self.task.pk).database, None)
 
     def test_no_scheduled_task_in_database_throws_exception(self):
         # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=3),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database=self.sample_database,
-        )
         # run the tasks method
         self.assertRaises(
             Exception, lambda x: create_recurring_task_in_notion("invalid_pk")
         )
 
     def test_no_workspace_access_in_database_throws_exception(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=7),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
-            database=self.sample_database,
-        )
+        previous_pk = self.task.pk
         NotionWorkspaceAccess.objects.all().delete()
         # run the tasks method
-        self.assertRaises(Exception, lambda x: create_recurring_task_in_notion(task.pk))
-
-    def test_not_calling_any_api_if_database_id_is_not_set(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=1),
-            owner=self.user,
-            properties_json=EXAMPLE_NOTION_PROPERTIES,
+        self.assertRaises(
+            Exception, lambda x: create_recurring_task_in_notion(previous_pk)
         )
-        # run the tasks method
-        create_recurring_task_in_notion(task.pk)
 
 
 class TestDateUntilPreview(TasksTestCase):

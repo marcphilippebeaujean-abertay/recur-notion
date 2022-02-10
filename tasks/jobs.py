@@ -10,6 +10,7 @@ from notion_database.service import (
 from notion_properties.dto import NotionPropertyDto
 from notion_properties.service import (
     create_properties_dict_for_create_page_api_request_from_property_dto_list,
+    is_property_dict_matching_database_schema_dict_list,
 )
 
 from .models import RecurringTask
@@ -62,19 +63,15 @@ def create_recurring_task_in_notion(task_pk):
         notion_db_schema_resp_dict
     )
     # Check which properties are still in the Database
-    notion_database_property_type_by_id_dict = {
-        property_dto.id: property_dto.notion_type
-        for property_dto in database_dict["properties"]
-    }
     property_dto_list = [
         NotionPropertyDto.from_dto_dict(property_dto)
         for property_dto in task_model.properties_json
-        if property_dto["id"] in notion_database_property_type_by_id_dict
-        and property_dto["type"]
-        == notion_database_property_type_by_id_dict[property_dto["id"]]
+        if is_property_dict_matching_database_schema_dict_list(
+            property_dict=property_dto["id"],
+            db_schema_property_dict_list=database_dict["properties"],
+        )
     ]
     # check if the provided property type is that in the schema
-
     request_properties_dict = (
         create_properties_dict_for_create_page_api_request_from_property_dto_list(
             property_dto_list
