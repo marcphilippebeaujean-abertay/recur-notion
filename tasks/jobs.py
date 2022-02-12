@@ -7,13 +7,13 @@ from django.utils import timezone
 from notion_client import APIResponseError
 
 from notion_database.service import (
-    convert_notion_database_resp_dict_to_simple_database_dict,
+    convert_notion_database_resp_dict_to_simple_database_dict_list,
 )
 from notion_properties.dto import NotionPropertyDto
 from notion_properties.service import (
     create_properties_dict_for_create_page_api_request_from_property_dto_list,
-    is_property_dict_matching_database_schema_dict_list,
 )
+from tasks.service import create_notion_task_property_list_from_db_schema
 
 from .models import RecurringTask
 
@@ -33,11 +33,11 @@ def create_recurring_task_in_notion(task_pk):
     ).total_seconds()
     if task_model.scheduler_job is None or job_time_difference_in_seconds > 2:
         return
-    task_notion_db_model = task_model.database
+    notion_db_model = task_model.database
     if (
-        task_notion_db_model is None
-        or task_notion_db_model.database_id is None
-        or task_notion_db_model.database_id == ""
+        notion_db_model is None
+        or notion_db_model.database_id is None
+        or notion_db_model.database_id == ""
     ):
         logger.info(
             f"Database id was not set for Recurring Task with PK {task_pk}! Cannot handle request."
@@ -57,7 +57,7 @@ def create_recurring_task_in_notion(task_pk):
     # Fetch the given database from Notion
     try:
         notion_db_schema_resp_dict = client.databases.retrieve(
-            database_id=task_notion_db_model.database_id
+            database_id=notion_db_model.database_id
         )
     except (httpx.HTTPStatusError, APIResponseError) as error:
         if error.code == "unauthorized":
@@ -66,28 +66,33 @@ def create_recurring_task_in_notion(task_pk):
         task_model.database = None
         task_model.save()
         return
-    database_dict = convert_notion_database_resp_dict_to_simple_database_dict(
+    database_dict = convert_notion_database_resp_dict_to_simple_database_dict_list(
         notion_db_schema_resp_dict
     )
+    current_task_properties_value_by_id_dict = {
+        property_dict["id"]: property_dict["value"]
+        for property_dict in task_model.properties_json
+    }
     # Check which properties are still in the Database
-    property_dto_list = [
-        NotionPropertyDto.from_dto_dict(property_dto)
-        for property_dto in task_model.properties_json
-        if is_property_dict_matching_database_schema_dict_list(
-            property_dict=property_dto["id"],
-            db_schema_property_dict_list=database_dict["properties"],
-        )
-    ]
+    property_dict_list = create_notion_task_property_list_from_db_schema(
+        db_schema_dict_list=[
+            property_dto.dto_dict() for property_dto in database_dict["properties"]
+        ],
+        property_value_by_id_dict=current_task_properties_value_by_id_dict,
+    )
     # check if the provided property type is that in the schema
     request_properties_dict = (
         create_properties_dict_for_create_page_api_request_from_property_dto_list(
-            property_dto_list
+            [
+                NotionPropertyDto.from_dto_dict(property_dict)
+                for property_dict in property_dict_list
+            ]
         )
     )
-    page_parent_dict = {"database_id": task_notion_db_model.database_id}
+    page_parent_dict = {"database_id": notion_db_model.database_id}
     client.pages.create(parent=page_parent_dict, properties=request_properties_dict)
 
-    # task_notion_db_model.properties_schema_json = database_dict
-    task_notion_db_model.save()
+    notion_db_model.properties_schema_json = property_dict_list
+    notion_db_model.save()
     # Call the create Notion Page Method
     logger.debug(f"Created recurring task with id {task_model.pk} successfully.")

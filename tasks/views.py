@@ -1,5 +1,6 @@
 import datetime
 import logging
+from threading import Thread
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -7,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
+from notion_database.service import query_user_notion_database_with_api_by_id_as_dict
 from workspaces.models import NotionWorkspaceAccess
 
 from .models import RecurringTask
@@ -14,10 +16,11 @@ from .service import (
     RecurringTaskBadFormData,
     RecurringTaskMissingDatabaseException,
     RecurringTaskNotFoundException,
+    get_recurring_task_with_properties_update,
     update_recurring_task_interval,
     update_recurring_task_name,
     update_recurring_task_start_time,
-    update_task_notion_database_from_request_dict,
+    update_task_notion_database,
     update_task_notion_properties_from_request_dict,
 )
 
@@ -133,7 +136,7 @@ def update_recurring_task_database(request, pk):
     if "X-Selected-Database-Id" not in request.headers:
         return HttpResponse("Invalid parameters for updating tasks!", status=400)
     try:
-        updated_recurring_task_model = update_task_notion_database_from_request_dict(
+        updated_recurring_task_model = update_task_notion_database(
             user=request.user,
             database_id=request.headers["X-Selected-Database-Id"],
             task_pk=pk,
@@ -160,7 +163,12 @@ def get_recurring_tasks(request):
 
 @login_required
 def recurring_task_view(request, pk):
-    recurring_task_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
+    try:
+        recurring_task_model = get_recurring_task_with_properties_update(
+            task_pk=pk, owner_user_model=request.user
+        )
+    except RecurringTaskNotFoundException:
+        return HttpResponse("Could not find Task", status=404)
     return render(
         request,
         "tasks/recurring-task-view.html",
