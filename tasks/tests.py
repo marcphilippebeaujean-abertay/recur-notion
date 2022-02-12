@@ -163,7 +163,7 @@ class TestCreateTasksJobTest(TasksTestCase):
         # create new recurring task
         self.task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            start_time=timezone.now(),
             owner=self.user,
             properties_json=EXAMPLE_NOTION_PROPERTIES,
             database=self.sample_database,

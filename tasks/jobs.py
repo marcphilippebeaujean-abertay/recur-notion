@@ -1,7 +1,9 @@
+import datetime
 import logging
 
 import httpx
 import notion_client
+from django.utils import timezone
 from notion_client import APIResponseError
 
 from notion_database.service import (
@@ -26,6 +28,11 @@ def create_recurring_task_in_notion(task_pk):
         raise Exception(
             f"Task with id {task_pk} be created because it did not exist in Database anymore."
         )
+    job_time_difference_in_seconds = abs(
+        task_model.scheduler_job.next_run - timezone.now()
+    ).total_seconds()
+    if task_model.scheduler_job is None or job_time_difference_in_seconds > 2:
+        return
     task_notion_db_model = task_model.database
     if (
         task_notion_db_model is None
