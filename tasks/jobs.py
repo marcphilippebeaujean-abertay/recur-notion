@@ -2,6 +2,7 @@ import logging
 
 import httpx
 import notion_client
+from django.utils import timezone
 from notion_client import APIResponseError
 
 from notion_database.service import (
@@ -84,7 +85,5 @@ def create_recurring_task_in_notion(task_pk):
     )
     page_parent_dict = {"database_id": notion_db_model.database_id}
     client.pages.create(parent=page_parent_dict, properties=request_properties_dict)
-    task_model.properties_json = property_dict_list
-    task_model.save()
     # Call the create Notion Page Method
     logger.debug(f"Created recurring task with id {task_model.pk} successfully.")
