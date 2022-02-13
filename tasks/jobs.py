@@ -31,7 +31,7 @@ def create_recurring_task_in_notion(task_pk):
     job_time_difference_in_seconds = abs(
         task_model.scheduler_job.next_run - timezone.now()
     ).total_seconds()
-    if task_model.scheduler_job is None or job_time_difference_in_seconds > 2:
+    if task_model.scheduler_job is None or job_time_difference_in_seconds > 60:
         return
     notion_db_model = task_model.database
     if (
