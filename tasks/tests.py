@@ -17,7 +17,6 @@ from .models import RecurringTask
 
 DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME = timezone.now()
 
-
 CATEGORY_FIELD_ID = "epmG"
 EXAMPLE_NOTION_PROPERTIES = [
     {
@@ -157,6 +156,167 @@ class TasksTestCase(TestCase):
         )
 
 
+class TasksTestCalculateNextRun(TasksTestCase):
+    def test_start_time_in_future(self):
+        start_time_to_test_against = timezone.now() + timedelta(days=4)
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=start_time_to_test_against,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        self.assertEqual(
+            start_time_to_test_against, self.task.calculate_next_start_time_for_job()
+        )
+
+    def test_start_time_in_past(self):
+        start_time = datetime(
+            year=timezone.now().year,
+            month=timezone.now().month,
+            minute=14,
+            second=14,
+            hour=timezone.now().hour - 1,
+            day=timezone.now().day,
+            tzinfo=pytz.utc,
+        ) - timedelta(days=3)
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=start_time,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        calculated_start_time = self.task.calculate_next_start_time_for_job()
+        self.assertEqual(calculated_start_time.day, timezone.now().day)
+        self.assertEqual(calculated_start_time.minute, 14)
+        self.assertEqual(calculated_start_time.second, 14)
+        self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
+
+    def test_start_time_in_past_but_daily_scheduling_means_should_post_today(self):
+        start_time = datetime(
+            year=timezone.now().year,
+            month=timezone.now().month,
+            minute=14,
+            second=14,
+            hour=timezone.now().hour - 1,
+            day=timezone.now().day,
+            tzinfo=pytz.utc,
+        ) - timedelta(days=3)
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=start_time,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        calculated_start_time = self.task.calculate_next_start_time_for_job()
+        self.assertEqual(calculated_start_time.day, timezone.now().day)
+        self.assertEqual(calculated_start_time.minute, 14)
+        self.assertEqual(calculated_start_time.second, 14)
+        self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
+
+    def test_interval_30_days(self):
+        start_time = datetime(
+            year=timezone.now().year,
+            month=timezone.now().month,
+            minute=14,
+            second=14,
+            hour=timezone.now().hour - 1,
+            day=timezone.now().day,
+            tzinfo=pytz.utc,
+        ) - timedelta(days=3)
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_30_DAYS.value,
+            start_time=start_time,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        calculated_start_time = self.task.calculate_next_start_time_for_job()
+        self.assertEqual(
+            calculated_start_time.day, (timezone.now() + timedelta(days=26)).day
+        )
+        self.assertEqual(calculated_start_time.minute, 14)
+        self.assertEqual(calculated_start_time.second, 14)
+        self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
+
+    def test_interval_7_days(self):
+        start_time = datetime(
+            year=timezone.now().year,
+            month=timezone.now().month,
+            minute=14,
+            second=14,
+            hour=timezone.now().hour - 1,
+            day=timezone.now().day,
+            tzinfo=pytz.utc,
+        ) - timedelta(days=3)
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
+            start_time=start_time,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+        calculated_task_start_time = self.task.calculate_next_start_time_for_job()
+        self.assertEqual(
+            calculated_task_start_time.day, (timezone.now() + timedelta(days=3)).day
+        )
+        self.assertEqual(calculated_task_start_time.minute, 14)
+        self.assertEqual(calculated_task_start_time.second, 14)
+        self.assertEqual(calculated_task_start_time.hour, timezone.now().hour - 1)
+
+    def test_interval_365_days(self):
+        start_time = datetime(
+            year=timezone.now().year,
+            month=timezone.now().month,
+            minute=14,
+            second=14,
+            hour=timezone.now().hour - 1,
+            day=timezone.now().day,
+            tzinfo=pytz.utc,
+        )
+        self.task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_365_DAYS.value,
+            start_time=start_time,
+            owner=self.user,
+            properties_json=EXAMPLE_NOTION_PROPERTIES,
+            database=self.sample_database,
+        )
+
+        self.assertEqual(
+            self.task.calculate_next_start_time_for_job().day,
+            (timezone.now() + timedelta(days=365)).day,
+        )
+        self.assertEqual(self.task.calculate_next_start_time_for_job().minute, 14)
+        self.assertEqual(self.task.calculate_next_start_time_for_job().second, 14)
+        self.assertEqual(
+            self.task.calculate_next_start_time_for_job().hour, timezone.now().hour - 1
+        )
+
+
+class TestDateUntilPreview(TasksTestCase):
+    def test_1_day_till_posted_over_1_day_interval(self):
+        # create new recurring task
+        task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=timezone.now() - timedelta(days=7),
+            owner=self.user,
+            database=self.sample_database,
+        )
+        self.assertEqual(task.days_till_next_task, 0)
+
+    def test_1_day_till_posted_over_7_day_interval(self):
+        # create new recurring task
+        task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
+            start_time=timezone.now() - timedelta(days=5, hours=6),
+            owner=self.user,
+            database=self.sample_database,
+        )
+        self.assertEqual(task.days_till_next_task, 1)
+
+
 class TestCreateTasksJobTest(TasksTestCase):
     def setUp(self):
         super().setUp()
@@ -223,30 +383,6 @@ class TestCreateTasksJobTest(TasksTestCase):
         self.assertRaises(
             Exception, lambda x: create_recurring_task_in_notion(previous_pk)
         )
-
-
-class TestDateUntilPreview(TasksTestCase):
-    def test_1_day_till_posted_over_1_day_interval(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=7),
-            owner=self.user,
-            database=self.sample_database,
-        )
-        self.assertEqual(task.days_till_next_task, 1)
-
-    def test_1_day_till_posted_over_7_day_interval(self):
-        # create new recurring task
-        task = RecurringTask.objects.create(
-            interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
-            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME
-            - timedelta(days=6),
-            owner=self.user,
-            database=self.sample_database,
-        )
-        self.assertEqual(task.days_till_next_task, 1)
 
 
 class TestCreateRecurringTasks(TasksTestCase):
@@ -499,21 +635,6 @@ class TestUpdateRecurringTasksSchedule(TasksTestCase):
             HTTP_X_CLIENT_TIMEZONE="Europe/Berlin",
         )
         self.assertEqual(response.status_code, 200)
-
-    def test_scheduled_task_start_time_same_as_recurring_task_start_time(self):
-        self.client.force_login(
-            get_user_model().objects.get_or_create(username=self.user.username)[0]
-        )
-        response = self.client.post(
-            self.request_url,
-            self.update_start_time_payload,
-            HTTP_X_CLIENT_TIMEZONE="Europe/Berlin",
-        )
-        self.assertEqual(response.status_code, 200)
-        schedule_task = Schedule.objects.all()[0]
-        recurring_task = RecurringTask.objects.all()[0]
-        self.assert_task_start_time_was_updated()
-        self.assertEqual(recurring_task.start_time, schedule_task.next_run)
 
 
 class TestDeleteRecurringTask(TasksTestCase):

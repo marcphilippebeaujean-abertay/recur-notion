@@ -85,8 +85,7 @@
         {% endautoescape %}
     </span>Changes Saved.</small>
     {% endif %}
-    <small x-show="loading == false">This Page will be created again within {{ recurring_task.days_till_next_task }}
-        day{% if recurring_task.days_till_next_task > 1 %}s {% endif %}.</small>
+    <small x-show="loading == false">{{ recurring_task.days_till_schedule_preview_text }}</small>
     <small x-cloak x-show="loading && !deleted" class="text-muted">
         <span class="spinner-border spinner-border-sm"
               role="status"
