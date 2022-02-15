@@ -2,7 +2,6 @@ import logging
 
 import httpx
 import notion_client
-from django.utils import timezone
 from notion_client import APIResponseError
 
 from notion_database.service import (

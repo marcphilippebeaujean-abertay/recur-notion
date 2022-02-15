@@ -1,9 +1,7 @@
 {% load page_basics %}
 
-<div id="task-container-desktop-{{recurring_task.pk}}"
->
-    <div class="col-12 p-2 d-flex flex-row"
-    >
+<div id="task-container-desktop-{{recurring_task.pk}}">
+    <div class="col-12 p-2 d-flex flex-row">
         <div class="col-4 pl-4 mt-1 me-2">
             <input
                     value="{{ recurring_task.name }}"
@@ -12,11 +10,10 @@
                     name="task-name"
                     id="task-name"
                     hx-trigger="change"
-                    hx-indicator="#task-name-change-loading-indicator-{{recurring_task.id}}"
+                    hx-indicator=".task-name-change-loading-indicator-{{recurring_task.id}}"
                     hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
             />
-            <small id="task-name-change-loading-indicator-{{recurring_task.id}}"
-                   class="my-indicator my-0 mx-0 text-muted">
+            <small class="task-name-change-loading-indicator-{{recurring_task.id}} my-indicator my-0 mx-0 text-muted">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Saving changes...
             </small>
@@ -66,7 +63,7 @@
                         hx-confirm="Are you sure you wish to delete this Task?"
                         hx-indicator=".delete-indication-{{recurring_task.pk}}"
                 >
-                    <span x-show="!loading" class="hide-on-indicator delete-indication-{{recurring_task.pk}}">
+                    <span class="hide-on-indicator delete-indication-{{recurring_task.pk}}">
                             {% autoescape off %}
                                 {% bootstrap_icon_by_icon_name icon_name='trash' %}
                             {% endautoescape %}

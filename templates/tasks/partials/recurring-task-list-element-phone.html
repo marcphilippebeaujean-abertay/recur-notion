@@ -1,7 +1,6 @@
 {% load page_basics %}
 
-
-<div class="col-12 col-md-6 p-2" id="task-container{{recurring_task.pk}}">
+<div class="col-12 col-md-6 p-2" id="task-container-phone-{{recurring_task.pk}}">
     <div class="card">
         <div class="card-body">
             <input value="{{ recurring_task.name }}"
@@ -10,11 +9,10 @@
                    name="task-name"
                    id="task-name"
                    hx-trigger="change"
-                   hx-indicator="#task-name-change-loading-indicator-{{recurring_task.id}}"
+                   hx-indicator=".task-name-change-loading-indicator-{{recurring_task.id}}"
                    hx-post="{% url 'update-recurring-task-schedule' pk=recurring_task.pk %}"
             />
-            <small id="task-name-change-loading-indicator-{{recurring_task.id}}"
-                   class="my-indicator my-0 mx-0 text-muted">
+            <small class="task-name-change-loading-indicator-{{recurring_task.id}} my-indicator my-0 mx-0 text-muted">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Saving changes...
             </small>
@@ -50,24 +48,22 @@
                         &nbsp;Edit
                     </a>
                 </div>
-                <div class="mx-2" x-data="{loading: false}">
+                <div class="mx-2">
                     <button
-                            class="btn btn-danger mr-2"
-                            hx-target="#task-container{{recurring_task.pk}}"
+                            class="btn btn-danger mr-2 d-flex"
+                            hx-target="#task-container-phone-{{recurring_task.pk}}"
                             hx-delete="{%url 'delete-recurring-task' pk=recurring_task.pk %}"
                             hx-swap="outerHTML"
                             hx-confirm="Are you sure you wish to delete this Task?"
                             hx-indicator=".delete-indication-{{recurring_task.pk}}"
-                            @click="loading = true"
-                            x-bind:disabled="loading"
                     >
-                        <span x-show="!loading" class="hide-on-indicator delete-indication--{{recurring_task.pk}}">
+                        <span class="hide-on-indicator delete-indication-{{recurring_task.pk}}">
                             {% autoescape off %}
                                 {% bootstrap_icon_by_icon_name icon_name='trash' %}
                             {% endautoescape %}
                         </span>
-                        <span class="spinner-border spinner-border-sm my-indicator delete-indication--{{recurring_task.pk}}"
-                              role="status" aria-hidden="true" x-cloak></span>
+                        <span class="spinner-border spinner-border-sm my-indicator delete-indication-{{recurring_task.pk}}"
+                              role="status" aria-hidden="true"></span>
                         &nbsp;Delete
                     </button>
                 </div>
