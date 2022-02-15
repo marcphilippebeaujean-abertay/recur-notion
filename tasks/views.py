@@ -168,7 +168,7 @@ def recurring_task_view(request, pk):
             task_pk=pk, owner_user_model=request.user
         )
     except RecurringTaskNotFoundException:
-        return HttpResponse("Could not find Task", status=404)
+        return render(request, "404.html", status=404)
     return render(
         request,
         "tasks/recurring-task-view.html",

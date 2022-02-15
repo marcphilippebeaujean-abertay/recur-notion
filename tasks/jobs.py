@@ -85,5 +85,5 @@ def create_recurring_task_in_notion(task_pk):
     )
     page_parent_dict = {"database_id": notion_db_model.database_id}
     client.pages.create(parent=page_parent_dict, properties=request_properties_dict)
-    # Call the create Notion Page Method
+    # Don't save any models within the task - will cause back-to-back chains of jobs going off
     logger.debug(f"Created recurring task with id {task_model.pk} successfully.")

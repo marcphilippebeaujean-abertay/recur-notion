@@ -22,8 +22,9 @@ def create_properties_dict_for_create_page_api_request_from_property_dto_list(
     property_dto_list,
 ):
     create_page_property_dict = {}
+    # don't include properties where values are default i.e. not set, with exception of checkbox
     for property_dto in property_dto_list:
-        if property_dto.is_default_value:
+        if property_dto.is_default_value and property_dto.notion_type != "checkbox":
             continue
         create_page_property_dict[
             property_dto.name

@@ -160,6 +160,7 @@ def update_task_notion_properties_from_request_dict(
         create_notion_task_property_list_from_db_schema(
             db_schema_dict_list=task_database.properties_schema_json,
             property_value_by_id_dict=property_value_by_id_dict,
+            set_checkboxes_by_presence_in_value_dict=True,
         )
     )
     update_recurring_task_property_title_from_name(
@@ -191,7 +192,9 @@ def get_recurring_task_with_properties_update(task_pk, owner_user_model):
 
 
 def create_notion_task_property_list_from_db_schema(
-    db_schema_dict_list, property_value_by_id_dict
+    db_schema_dict_list,
+    property_value_by_id_dict,
+    set_checkboxes_by_presence_in_value_dict=False,
 ):
     notion_properties_as_dict_list = []
     for notion_property_dict in db_schema_dict_list:
@@ -204,15 +207,18 @@ def create_notion_task_property_list_from_db_schema(
         property_type_str = notion_property_container_dto.notion_type
         if property_type_str in IGNORED_PROPERTIES_SET:
             continue
-        # special case checkbox property: input forms only include the field if checkbox is checked. Thus, to get the
-        # right value, we need to just check if the expected checkbox property was in our request dictionary
         property_id = notion_property_container_dto.id
         property_is_in_value_dict = property_id in property_value_by_id_dict
         if property_type_str == "checkbox":
-            if property_is_in_value_dict:
-                notion_property_container_dto.value = True
-            else:
-                notion_property_container_dto.value = False
+            if set_checkboxes_by_presence_in_value_dict:
+                # special case checkbox property: input forms only include the field if checkbox is checked. Thus, to
+                # get the right value when we are creating a key/value pair of Notion properties from an input form,
+                # we need to just check if the expected checkbox property was in our request dictionary
+                notion_property_container_dto.value = property_is_in_value_dict
+            elif property_is_in_value_dict:
+                notion_property_container_dto.value = property_value_by_id_dict[
+                    property_id
+                ]
         elif property_type_str == "number" and property_is_in_value_dict:
             value_as_string = property_value_by_id_dict[property_id]
             try:
