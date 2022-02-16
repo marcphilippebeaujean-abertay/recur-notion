@@ -56,17 +56,12 @@
                             </div>
                         </div>
                     </div>
-                    <hr class="my-1"/>
+                    <hr class="my-0"/>
                     </div>
                 </div>
                 {% endif %}
                 {% for recurring_task in recurring_tasks %}
-                <div class="d-md-none">
-                    {% include "tasks/partials/recurring-task-list-element-phone.html" with recurring_task=recurring_task %}
-                </div>
-                <div class="d-none d-md-block">
-                    {% include "tasks/partials/recurring-task-list-element-desktop.html" with recurring_task=recurring_task %}
-                </div>
+                    {% include "tasks/partials/recurring-task-list-element.html" with recurring_task=recurring_task %}
                 {% endfor %}
             </div>
         </div>

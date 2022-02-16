@@ -101,7 +101,6 @@ def update_recurring_task_schedule(request, pk):
             "tasks/partials/recurring-task-schedule.html",
             {
                 "recurring_task": recurring_task_to_update_model,
-                "hide_labels": request.headers.get("X-Hide-Labels", False) == "true",
                 "show_changed": True,
             },
         )
