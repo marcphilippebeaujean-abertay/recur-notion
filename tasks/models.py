@@ -71,8 +71,8 @@ class RecurringTask(models.Model):
             return "Page will be created again within a day."
         if self.starting_date_is_in_future:
             if self.days_till_next_task == 1:
-                return "Page will be created again within a day."
-            return f"Page will be created again within {self.days_till_next_task} days."
+                return "Page will be created again in a day."
+            return f"Page will be created again in {self.days_till_next_task} days."
         return f"Page will be created again within {self.days_till_next_task + 1} days."
 
     def get_interval_as_djangoq_schedule_type(self):
