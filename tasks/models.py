@@ -48,11 +48,15 @@ class RecurringTask(models.Model):
     )
 
     @property
+    def starting_date_is_in_future(self):
+        return now() < datetime.fromisoformat(self.start_time.isoformat())
+
+    @property
     def days_till_next_task(self):
         date_difference = (
             now() - datetime.fromisoformat(self.start_time.isoformat())
         ).days
-        if date_difference < 0:
+        if self.starting_date_is_in_future:
             return abs(date_difference)
         if date_difference == 0:
             return 0
@@ -64,7 +68,11 @@ class RecurringTask(models.Model):
     @property
     def days_till_schedule_preview_text(self):
         if self.days_till_next_task == 0:
-            return "Page will be created again within less than a day."
+            return "Page will be created again within a day."
+        if self.starting_date_is_in_future:
+            if self.days_till_next_task == 1:
+                return "Page will be created again within a day."
+            return f"Page will be created again within {self.days_till_next_task} days."
         return f"Page will be created again within {self.days_till_next_task + 1} days."
 
     def get_interval_as_djangoq_schedule_type(self):

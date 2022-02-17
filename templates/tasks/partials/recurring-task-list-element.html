@@ -34,7 +34,7 @@
                 {% endautoescape %}
                  &nbsp;Missing Database.</div>
         {% else %}
-        {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task hide_labels=True %}
+            {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
         {% endif %}
     </div>
     <div class="d-flex mt-1">
