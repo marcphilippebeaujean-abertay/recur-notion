@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import logging
 
@@ -8,7 +7,6 @@ from django.shortcuts import redirect, render
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
-from notion_database.service import query_user_notion_databases_list
 from notion_database.thread_processes import FetchUserDatabasesThread
 from workspaces.models import NotionWorkspaceAccess
 
@@ -163,22 +161,14 @@ def get_recurring_tasks(request):
 
 @login_required
 def recurring_task_view(request, pk):
-    notion_database_query_thread = FetchUserDatabasesThread(user_model=request.user)
-    notion_database_query_thread.start()
-
     try:
         recurring_task_model = get_recurring_task_with_properties_update(
             task_pk=pk, owner_user_model=request.user
         )
     except RecurringTaskNotFoundException:
         return render(request, "404.html", status=404)
-
-    notion_database_query_thread.join()
     return render(
         request,
         "tasks/recurring-task-view.html",
-        {
-            "recurring_task": recurring_task_model,
-            "available_notion_databases": notion_database_query_thread.response_simple_database_dict,
-        },
+        {"recurring_task": recurring_task_model},
     )

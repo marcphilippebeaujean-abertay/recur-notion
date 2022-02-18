@@ -95,14 +95,12 @@
                                databaseChanged = true;
                             }"
                             />
-                            <datalist id="databases-list">
-                                {% for notion_database in available_notion_databases %}
-                                    <option data-real-value="{{notion_database.id}}"
-                                            x-bind:id="() => 'option-{{notion_database.name}}'.replace(/ +/g,'_')"
-                                    >
-                                        {{notion_database.name}}
-                                    </option>
-                                {% endfor %}
+                            <datalist id="databases-list"
+                                    hx-trigger="load"
+                                    hx-get="{% url 'get-workspace-databases' %}"
+                                    hx-indicator="#database-loading-indicator"
+                                    hx-target="#databases-list"
+                            >
                             </datalist>
                         </div>
                         <div>
@@ -114,6 +112,10 @@
                                 </span>Database Change Saved
                             </small>
                         </div>
+                        <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading Workspace Databases...
+                        </small>
                     </div>
                     <div class="my-2"></div>
                     <div class="py-2" x-cloak x-show="databaseSelected">
