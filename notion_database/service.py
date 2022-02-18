@@ -30,7 +30,7 @@ def load_user_notion_client(user_model):
     return notion_client.Client(auth=notion_workspace_access_grant_model.access_token)
 
 
-def query_user_notion_databases_list(user_model, query_string):
+def query_user_notion_databases_list(user_model, query_string=None):
     logger.info(f"Fetching workspace pages")
     request_filter_dict = {
         "filter": {"property": "object", "value": "database"},
