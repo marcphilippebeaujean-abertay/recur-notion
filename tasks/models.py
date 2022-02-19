@@ -104,22 +104,29 @@ class RecurringTask(models.Model):
             tzinfo=pytz.utc,
         )
         # days till next task only translates
-        return next_run_datetime_without_day_translation + timedelta(
-            days=self.days_till_next_task
+        next_run_datetime_with_translation = (
+            next_run_datetime_without_day_translation
+            + timedelta(days=self.days_till_next_task)
+        )
+        return (
+            next_run_datetime_with_translation
+            if next_run_datetime_with_translation > timezone_aware_now
+            else next_run_datetime_with_translation + timedelta(days=1)
         )
 
     def save(self, *args, **kwargs):
         is_scheduler_job_created_from_save = self.scheduler_job is None
 
+        next_start_time_for_job_datetime = self.calculate_next_start_time_for_job()
         if is_scheduler_job_created_from_save:
             self.scheduler_job = Schedule.objects.create(
                 func="tasks.jobs.create_recurring_task_in_notion",
-                next_run=self.calculate_next_start_time_for_job(),
+                next_run=next_start_time_for_job_datetime,
                 schedule_type=self.get_interval_as_djangoq_schedule_type(),
             )
         else:
             Schedule.objects.filter(id=self.scheduler_job_id).update(
-                next_run=self.calculate_next_start_time_for_job(),
+                next_run=next_start_time_for_job_datetime,
                 schedule_type=self.get_interval_as_djangoq_schedule_type(),
             )
         super().save(*args, **kwargs)

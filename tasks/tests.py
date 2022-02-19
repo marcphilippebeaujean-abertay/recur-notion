@@ -171,15 +171,18 @@ class TasksTestCalculateNextRun(TasksTestCase):
         )
 
     def test_start_time_in_past(self):
-        start_time = datetime(
-            year=timezone.now().year,
-            month=timezone.now().month,
-            minute=14,
-            second=14,
-            hour=timezone.now().hour - 1,
-            day=timezone.now().day,
-            tzinfo=pytz.utc,
-        ) - timedelta(days=3)
+        start_time = (
+            datetime(
+                year=timezone.now().year,
+                month=timezone.now().month,
+                minute=14,
+                second=14,
+                hour=timezone.now().hour - 1,
+                day=timezone.now().day,
+                tzinfo=pytz.utc,
+            )
+            - timedelta(days=3)
+        )
         self.task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             start_time=start_time,
@@ -188,21 +191,24 @@ class TasksTestCalculateNextRun(TasksTestCase):
             database=self.sample_database,
         )
         calculated_start_time = self.task.calculate_next_start_time_for_job()
-        self.assertEqual(calculated_start_time.day, timezone.now().day)
+        self.assertEqual(calculated_start_time.day, timezone.now().day + 1)
         self.assertEqual(calculated_start_time.minute, 14)
         self.assertEqual(calculated_start_time.second, 14)
         self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
 
     def test_start_time_in_past_but_daily_scheduling_means_should_post_today(self):
-        start_time = datetime(
-            year=timezone.now().year,
-            month=timezone.now().month,
-            minute=14,
-            second=14,
-            hour=timezone.now().hour - 1,
-            day=timezone.now().day,
-            tzinfo=pytz.utc,
-        ) - timedelta(days=3)
+        start_time = (
+            datetime(
+                year=timezone.now().year,
+                month=timezone.now().month,
+                minute=14,
+                second=14,
+                hour=timezone.now().hour + 1,
+                day=timezone.now().day - 1,
+                tzinfo=pytz.utc,
+            )
+            - timedelta(days=3)
+        )
         self.task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
             start_time=start_time,
@@ -214,18 +220,21 @@ class TasksTestCalculateNextRun(TasksTestCase):
         self.assertEqual(calculated_start_time.day, timezone.now().day)
         self.assertEqual(calculated_start_time.minute, 14)
         self.assertEqual(calculated_start_time.second, 14)
-        self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
+        self.assertEqual(calculated_start_time.hour, timezone.now().hour + 1)
 
     def test_interval_30_days(self):
-        start_time = datetime(
-            year=timezone.now().year,
-            month=timezone.now().month,
-            minute=14,
-            second=14,
-            hour=timezone.now().hour - 1,
-            day=timezone.now().day,
-            tzinfo=pytz.utc,
-        ) - timedelta(days=3)
+        start_time = (
+            datetime(
+                year=timezone.now().year,
+                month=timezone.now().month,
+                minute=14,
+                second=14,
+                hour=timezone.now().hour - 1,
+                day=timezone.now().day,
+                tzinfo=pytz.utc,
+            )
+            - timedelta(days=3)
+        )
         self.task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_30_DAYS.value,
             start_time=start_time,
@@ -242,15 +251,18 @@ class TasksTestCalculateNextRun(TasksTestCase):
         self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
 
     def test_interval_7_days(self):
-        start_time = datetime(
-            year=timezone.now().year,
-            month=timezone.now().month,
-            minute=14,
-            second=14,
-            hour=timezone.now().hour - 1,
-            day=timezone.now().day,
-            tzinfo=pytz.utc,
-        ) - timedelta(days=3)
+        start_time = (
+            datetime(
+                year=timezone.now().year,
+                month=timezone.now().month,
+                minute=14,
+                second=14,
+                hour=timezone.now().hour - 1,
+                day=timezone.now().day,
+                tzinfo=pytz.utc,
+            )
+            - timedelta(days=3)
+        )
         self.task = RecurringTask.objects.create(
             interval=RecurringTask.TaskIntervals.EVERY_7_DAYS.value,
             start_time=start_time,
@@ -272,7 +284,7 @@ class TasksTestCalculateNextRun(TasksTestCase):
             month=timezone.now().month,
             minute=14,
             second=14,
-            hour=timezone.now().hour - 1,
+            hour=timezone.now().hour + 1,
             day=timezone.now().day,
             tzinfo=pytz.utc,
         )
@@ -291,7 +303,7 @@ class TasksTestCalculateNextRun(TasksTestCase):
         self.assertEqual(self.task.calculate_next_start_time_for_job().minute, 14)
         self.assertEqual(self.task.calculate_next_start_time_for_job().second, 14)
         self.assertEqual(
-            self.task.calculate_next_start_time_for_job().hour, timezone.now().hour - 1
+            self.task.calculate_next_start_time_for_job().hour, timezone.now().hour + 1
         )
 
 

@@ -48,11 +48,9 @@ def update_recurring_task_property_title_from_name(recurring_task):
         recurring_task.properties_json = [task_title_property_dto.dto_dict()]
 
 
-def query_task_with_scheduler_job_prefetch(user, task_pk):
+def query_task_by_user_and_pk(user, task_pk):
     try:
-        return RecurringTask.objects.filter(owner=user, pk=task_pk).prefetch_related(
-            "scheduler_job"
-        )[0]
+        return RecurringTask.objects.filter(owner=user, pk=task_pk)[0]
     except IndexError:
         raise RecurringTaskNotFoundException(
             f"Could not find recurring task that was updated with pk {task_pk}"
@@ -60,14 +58,14 @@ def query_task_with_scheduler_job_prefetch(user, task_pk):
 
 
 def update_recurring_task_interval(user, task_pk, interval_value_str):
-    updated_recurring_task = query_task_with_scheduler_job_prefetch(user, task_pk)
+    updated_recurring_task = query_task_by_user_and_pk(user, task_pk)
     updated_recurring_task.interval = interval_value_str
     updated_recurring_task.save()
     return updated_recurring_task
 
 
 def update_recurring_task_name(user, task_pk, new_task_name_str):
-    updated_recurring_task = query_task_with_scheduler_job_prefetch(user, task_pk)
+    updated_recurring_task = query_task_by_user_and_pk(user, task_pk)
     updated_recurring_task.name = new_task_name_str
     update_recurring_task_property_title_from_name(
         recurring_task=updated_recurring_task
@@ -79,9 +77,7 @@ def update_recurring_task_name(user, task_pk, new_task_name_str):
 def update_recurring_task_start_time(
     user, task_pk, start_time_as_string, client_timezone
 ):
-    updated_recurring_task = query_task_with_scheduler_job_prefetch(
-        user=user, task_pk=task_pk
-    )
+    updated_recurring_task = query_task_by_user_and_pk(user=user, task_pk=task_pk)
     if start_time_as_string is None or client_timezone is None:
         raise RecurringTaskBadFormData()
     # this variable format is probably breaking the template
@@ -148,9 +144,7 @@ def update_task_notion_database(user, database_id, task_pk):
 def update_task_notion_properties_from_request_dict(
     user, property_value_by_id_dict, task_pk
 ):
-    updated_recurring_task = query_task_with_scheduler_job_prefetch(
-        user=user, task_pk=task_pk
-    )
+    updated_recurring_task = query_task_by_user_and_pk(user=user, task_pk=task_pk)
     task_database = updated_recurring_task.database
     if task_database is None:
         raise RecurringTaskMissingDatabaseException(
