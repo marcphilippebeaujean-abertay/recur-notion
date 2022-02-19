@@ -43,10 +43,10 @@ def query_user_notion_databases_list(user_model, query_string=None):
     )
     if "results" not in response_dict:
         raise NotionApiException("Unable to retrieve Database data!")
-    properties_dict = response_dict.get("results")
+    notion_db_response_dict_list = response_dict.get("results")
     return [
-        convert_notion_database_resp_dict_to_simple_database_dict_list(database_dict)
-        for database_dict in properties_dict
+        convert_notion_database_resp_dict_to_simple_database_dict(db_response_dict)
+        for db_response_dict in notion_db_response_dict_list
     ]
 
 
@@ -54,10 +54,10 @@ def query_user_notion_database_with_api_by_id_as_dict(user_model, database_id_st
     database_dict = load_user_notion_client(user_model=user_model).databases.retrieve(
         database_id=database_id_str
     )
-    return convert_notion_database_resp_dict_to_simple_database_dict_list(database_dict)
+    return convert_notion_database_resp_dict_to_simple_database_dict(database_dict)
 
 
-def convert_notion_database_resp_dict_to_simple_database_dict_list(notion_db_dict):
+def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
     return {
         "name": notion_db_dict["title"][0]["text"]["content"],
         "id": notion_db_dict["id"],

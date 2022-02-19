@@ -5,7 +5,7 @@ import notion_client
 from notion_client import APIResponseError
 
 from notion_database.service import (
-    convert_notion_database_resp_dict_to_simple_database_dict_list,
+    convert_notion_database_resp_dict_to_simple_database_dict,
 )
 from notion_properties.dto import NotionPropertyDto
 from notion_properties.service import (
@@ -59,7 +59,7 @@ def create_recurring_task_in_notion(task_pk):
         task_model.database = None
         task_model.save()
         return
-    database_dict = convert_notion_database_resp_dict_to_simple_database_dict_list(
+    database_dict = convert_notion_database_resp_dict_to_simple_database_dict(
         notion_db_schema_resp_dict
     )
     current_task_properties_value_by_id_dict = {

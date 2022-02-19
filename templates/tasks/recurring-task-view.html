@@ -70,22 +70,26 @@
                                     value="{{recurring_task.database.database_name}}"
                                     {% endif %}
                                     id="databases-selector"
-                                    class="form-control"
+                                    class="form-control hide-on-indicator database-loading-indicator"
                                     hx-trigger="change delay:50ms"
                                     x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}"}`'
+                                    x-cloak
                                     hx-post="{% url 'update-recurring-task-database' pk=recurring_task.pk %}"
                                     hx-target="#properties-container"
+                                    hx-indicator=".database-save-changes-indicator"
                                     @change="() => {
                                // we are looking for the options tag with the SAME value as the selector currently has
                                var shownVal = document.getElementById('databases-selector').value;
-                               // see template notion_databases/partials/notion-databases-list.html to understand why this works
+                               // see template notion_databases/partials/notion-databases-list.html to understand why
+                               // this works
                                var optionTag = document.querySelector('#option-' + shownVal.replace(/ +/g,'_'));
                                if(optionTag === null) {
                                     // reset value if user just put in an invalid option tag
                                     document.getElementById('databases-selector').value = shownVal;
                                     return;
                                } else {
-                                    // extract the real value from the options set and setting it to the current selected id
+                                    // extract the real value from the options set and setting it to the current
+                                    // selected id
                                     currentSelectedDatabaseId = optionTag.dataset.realValue;
                                }
                                // insert loading spinner
@@ -95,24 +99,47 @@
                                databaseChanged = true;
                             }"
                             />
+                            <!--- this is a dummy search bar we show while loading is in progress so Users don't
+                            try to search while there are no databases
+                            --->
+                            <input
+                                name="loading-time-selected-db-list-id-preview"
+                                list="databases-list"
+                                disabled
+                                {% if recurring_task.database != None and recurring_task.database.database_name != None %}
+                                    value="{{recurring_task.database.database_name}}"
+                                {% else %}
+                                    value="Loading Databases..."
+                                {% endif %}
+                                class="form-control database-loading-indicator my-indicator"
+                            />
+                            <!--- all databases will be injected here --->
                             <datalist id="databases-list"
                                     hx-trigger="load"
                                     hx-get="{% url 'get-workspace-databases' %}"
-                                    hx-indicator="#database-loading-indicator"
+                                    hx-indicator=".database-loading-indicator"
                                     hx-target="#databases-list"
                             >
                             </datalist>
                         </div>
-                        <div>
-                            <small x-cloak x-show="databaseChanged" x-transition>
-                                <span class="text-success">
-                                {% autoescape off %}
-                                    {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
-                                {% endautoescape %}
-                                </span>Database Change Saved
-                            </small>
+                        <div x-show="databaseChanged" x-transition x-cloak>
+                            <div>
+                                <small class="database-save-changes-indicator my-indicator text-muted mt-1">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                                    </span>
+                                    Saving Database Change...
+                                </small>
+                                <small class="database-save-changes-indicator hide-on-indicator">
+                                    <span class="text-success">
+                                    {% autoescape off %}
+                                        {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
+                                    {% endautoescape %}
+                                    </span>Database Change Saved
+                                </small>
+                            </div>
                         </div>
-                        <small id="database-loading-indicator" class="htmx-indicator my-0 mx-0 text-muted">
+                        <small id="database-loading-indicator"
+                               class="database-loading-indicator htmx-indicator my-0 mx-0 text-muted">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             Loading Workspace Databases...
                         </small>
