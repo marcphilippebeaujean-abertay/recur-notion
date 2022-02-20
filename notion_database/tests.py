@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from notion_properties.constants import IGNORED_PROPERTIES_SET
+from notion_properties.dto import NotionPropertyDto
 from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 
 from .notion_mock_api import (
@@ -12,6 +13,7 @@ from .notion_mock_api import (
     create_or_get_mocked_oauth_notion_client,
 )
 from .service import (
+    get_or_update_database_from_simple_database_dict_returning_model,
     query_user_notion_database_with_api_by_id_as_dict,
     query_user_notion_databases_list,
 )
@@ -77,11 +79,6 @@ class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
                 raise Exception(
                     "Invalid conversion of a dictioanry, proeprties are missing!"
                 )
-            for property_container in db_dict["properties"]:
-                if property_container.notion_type in IGNORED_PROPERTIES_SET:
-                    raise Exception(
-                        f"Property {property_container.notion_type} was supposed to be ignored!"
-                    )
 
 
 class TestGetSingleDatabaseProperties(TestDatabaseResponseConversion):
@@ -120,8 +117,94 @@ class TestGetSingleDatabaseProperties(TestDatabaseResponseConversion):
         db_dict = query_user_notion_database_with_api_by_id_as_dict(
             self.user, VALID_DATABASE_ID
         )
-        for property_container in db_dict["properties"]:
-            if property_container.notion_type in IGNORED_PROPERTIES_SET:
-                raise Exception(
-                    f"Property {property_container.notion_type} was supposed to be ignored!"
-                )
+
+
+class TestIgnoredPropertiesHandling(TestDatabaseResponseConversion):
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=create_or_get_mocked_oauth_notion_client,
+    )
+    def test_db_schema_conversion(self, m):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        db_dict = query_user_notion_database_with_api_by_id_as_dict(
+            self.user, VALID_DATABASE_ID
+        )
+        generated_db_model = (
+            get_or_update_database_from_simple_database_dict_returning_model(
+                simple_database_dict=db_dict
+            )
+        )
+        self.assertEqual(generated_db_model.database_id, VALID_DATABASE_ID)
+        self.assertEqual(generated_db_model.database_name, "Todo")
+        for properties_dict in generated_db_model.properties_schema_json:
+            property_dto = NotionPropertyDto.from_dto_dict(properties_dict)
+            if property_dto.notion_type in IGNORED_PROPERTIES_SET:
+                self.assertEqual(property_dto.value, None)
+            else:
+                self.assertTrue(property_dto.is_default_value)
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=create_or_get_mocked_oauth_notion_client,
+    )
+    def test_ignored_properties_are_included(self, m):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        db_dict = query_user_notion_database_with_api_by_id_as_dict(
+            self.user, VALID_DATABASE_ID
+        )
+        generated_db_model = (
+            get_or_update_database_from_simple_database_dict_returning_model(
+                simple_database_dict=db_dict
+            )
+        )
+        for properties_dict in generated_db_model.properties_schema_json:
+            property_dto = NotionPropertyDto.from_dto_dict(properties_dict)
+            if property_dto.notion_type in IGNORED_PROPERTIES_SET:
+                return
+        raise Exception(
+            "Ignored properties should be included in database schema json, but none were found!"
+        )
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=create_or_get_mocked_oauth_notion_client,
+    )
+    def test_ignored_properties_are_included_when_querying_their_names(self, m):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        db_dict = query_user_notion_database_with_api_by_id_as_dict(
+            self.user, VALID_DATABASE_ID
+        )
+        generated_db_model = (
+            get_or_update_database_from_simple_database_dict_returning_model(
+                simple_database_dict=db_dict
+            )
+        )
+        if "Assign" not in generated_db_model.get_list_of_unsupported_property_names():
+            raise Exception("Missing some unsupported property name in method")
+
+    @mock.patch(
+        "notion_database.service.notion_client.Client",
+        side_effect=create_or_get_mocked_oauth_notion_client,
+    )
+    def test_ignored_properties_names_are_empty_array_if_schema_is_dict(self, m):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        db_dict = query_user_notion_database_with_api_by_id_as_dict(
+            self.user, VALID_DATABASE_ID
+        )
+        generated_db_model = (
+            get_or_update_database_from_simple_database_dict_returning_model(
+                simple_database_dict=db_dict
+            )
+        )
+        generated_db_model.properties_schema_json = {"hello": "world"}
+        self.assertEqual(
+            len(generated_db_model.get_list_of_unsupported_property_names()), 0
+        )

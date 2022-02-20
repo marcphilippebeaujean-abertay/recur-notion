@@ -79,6 +79,15 @@
             {% endif %}
         {% endfor %}
     </div>
+    {% if recurring_task.database != None %}
+        <div class="alert alert-warning mb-0 mt-2">
+            {% autoescape off %}
+                {% bootstrap_icon_by_icon_name icon_name='info-circle' %}
+            {% endautoescape %}
+            The following properties are currently not supported (but will be in future updates):
+            {{ recurring_task.database.get_list_of_unsupported_property_names|join:", " }}.
+        </div>
+    {% endif %}
     <button type="submit"
             class="btn btn-success mt-4"
             x-bind:disabled="loading || !changed">

@@ -8,6 +8,7 @@ from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
 from notion_database.thread_processes import FetchUserDatabasesThread
+from notion_properties.dto import NotionPropertyDto
 from workspaces.models import NotionWorkspaceAccess
 
 from .models import RecurringTask

@@ -2,6 +2,7 @@ from django.utils.timezone import now
 
 from .constants import (
     EMPTY_OPTION_DICT,
+    IGNORED_PROPERTIES_SET,
     NOTION_DATE_PROPERTIES_SET,
     NOTION_SELECT_PROPERTIES,
     NOTION_TEXT_PROPERTIES_SET,
@@ -32,7 +33,7 @@ class NotionPropertyDto:
                 self.options_list = options_list
                 if EMPTY_OPTION_DICT not in options_list:
                     self.options_list.append(EMPTY_OPTION_DICT)
-        if value is not None:
+        if value is not None or self.notion_type in IGNORED_PROPERTIES_SET:
             self.value = value
         else:
             if assign_default_value is True:
@@ -53,12 +54,12 @@ class NotionPropertyDto:
             return "checkbox"
         if self.notion_type == "number":
             return "number"
-        raise Exception("unexpected notion type received! cannot convert to html form")
+        return None
 
     @property
     def html_value(self):
         if self.notion_type == "checkbox":
-            return "on" if self.value == True else "off"
+            return "on" if self.value is True else "off"
         return self.value
 
     def dto_dict(self):
@@ -109,6 +110,14 @@ class NotionPropertyDto:
         property_type_str = notion_api_property_dict["type"]
         # Extract Value from the Dictionary - it is under the key of the dictionary with same value as the type
         notion_property_value = notion_api_property_dict[property_type_str]
+        if property_type_str in IGNORED_PROPERTIES_SET:
+            return cls(
+                id_str=notion_api_property_dict["id"],
+                notion_type_str=property_type_str,
+                name_str=property_name_str,
+                options_list=[],
+                assign_default_value=False,
+            )
         # check if the provided notion api returned property dict is just outlining the schema and not containg a value
         # true if the value field is showing us the available options for property or just empty dictionary
         if (
