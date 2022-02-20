@@ -50,7 +50,55 @@
         </div>
     </div>
 </div>
-<div class="my-4 py-2"></div>
+<h5 class="text-center mt-2">Replace Any Task App With Notion</h5>
+<div class="d-flex flex-row justify-content-center">
+    <img src="{% static 'images/todoist-logo.png' %}" alt="Todoist logo" height="40" width="40" class="mx-2"/>
+    <img src="{% static 'images/google-todo-logo.png' %}" alt="Google Todo logo" height="40" width="40" class="mx-2"/>
+    <img src="{% static 'images/asana-logo.png' %}" alt="Asana logo" height="40" width="40" class="mx-2"/>
+    <img src="{% static 'images/jira-logo.png' %}" alt="Jira logo" height="40" width="40" class="mx-2"/>
+    <img src="{% static 'images/things-3-logo.png' %}" alt="Things 3 logo" height="40" width="40" class="mx-2"/>
+    <img src="{% static 'images/reminder-logo.png' %}" alt="Reminder logo" height="40" width="40" class="mx-2"/>
+</div>
+<div class="my-3"></div>
+<div class="px-3 py-4 mt-2">
+    <div class="d-flex flex-column justify-content-center">
+        <h2 class="mt-0 text-center h3">How It Works</h2>
+    </div>
+    <div class="d-md-flex justify-content-between row">
+        <div class="col-md-4 col-12 mt-4 justify-content-center">
+            <h3 class="h5 mb-3 text-center">Choose Workspace Database</h3>
+            <div class="card steps-card m-auto">
+                <div class="card-body">
+                    <img src="{% static 'images/database-preview.png' %}" width="250" height="70"
+                         alt="Select Database preview"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12 mt-4 justify-content-center">
+            <h3 class="h5 mb-3 text-center">Create The Schedule</h3>
+            <div class="card steps-card m-auto">
+                <div class="card-body">
+                    <img src="{% static 'images/daily-standup-preview.png' %}" width="250" height="100"
+                         alt="Schedule creator preview"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12 mt-4 justify-content-center">
+            <div>
+                <div>
+                <h3 class="h5 mb-3 text-center">Set Notion Properties</h3>
+                </div>
+            </div>
+            <div class="card steps-card m-auto">
+                <div class="card-body">
+                    <img src="{% static 'images/properties-preview.png' %}" width="250" height="120"
+                         alt="Set properties preview"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="my-4 d-none d-none d-sm-block"></div>
 <div class="px-3 py-3">
     <div class="d-md-flex justify-content-between row">
         <div class="col-md-7 d-none d-md-block">
@@ -117,47 +165,8 @@
         </div>
     </div>
 </div>
-<div class="my-2 py-2"></div>
-<div class="px-3 py-4 mt-2">
-    <div class="d-flex flex-column justify-content-center">
-        <h2 class="mt-0 text-center h3">How It Works</h2>
-    </div>
-    <div class="d-md-flex justify-content-between row">
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <h3 class="h5 mb-3 text-center">Choose Workspace Database</h3>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/database-preview.png' %}" width="250" height="70"
-                         alt="Select Database preview"/>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <h3 class="h5 mb-3 text-center">Create The Schedule</h3>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/daily-standup-preview.png' %}" width="250" height="100"
-                         alt="Schedule creator preview"/>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <div>
-                <div>
-                <h3 class="h5 mb-3 text-center">Set Notion Properties</h3>
-                </div>
-            </div>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/properties-preview.png' %}" width="250" height="120"
-                         alt="Set properties preview"/>
-                </div>
-            </div>
-        </div>
-    </div>
-    <p class="m-auto text-muted text-center mt-4">Yup, it's that easy.</p>
-</div>
-<div class="py-4">
+<div class="my-2 d-none d-sm-block"></div>
+<div class="pb-4">
     <h2 class="h1 pt-4 mt-4 text-center">Meet <span class="highlight"><i>Albert</i></span></h2>
     <p class="h6 mb-4 mt-2 text-center pb-4">Making Notion Automation simple and accessible for you and your Team.</p>
     <div class="row d-flex">
@@ -166,6 +175,7 @@
                  alt="Albert mascott"/>
         </div>
         <div class="col-12 col-md-6 d-flex flex-column justify-content-center">
+            <div class="my-2 py-4 d-sm-none"></div>
             <div>
                 {% include 'newsletter/partials/mailchimp_form.html' with email="" %}
             </div>
