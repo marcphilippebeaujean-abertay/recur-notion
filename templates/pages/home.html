@@ -5,52 +5,24 @@
 {% block title %}Home page{% endblock title %}
 
 {% block content %}
+<div class="my-4 d-none d-none d-sm-block"></div>
 <div class="px-3 py-3">
-    <h1 class="mb-2">Painless Recurring Tasks For Notion</h1>
-    <div class="d-md-flex justify-content-between row">
-        <div class="d-flex flex-column justify-content-center col-md-4">
-            <p class="h5">Setup a Schedule, create <b class="text-muted">Data on Autopilot</b>.</p>
-            <p class="h6 mt-3">
-                <span class="text-success">
-                    {% autoescape off %}
-                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    {% endautoescape %}
-                </span>&nbsp;Get Started in Seconds</p>
-            <p class="h6">
-                <span class="text-success">
-                    {% autoescape off %}
-                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    {% endautoescape %}
-                </span>&nbsp;No Tutorial Required</p>
-            <p class="h6">
-                <span class="text-success">
-                    {% autoescape off %}
-                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    {% endautoescape %}
-                </span>&nbsp;No Formulas Required</p>
-            <p class="h6">
-                <span class="text-success">
-                    {% autoescape off %}
-                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    {% endautoescape %}
-                </span>&nbsp;No Changes To Tables Required</p>
-            <p class="h6 mb-4">
-                <span class="text-success">
-                    {% autoescape off %}
-                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    {% endautoescape %}
-                </span>&nbsp;<b>It's Free</b></p>
-            <div>
-                <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Click Here To Start</a>
+    <h1 class="mb-2 text-center">Painless Recurring Tasks For Notion</h1>
+    <div class="my-4 d-none d-none d-sm-block"></div>
+    <p class="h5 text-center mt-3"><b>Create Data on Autopilot.</b> <span class="text-muted"> Get Started in Seconds, no Formulas or Table Changes required.</span></p>
+    <div class="d-flex flex-column justify-content-center mt-2">
+            <div class="m-auto">
+                <a href="{% url 'account_signup' %}" class="btn btn-success mt-2">Get Started For Free</a>
             </div>
         </div>
-        <div class="col-md-8">
-            <img src="{% static 'images/recurring-meeting.gif' %}" id="landing-example-gif" alt="Recur logo"
-                 class="w-100 h-auto"/>
-        </div>
+    <div class="my-4 d-none d-none d-sm-block"></div>
+    <div class="w-100">
+        <img src="{% static 'images/recurring-meeting.gif' %}" id="landing-example-gif" alt="Recur logo" width="700px"
+             class="mw-100 h-auto m-auto d-block"/>
     </div>
 </div>
-<h5 class="text-center mt-2">Replace Any Task App With Notion</h5>
+<div class="my-4 py-4 d-none d-none d-sm-block"></div>
+<h4 class="text-center mt-4">Replace Any Task App With Notion</h4>
 <div class="d-flex flex-row justify-content-center">
     <img src="{% static 'images/todoist-logo.png' %}" alt="Todoist logo" height="40" width="40" class="mx-2"/>
     <img src="{% static 'images/google-todo-logo.png' %}" alt="Google Todo logo" height="40" width="40" class="mx-2"/>
@@ -59,6 +31,7 @@
     <img src="{% static 'images/things-3-logo.png' %}" alt="Things 3 logo" height="40" width="40" class="mx-2"/>
     <img src="{% static 'images/reminder-logo.png' %}" alt="Reminder logo" height="40" width="40" class="mx-2"/>
 </div>
+<div class="my-4 py-4 d-none d-none d-sm-block"></div>
 <div class="my-3"></div>
 <div class="px-3 py-4 mt-2">
     <div class="d-flex flex-column justify-content-center">
@@ -98,6 +71,7 @@
         </div>
     </div>
 </div>
+<div class="my-4 py-4 d-none d-none d-sm-block"></div>
 <div class="my-4 d-none d-none d-sm-block"></div>
 <div class="px-3 py-3">
     <div class="d-md-flex justify-content-between row">
@@ -165,6 +139,7 @@
         </div>
     </div>
 </div>
+<div class="my-4 py-4 d-none d-none d-sm-block"></div>
 <div class="my-2 d-none d-sm-block"></div>
 <div class="pb-4">
     <h2 class="h1 pt-4 mt-4 text-center">Meet <span class="highlight"><i>Albert</i></span></h2>
