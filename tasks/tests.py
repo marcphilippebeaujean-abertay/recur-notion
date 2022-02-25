@@ -883,7 +883,6 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
         response = self.client.post(
             self.request_url,
             self.update_properties_payload_dict,
-            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
         )
         self.assertEqual(response.status_code, 200)
 

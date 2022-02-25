@@ -37,3 +37,7 @@
     position: relative;
     bottom: 1.5px;
 }
+
+.hide-internal-buttons .close {
+    display: none;
+}

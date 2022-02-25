@@ -17,8 +17,9 @@ Django==3.2
 django-browser-reload==1.3.0
 django-webp-converter==0.3.0
 django-honeypot==1.0.2
-django-allauth==0.47.0
+django-allauth==0.49.0
 django-crispy-forms==1.13.0
+crispy-bootstrap5==0.6
 django-debug-toolbar==3.2.4
 django-environ==0.8.1
 django-picklefield==3.0.1

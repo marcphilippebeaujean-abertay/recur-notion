@@ -7,7 +7,7 @@ profile = "black"
 multi_line_output = 3
 line_length = 88
 default_section = "THIRDPARTY"
-known_third_party = ["allauth", "django", "django_q", "honeypot", "httpx", "mailchimp3", "notion_client", "pytz", "requests"]
+known_third_party = ["allauth", "crispy_forms", "django", "django_q", "honeypot", "httpx", "mailchimp3", "notion_client", "pytz", "requests"]
 known_first_party = []
 
 [tool.pylint.MESSAGE_CONTROL]

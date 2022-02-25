@@ -7,8 +7,7 @@ from django.shortcuts import redirect, render
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
-from notion_database.thread_processes import FetchUserDatabasesThread
-from notion_properties.dto import NotionPropertyDto
+from notion_properties.forms import NotionPropertyForm
 from workspaces.models import NotionWorkspaceAccess
 
 from .models import RecurringTask
@@ -111,9 +110,18 @@ def update_recurring_task_schedule(request, pk):
 @require_http_methods(["POST"])
 def update_recurring_task_properties(request, pk):
     try:
-        updated_recurring_task_model = update_task_notion_properties_from_request_dict(
-            user=request.user, property_value_by_id_dict=request.POST, task_pk=pk
+        task_to_update = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
+        property_form = NotionPropertyForm(
+            request.POST, task_model=task_to_update, show_save_notification=True
         )
+        if not property_form.is_valid():
+            raise RecurringTaskBadFormData("Form data was not valid!")
+        updated_recurring_task_model = update_task_notion_properties_from_request_dict(
+            property_value_by_id_dict=property_form.cleaned_data,
+            task_model=task_to_update,
+        )
+    except IndexError:
+        return HttpResponse("Could not find Task for Update", status=404)
     except RecurringTaskNotFoundException:
         return HttpResponse("Could not find Task for Update", status=404)
     except RecurringTaskBadFormData:
@@ -125,7 +133,10 @@ def update_recurring_task_properties(request, pk):
     return render(
         request,
         "tasks/partials/recurring-task-update-property-form.html",
-        {"recurring_task": updated_recurring_task_model, "show_changed": True},
+        {
+            "recurring_task": updated_recurring_task_model,
+            "property_form": property_form,
+        },
     )
 
 
@@ -142,11 +153,13 @@ def update_recurring_task_database(request, pk):
         )
     except RecurringTaskNotFoundException:
         return HttpResponse("Could not find Task for Update", status=404)
+    property_form = NotionPropertyForm(task_model=updated_recurring_task_model)
     return render(
         request,
         "tasks/partials/recurring-task-update-property-form.html",
         {
             "recurring_task": updated_recurring_task_model,
+            "property_form": property_form,
         },
     )
 
@@ -168,8 +181,9 @@ def recurring_task_view(request, pk):
         )
     except RecurringTaskNotFoundException:
         return render(request, "404.html", status=404)
+    property_form = NotionPropertyForm(task_model=recurring_task_model)
     return render(
         request,
         "tasks/recurring-task-view.html",
-        {"recurring_task": recurring_task_model},
+        {"recurring_task": recurring_task_model, "property_form": property_form},
     )

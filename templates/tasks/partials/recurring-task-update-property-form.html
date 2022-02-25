@@ -1,113 +1,16 @@
 {% load notion_property_tags %}
 {% load page_basics %}
-<h3 class="h5">Properties</h3>
-<form
-      hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
-      {# requires outter Alpine JS state tracking selected Database ID #}
-      x-bind:hx-headers='`{"X-Selected-Database-Id": "${currentSelectedDatabaseId}", "X-Persist-Changes": true}`'
-      x-data="{ loading: false, changed: false }"
-      hx-include=".properties-input"
-      @submit="loading = true"
->
-    <div class="d-flex row">
-        {% for property in recurring_task.properties_json %}
-            {# do not show the title attributes because we do not want to show them here #}
-            {% if property.type != 'title' %}
-                <div class="form-group col-12 col-md-6">
-                    <label class="my-1">
-                        &nbsp;{{property.name}}
-                    </label>
-                    <div></div>
-                    {% if property.type == 'select' or  property.type == 'multi_select' %}
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">
-                                <span class="mr-2">
-                                    {% autoescape off %}
-                                        {% icon_by_property_type property.type %}
-                                    {% endautoescape %}
-                                </span>
-                            </div>
-                        </div>
-                        <select
-                                class="form-control properties-input"
-                                name="{{property.id}}"
-                                @change="changed = true"
-                        >
-                            {% for option in property.options %}
-                                <option value="{{option.id}}"
-                                        {% if property.value == option.id %}
-                                        selected
-                                        {% endif %}
-                                >
-                                    {{option.name}}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% elif property.type == 'checkbox' %}
-                        <input
-                                class="form-check-input properties-input"
-                                name="{{property.id}}"
-                                type="checkbox"
-                                @change="changed = true"
-                                {% if property.value == True %} checked {% endif %}
-                        />
-                    {% else %}
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">
-                                <span class="mr-2">
-                                    {% autoescape off %}
-                                        {% icon_by_property_type property.type %}
-                                    {% endautoescape %}
-                                </span>
-                            </div>
-                        </div>
-                        <input
-                                class="form-control properties-input"
-                                name="{{property.id}}"
-                                type="{{property.html_form_type}}"
-                                value="{{property.html_value}}"
-                                @change="changed = true"
-                                @keyup="changed = true"
-                                step="any"
-                        />
-                    </div>
-                    {% endif %}
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-    {% if recurring_task.database != None %}
-        <div class="alert alert-warning mb-0 mt-2">
-            {% autoescape off %}
-                {% bootstrap_icon_by_icon_name icon_name='info-circle' %}
-            {% endautoescape %}
-            The following properties are currently not supported (but will be in future updates):
-            {{ recurring_task.database.get_list_of_unsupported_property_names|join:", " }}.
-        </div>
-    {% endif %}
-    <button type="submit"
-            class="btn btn-success mt-4"
-            x-bind:disabled="loading || !changed">
-        <span class="spinner-border spinner-border-sm"
-              role="status"
-              aria-hidden="true"
-              x-show="loading"></span>
-        &nbsp;Save Properties
-    </button>
-    <br />
-    {% if show_changed != None and show_changed == True %}
-    <small x-cloak x-show="!changed" x-transition>
-        <span class="text-success">
-        {% autoescape off %}
-            {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
-        {% endautoescape %}
-    </span>Changes Saved</small>
-    {% else %}
-    <small x-cloak x-show="!changed" class="text-muted">
-        No unsaved changes.
-    </small>
-    {% endif %}
-</form>
+{% load crispy_forms_tags %}
+
+<div x-data="{ loading: false }" id="recurring-task-properties-{{recurring_task.pk}}">
+    <h3 class="h5">Properties</h3>
+    <form
+            hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
+            hx-include=".properties-input"
+            hx-target="#recurring-task-properties-{{recurring_task.pk}}"
+            x-data="{ loading: false, changed: false }"
+            @submit="loading = true"
+    >
+        {% crispy property_form property_form.helper %}
+    </form>
+</div>
