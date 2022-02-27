@@ -68,13 +68,15 @@ class NotionPropertyForm(forms.Form):
             notion_property_dto_by_id[field_name] = property_dto
 
         unsupported_properties_alert = None
-        unsupported_properties_names_list = (
-            task_model.database.get_list_of_unsupported_property_names()
-        )
-        if len(unsupported_properties_names_list) > 0:
+        if (
+            task_model.database is not None
+            and len(task_model.database.get_list_of_unsupported_property_names()) > 0
+        ):
             alert_message = f'{bootstrap_icon_by_icon_name(icon_name="info-circle")} '
             alert_message += "The following properties are currently not supported (but will be in future updates): "
-            alert_message += ", ".join(unsupported_properties_names_list)
+            alert_message += ", ".join(
+                task_model.database.get_list_of_unsupported_property_names()
+            )
             unsupported_properties_alert = Alert(
                 content=alert_message,
                 css_class="hide-internal-buttons alert-warning mt-2 mb-0",
