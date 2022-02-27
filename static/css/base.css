@@ -8,6 +8,23 @@
     display: none !important;
 }
 
+/** Variables used across styles **/
+:root {
+  --success-color: #47A846;
+}
+
+.z-0 {
+   z-index: 0;
+}
+
+.z-1 {
+   z-index: 1;
+}
+
+.z-2 {
+   z-index: 2;
+}
+
 /** Styling to hide HTMX Request indicators **/
 .my-indicator{
     display:none;

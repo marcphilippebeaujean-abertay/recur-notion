@@ -965,7 +965,7 @@ class TestUpdateRecurringTasksDatabase(TasksTestCase):
         )
         response = self.client.post(
             f"/update-recurring-task-database/{other_user_recurring_task.pk}",
-            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
         )
         self.assertEqual(response.status_code, 404)
         self.assert_database_was_not_updated()
@@ -980,7 +980,7 @@ class TestUpdateRecurringTasksDatabase(TasksTestCase):
         )
         response = self.client.post(
             f"/update-recurring-task-database/4",
-            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
         )
         self.assertEqual(response.status_code, 404)
         self.assert_database_was_not_updated()
@@ -1010,7 +1010,7 @@ class TestUpdateRecurringTasksDatabase(TasksTestCase):
         )
         response = self.client.post(
             self.request_url,
-            HTTP_X_SELECTED_DATABASE_ID=VALID_DATABASE_ID,
+            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
         )
         self.assertEqual(response.status_code, 200)
         self.assert_database_was_updated()
@@ -1031,7 +1031,7 @@ class TestUpdateRecurringTasksDatabase(TasksTestCase):
         )
         response = self.client.post(
             self.request_url,
-            HTTP_X_SELECTED_DATABASE_ID=notion_db_mock.VALID_DATABASE_ID,
+            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
         )
         self.assertEqual(response.status_code, 200)
         self.assert_database_was_updated()

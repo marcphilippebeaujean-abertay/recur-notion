@@ -3,7 +3,6 @@
 {% load crispy_forms_tags %}
 
 <div x-data="{ loading: false }" id="recurring-task-properties-{{recurring_task.pk}}">
-    <h3 class="h5">Properties</h3>
     <form
             hx-post="{% url 'update-recurring-task-properties' pk=recurring_task.pk %}"
             hx-include=".properties-input"

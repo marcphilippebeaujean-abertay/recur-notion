@@ -591,7 +591,7 @@ def create_or_get_mocked_oauth_notion_client(*args, **kwargs):
             self.page_api_mock = MockPagesApi(is_valid_token=self.client_token_is_valid)
             return self.page_api_mock
 
-        def search(self, filter, page_size):
+        def search(self, filter, page_size, query=None):
             if not self.client_token_is_valid:
                 raise Exception("Invalid client token!")
             if "property" not in filter or "value" not in filter:

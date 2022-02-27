@@ -1,5 +1,7 @@
 {% load static %}
 {% load page_basics %}
+{% load notion_workspace_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,6 +71,14 @@
                                                 {% bootstrap_icon_by_icon_name icon_name='key-fill' %}
                                             {% endautoescape %}
                                             Change password
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% oauth_url %}">
+                                            {% autoescape off %}
+                                                {% bootstrap_icon_by_icon_name icon_name='box' %}
+                                            {% endautoescape %}
+                                            Update Workspace Access
                                         </a>
                                     </li>
                                     <li>

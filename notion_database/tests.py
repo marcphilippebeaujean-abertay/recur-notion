@@ -2,6 +2,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse_lazy
 
 from notion_properties.constants import IGNORED_PROPERTIES_SET
 from notion_properties.dto import NotionPropertyDto
@@ -38,14 +39,16 @@ class TestDatabaseResponseConversion(TestCase):
 class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
     def setUp(self):
         super().setUp()
-        self.request_url = "/get-workspace-databases/"
+        self.request_url = reverse_lazy("search-workspace-databases-for-task-db-change")
 
     @mock.patch(
         "notion_database.service.notion_client.Client",
         side_effect=create_or_get_mocked_oauth_notion_client,
     )
     def test_only_logged_in_user_can_query_their_databases(self, m):
-        response = self.client.post(self.request_url)
+        response = self.client.post(
+            self.request_url, {"taskPk": 1, "database-search-query": VALID_DATABASE_ID}
+        )
         self.assertEqual(response.status_code, 302)
 
     @mock.patch(
@@ -56,7 +59,9 @@ class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
-        response = self.client.post(self.request_url)
+        response = self.client.post(
+            self.request_url, {"taskPk": 1, "database-search-query": VALID_DATABASE_ID}
+        )
         self.assertEqual(response.status_code, 200)
 
     @mock.patch(
@@ -84,8 +89,11 @@ class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
 class TestGetSingleDatabaseProperties(TestDatabaseResponseConversion):
     def setUp(self):
         super().setUp()
-        self.request_url = "/get-workspace-databases/"
-        self.valid_db_request_body = {"selected-database-id": VALID_DATABASE_ID}
+        self.request_url = reverse_lazy("search-workspace-databases-for-task-db-change")
+        self.valid_db_request_body = {
+            "taskPk": 1,
+            "database-search-query": VALID_DATABASE_ID,
+        }
 
     @mock.patch(
         "notion_database.service.notion_client.Client",

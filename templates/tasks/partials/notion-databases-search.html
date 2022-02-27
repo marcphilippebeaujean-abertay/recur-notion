@@ -1,0 +1,73 @@
+{% load page_basics %}
+{% load notion_workspace_tags %}
+
+
+<div x-data="{
+        showSearchResults: false,
+        savedDatabaseValue: {% if savedDbName == None %}'',{% else %}'{{savedDbName}}'{% endif %},
+        currentSearchValue: {% if savedDbName == None %}'',{% else %}'{{savedDbName}}'{% endif %},
+        databaseChanged: false
+    }">
+    <div class="position-relative">
+        <label class="mb-1 my-2 h4">
+            Database
+            <span class="text-danger text-bold">*</span>
+        </label>
+        <div class="input-group mb-0 z-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <span>
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name='table' %}
+                    {% endautoescape %}
+                    </span>
+                </div>
+            </div>
+            <input type="text"
+                   @click="showSearchResults = true;"
+                   @click.outside="() =>{
+                        showSearchResults = false;
+                        currentSearchValue = savedDatabaseValue;
+                   }"
+                   hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
+                   hx-target='#database-search-results'
+                   hx-trigger="keyup delay:500ms"
+                   hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
+                   hx-indicator=".database-search-results-indicator"
+                   name="database-search-query"
+                   class="form-control mb-0 zindex-popover"
+                   value="{% if savedDbName == None %}{% else %}{{savedDbName}}{% endif %}"
+                   placeholder="Search for Notion Database..."
+                   x-model="currentSearchValue"
+            />
+        </div>
+        <div id="database-search-result-container"
+             x-show="showSearchResults"
+             x-cloak
+             class="position-absolute z-1 border-bottom border-start border-end rounded-bottom rounded-start rounded-end"
+        >
+            <div class="database-search-results-indicator my-indicator">
+                {% include 'widgets/centered-spinner.html' %}
+            </div>
+            <div id="database-search-results" class="database-search-results-indicator hide-on-indicator">
+
+            </div>
+        </div>
+        <div x-show="databaseChanged" class="z-0" x-transition x-cloak>
+            <div>
+                <small class="properties-request-indicator my-indicator text-muted mt-1">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                    </span>
+                    Saving Database Change...
+                </small>
+                <small class="properties-request-indicator hide-on-indicator">
+                    <span class="text-success">
+                    {% autoescape off %}
+                        {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
+                    {% endautoescape %}
+                    </span>Database Change Saved
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

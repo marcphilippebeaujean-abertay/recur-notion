@@ -1,0 +1,26 @@
+{% load notion_workspace_tags %}
+
+{% if databases|length == 0 %}
+<div class="p-4">No Databases found. Notion Search is <b>Case Sensitive</b> and you can
+<a href="{% oauth_url %}">Click Here</a> to update Albert's Database Access.</div>
+{% else %}
+    {% for notion_database in databases %}
+        <div class="database-search-result"
+             hx-post="{% url 'update-recurring-task-database' pk=task_pk %}"
+             hx-vals='{"newDatabaseId": "{{ notion_database.id }}"}'
+             hx-indicator=".properties-request-indicator"
+             hx-target="#properties-form-container"
+             hx-trigger="click"
+             @click="() => {
+                // Variables set in Notion Databases Search
+                savedDatabaseValue = '{{ notion_database.name }}';
+                currentSearchValue = savedDatabaseValue;
+                databaseChanged = true;
+                // Variable set in Recurring Task View
+                databaseSelected = true;
+             }"
+        >
+            {{ notion_database.name }}
+        </div>
+    {% endfor %}
+{% endif %}

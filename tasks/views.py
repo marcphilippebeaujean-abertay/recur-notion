@@ -143,12 +143,12 @@ def update_recurring_task_properties(request, pk):
 @login_required
 @require_http_methods(["POST"])
 def update_recurring_task_database(request, pk):
-    if "X-Selected-Database-Id" not in request.headers:
+    if "newDatabaseId" not in request.POST:
         return HttpResponse("Invalid parameters for updating tasks!", status=400)
     try:
         updated_recurring_task_model = update_task_notion_database(
             user=request.user,
-            database_id=request.headers["X-Selected-Database-Id"],
+            database_id=request.POST["newDatabaseId"],
             task_pk=pk,
         )
     except RecurringTaskNotFoundException:
@@ -165,6 +165,7 @@ def update_recurring_task_database(request, pk):
 
 
 @login_required
+@require_http_methods(["GET"])
 def get_recurring_tasks(request):
     return render(
         request,
@@ -174,6 +175,7 @@ def get_recurring_tasks(request):
 
 
 @login_required
+@require_http_methods(["GET"])
 def recurring_task_view(request, pk):
     try:
         recurring_task_model = get_recurring_task_with_properties_update(

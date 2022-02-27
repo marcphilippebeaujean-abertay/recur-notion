@@ -1,11 +1,11 @@
 from django.urls import path
 
-from .views import get_workspace_databases
+from .views import search_workspace_databases_for_task_db_change
 
 urlpatterns = [
     path(
-        "get-workspace-databases/",
-        get_workspace_databases,
-        name="get-workspace-databases",
+        "search-workspace-databases-for-task-db-change/",
+        search_workspace_databases_for_task_db_change,
+        name="search-workspace-databases-for-task-db-change",
     ),
 ]
