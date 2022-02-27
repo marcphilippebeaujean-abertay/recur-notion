@@ -17,6 +17,8 @@ class NotionDatabase(models.Model):
     properties_schema_json = models.JSONField(encoder=DjangoJSONEncoder, default=dict)
 
     def get_list_of_unsupported_property_names(self):
+        if self.properties_schema_json is None:
+            return []
         if isinstance(self.properties_schema_json, list) is False:
             return []
         property_dto_list = [
