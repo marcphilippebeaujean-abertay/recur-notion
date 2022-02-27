@@ -72,17 +72,19 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": "/tmp/debug.log",
+        "console": {
+            "class": "logging.StreamHandler",
         },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
     },
     "loggers": {
         "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": True,
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
         },
     },
 }
