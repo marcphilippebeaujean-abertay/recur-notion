@@ -95,13 +95,9 @@ def update_recurring_task_schedule(request, pk):
     except RecurringTaskNotFoundException:
         return HttpResponse("Could not find Task for Update", status=404)
     if "update-schedule-only" in request.POST:
-        return render(
-            request,
-            "tasks/partials/recurring-task-schedule.html",
-            {
-                "recurring_task": recurring_task_to_update_model,
-                "show_changed": True,
-            },
+        return HttpResponse(
+            f"{recurring_task_to_update_model.days_till_schedule_preview_text}",
+            status=200,
         )
     return HttpResponse(status=200)
 

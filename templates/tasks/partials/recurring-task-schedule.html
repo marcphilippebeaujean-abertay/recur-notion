@@ -3,10 +3,9 @@
 
 <div class="flex mt-1"
      x-data="{
-        loading: false,
-        deleted: false
+        deleted: false,
+        changed: false
      }"
-     hx-target="this"
 >
     <div class="d-flex row">
         <div class="col-md-6 col-12 form-group">
@@ -17,21 +16,18 @@
                    type="datetime-local"
                    id="{{ recurring_task.pk }}-start-date"
                    class="form-control"
+                   hx-indicator=".indicator-change-schedule-{{recurring_task.id}}"
                    hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                    hx-trigger="change"
                    hx-vals="js:{'update-schedule-only': true}"
-                   @change="() => {
-                       // short interval to let htmx send out the post request before disabling the input form
-                       // otherwise, the input form will not have the correct value
-                       setTimeout(() => loading = true, 200);
-                   }"
+                   hx-target="#schedule-preview-{{recurring_task.id}}"
+                   @change="changed = true"
                    x-bind:value="() => {
                        const localizedDate = new Date({{recurring_task.start_time|date:'U'}} * 1000);
                        localizedDate.setMinutes(localizedDate.getMinutes() - new Date().getTimezoneOffset());
                        let isoString = localizedDate.toISOString();
                        return isoString.substring(0, (isoString.indexOf('T')|0) + 6|0);
                    }"
-                   x-bind:disabled="loading"
             />
         </div>
         <div class="col-md-6 col-12 form-group">
@@ -50,9 +46,11 @@
                 </div>
                 <select class="form-select"
                         name="interval"
-                        @change="loading = true"
+                        @change="changed = true"
+                        hx-indicator=".indicator-change-schedule-{{recurring_task.id}}"
                         hx-post="{% url 'update-recurring-task-schedule' recurring_task.pk %}"
                         hx-trigger="change"
+                        hx-target="#schedule-preview-{{recurring_task.id}}"
                         hx-vals="js:{'update-schedule-only': true}"
                         x-bind:disabled="loading"
                         id="{{ recurring_task.pk }}-interval">
@@ -68,17 +66,24 @@
             </div>
         </div>
     </div>
-    {% if show_changed != None and show_changed == True %}
-    <small x-cloak x-show="!loading && !deleted" x-transition><span class="text-success">
+    <small x-cloak
+           x-show="changed"
+           x-transition
+           class="indicator-change-schedule-{{recurring_task.id}} hide-on-indicator">
+        <span class="text-success">
         {% autoescape off %}
             {% bootstrap_icon_by_icon_name icon_name="check-circle-fill" %}
         {% endautoescape %}
-    </span>Changes Saved.</small>
-    {% endif %}
-    <small x-show="loading == false">{{ recurring_task.days_till_schedule_preview_text }}</small>
-    <small x-cloak x-show="loading && !deleted" class="text-muted">
+        </span>Changes Saved.</small>
+    <small class="indicator-change-schedule-{{recurring_task.id}} hide-on-indicator"
+           id="schedule-preview-{{recurring_task.id}}"
+    >
+        {{ recurring_task.days_till_schedule_preview_text }}
+    </small>
+    <small class="text-muted indicator-change-schedule-{{recurring_task.id}} my-indicator">
         <span class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"></span>
-        Saving Changes...</small>
+        Saving Changes...
+    </small>
 </div>

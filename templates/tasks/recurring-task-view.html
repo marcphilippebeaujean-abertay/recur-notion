@@ -51,7 +51,10 @@
                         </div>
                         <div id="properties-form-container" class="properties-request-indicator hide-on-indicator">
                         {% if recurring_task.properties_json|length == 0 %}
-                            <div class="alert alert-danger">Please select a database for the Page!</div>
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                 Please select a database for the Page!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                         {% else %}
                             {% include 'tasks/partials/recurring-task-update-property-form.html' %}
                         {% endif %}
