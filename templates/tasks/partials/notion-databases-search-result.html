@@ -1,8 +1,7 @@
 {% load notion_workspace_tags %}
 
 {% if databases|length == 0 %}
-<div class="p-4">No Databases found. Notion Search is <b>Case Sensitive</b> and you can
-<a href="{% oauth_url %}">Click Here</a> to update Albert's Database Access.</div>
+<div class="p-4">No Databases found. <a href="{% oauth_url %}">Click Here</a> to update Albert's Database Access.</div>
 {% else %}
     {% for notion_database in databases %}
         <div class="database-search-result"
