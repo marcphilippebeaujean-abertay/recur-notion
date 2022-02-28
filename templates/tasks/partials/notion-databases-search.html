@@ -23,6 +23,13 @@
                     </span>
                 </div>
             </div>
+            <input type="hidden"
+                   value=""
+                   hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
+                   hx-target='#database-search-results'
+                   hx-trigger="load once"
+                   hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
+                   hx-indicator=".database-search-results-indicator" />
             <input type="text"
                    @click="showSearchResults = true;"
                    @click.outside="() =>{
@@ -31,11 +38,6 @@
                             currentSearchValue = savedDatabaseValue;
                         }
                    }"
-                   hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
-                   hx-target='#database-search-results'
-                   hx-trigger="load once"
-                   hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
-                   hx-indicator=".database-search-results-indicator"
                    autocomplete="off"
                    name="database-search-query"
                    class="form-control mb-0 zindex-popover"
