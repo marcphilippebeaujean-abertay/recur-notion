@@ -27,11 +27,13 @@
                    @click="showSearchResults = true;"
                    @click.outside="() =>{
                         showSearchResults = false;
-                        currentSearchValue = savedDatabaseValue;
+                        if(savedDatabaseValue !== ''){
+                            currentSearchValue = savedDatabaseValue;
+                        }
                    }"
                    hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
                    hx-target='#database-search-results'
-                   hx-trigger="keyup delay:500ms"
+                   hx-trigger="keyup delay:500ms, click once"
                    hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
                    hx-indicator=".database-search-results-indicator"
                    name="database-search-query"

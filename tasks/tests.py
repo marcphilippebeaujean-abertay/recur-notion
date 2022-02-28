@@ -4,6 +4,7 @@ from unittest import mock
 import pytz
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django_q.models import Schedule
 
@@ -191,10 +192,14 @@ class TasksTestCalculateNextRun(TasksTestCase):
             database=self.sample_database,
         )
         calculated_start_time = self.task.calculate_next_start_time_for_job()
-        self.assertEqual(calculated_start_time.day, timezone.now().day + 1)
+        self.assertEqual(
+            calculated_start_time.day, (timezone.now() + timedelta(days=1)).day
+        )
         self.assertEqual(calculated_start_time.minute, 14)
         self.assertEqual(calculated_start_time.second, 14)
-        self.assertEqual(calculated_start_time.hour, timezone.now().hour - 1)
+        self.assertEqual(
+            calculated_start_time.hour, (timezone.now() - timedelta(hours=1)).hour
+        )
 
     def test_start_time_in_past_but_daily_scheduling_means_should_post_today(self):
         start_time = (
@@ -739,7 +744,10 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             "%60moG": "cali",
             "d%60Tf": "Me",
         }
-        self.request_url = f"/update-recurring-task-properties/{self.recurring_test_task_model.pk}?notion_db_id={notion_db_mock.VALID_DATABASE_ID}"
+        self.request_url = reverse(
+            "update-recurring-task-properties",
+            kwargs={"pk": self.recurring_test_task_model.pk},
+        )
 
     def assert_task_was_not_created(self):
         self.assertEqual(RecurringTask.objects.count(), 1)
@@ -796,9 +804,7 @@ class TestUpdateRecurringTasksProperties(TasksTestCase):
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
         response = self.client.post(
-            self.request_url,
-            self.update_properties_payload_dict,
-            HTTP_X_SELECTED_DATABASE_ID=VALID_DATABASE_ID,
+            self.request_url, self.update_properties_payload_dict
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(NotionDatabase.objects.count(), 0)
