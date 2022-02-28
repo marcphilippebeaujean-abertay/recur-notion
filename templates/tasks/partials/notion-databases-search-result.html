@@ -6,6 +6,7 @@
 {% else %}
     {% for notion_database in databases %}
         <div class="database-search-result"
+             x-show="'{{ notion_database.name }}'.toLowerCase().includes(currentSearchValue.toLowerCase())"
              hx-post="{% url 'update-recurring-task-database' pk=task_pk %}"
              hx-vals='{"newDatabaseId": "{{ notion_database.id }}"}'
              hx-indicator=".properties-request-indicator"

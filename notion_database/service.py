@@ -34,7 +34,7 @@ def query_user_notion_databases_list(user_model, query_string=None):
     logger.info(f"Fetching workspace pages")
     request_filter_dict = {
         "filter": {"property": "object", "value": "database"},
-        "page_size": 5,
+        "page_size": 100,
     }
     if query_string is not None and len(query_string) > 0:
         request_filter_dict["query"] = query_string

@@ -17,6 +17,8 @@
     position: absolute;
     background-color: white;
     width: 100%;
+    max-height: 270px;
+    overflow: hidden;
 }
 
 .database-search-result {

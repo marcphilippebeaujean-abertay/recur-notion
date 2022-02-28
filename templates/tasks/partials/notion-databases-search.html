@@ -33,9 +33,10 @@
                    }"
                    hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
                    hx-target='#database-search-results'
-                   hx-trigger="keyup delay:500ms, click once"
+                   hx-trigger="click once"
                    hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
                    hx-indicator=".database-search-results-indicator"
+                   autocomplete="off"
                    name="database-search-query"
                    class="form-control mb-0 zindex-popover"
                    value="{% if savedDbName == None %}{% else %}{{savedDbName}}{% endif %}"
