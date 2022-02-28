@@ -1,11 +1,11 @@
 {% extends '_base.html' %}
 
-{% block title %}Scheduled Pages{% endblock %}
+{% block title %}Recurring Tasks{% endblock %}
 {% load page_basics %}
 
 
 {% block content %}
-<h1>Scheduled Pages</h1>
+<h1>Recurring Tasks</h1>
 <div x-data="{ loading: false }">
     <form action="{%  url 'create-recurring-task' %}"
           method="POST"
@@ -24,7 +24,7 @@
             </span>
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                   x-show="loading"></span>
-            &nbsp;Create Scheduled Page
+            &nbsp;Create Recurring Task
         </button>
     </form>
 </div>
