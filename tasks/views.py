@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -50,6 +51,7 @@ def create_recurring_task(request):
     created_task = RecurringTask.objects.create(
         start_time=now() + datetime.timedelta(days=1), owner=request.user
     )
+    messages.success(request, f"Successfully Created a new Recurring Task!")
     return redirect("recurring-task-view", pk=created_task.pk)
 
 
@@ -81,6 +83,9 @@ def duplicate_recurring_task(request, pk):
         interval=task_to_duplicate.interval,
         start_time=task_to_duplicate.start_time,
         properties_json=task_to_duplicate.properties_json,
+    )
+    messages.success(
+        request, f'Successfully Duplicated Task with Name "{task_to_duplicate.name}"!'
     )
     return redirect(reverse("recurring-task-view", kwargs={"pk": duplicated_task.pk}))
 
