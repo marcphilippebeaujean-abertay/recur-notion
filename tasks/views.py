@@ -4,6 +4,7 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
@@ -63,6 +64,25 @@ def delete_recurring_task(request, pk):
         return HttpResponse("Could not find recurring task.", status=404)
     task_to_remove_model.delete()
     return HttpResponse("", status=200)
+
+
+@login_required
+@require_http_methods(["POST"])
+def duplicate_recurring_task(request, pk):
+    try:
+        task_to_duplicate = RecurringTask.objects.filter(pk=pk, owner=request.user)[0]
+    except IndexError:
+        return HttpResponse("Could not find recurring task.", status=404)
+
+    duplicated_task = RecurringTask.objects.create(
+        name=task_to_duplicate.name + " Copy",
+        owner=request.user,
+        database=task_to_duplicate.database,
+        interval=task_to_duplicate.interval,
+        start_time=task_to_duplicate.start_time,
+        properties_json=task_to_duplicate.properties_json,
+    )
+    return redirect(reverse("recurring-task-view", kwargs={"pk": duplicated_task.pk}))
 
 
 @login_required

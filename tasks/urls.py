@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     create_recurring_task,
     delete_recurring_task,
+    duplicate_recurring_task,
     get_recurring_tasks,
     recurring_task_view,
     recurring_tasks_view,
@@ -19,6 +20,11 @@ urlpatterns = [
         "delete-recurring-task/<int:pk>",
         delete_recurring_task,
         name="delete-recurring-task",
+    ),
+    path(
+        "duplicate-recurring-task/<int:pk>",
+        duplicate_recurring_task,
+        name="duplicate-recurring-task",
     ),
     path(
         "update-recurring-task-schedule/<int:pk>",

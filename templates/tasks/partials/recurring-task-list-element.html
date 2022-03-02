@@ -19,9 +19,9 @@
         {% if recurring_task.database != None and recurring_task.database.database_id != None %}
         <div class="text-small text-muted">
             <small class="d-flex">
-            {% autoescape off %}
+                {% autoescape off %}
                 {% bootstrap_icon_by_icon_name icon_name='table' %}
-            {% endautoescape %}
+                {% endautoescape %}
                 &nbsp;{{recurring_task.database.database_name}}</small>
         </div>
         {% endif %}
@@ -29,12 +29,13 @@
     <div class="mr-2 w-100 me-2">
         {% if recurring_task.database is None or recurring_task.database.database_id is None %}
         <div class="alert alert-danger">
-                {% autoescape off %}
-                    {% bootstrap_icon_by_icon_name icon_name='exclamation-octagon' %}
-                {% endautoescape %}
-                 &nbsp;Missing Database.</div>
+            {% autoescape off %}
+            {% bootstrap_icon_by_icon_name icon_name='exclamation-octagon' %}
+            {% endautoescape %}
+            &nbsp;Missing Database.
+        </div>
         {% else %}
-            {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
+        {% include 'tasks/partials/recurring-task-schedule.html' with recurring_task=recurring_task %}
         {% endif %}
     </div>
     <div class="d-flex mt-1">
@@ -54,22 +55,40 @@
                 <span class="d-md-none">Edit</span>
             </a>
         </div>
+        <div x-data="{loading: false}" class="me-2">
+            <form action="{% url 'duplicate-recurring-task' pk=recurring_task.pk %}"
+                  method="POST"
+                  @submit="loading = true"
+            >
+                {% csrf_token %}
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                        x-bind:disabled="loading"
+                >
+                <span x-show="!loading">
+                    {% bootstrap_icon_by_icon_name icon_name='duplicate' %}
+                </span>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
+                          x-show="loading"></span>
+                    <span class="d-md-none">Clone</span>
+                </button>
+            </form>
+        </div>
         <div class="">
             <button
-                    class="btn btn-danger ml-1"
+                    class="btn btn-danger ml-1 position-relative"
                     hx-target="#task-container-desktop-{{recurring_task.pk}}"
                     hx-delete="{%url 'delete-recurring-task' pk=recurring_task.pk %}"
                     hx-swap="outerHTML"
                     hx-confirm="Are you sure you wish to delete this Task?"
                     hx-indicator=".delete-indication-{{recurring_task.pk}}"
             >
-                <span class="hide-on-indicator delete-indication-{{recurring_task.pk}}">
-                        {% autoescape off %}
-                            {% bootstrap_icon_by_icon_name icon_name='trash' %}
-                        {% endautoescape %}
-                </span>
-                <span class="spinner-border spinner-border-sm my-indicator delete-indication-{{recurring_task.pk}}"
+                <span class="position-absolute spinner-border spinner-border-sm my-indicator delete-indication-{{recurring_task.pk}}"
                       role="status" aria-hidden="true"></span>
+                <span class="hide-on-indicator-opacity delete-indication-{{recurring_task.pk}}">
+                    {% bootstrap_icon_by_icon_name icon_name='trash' %}
+                </span>
                 <span class="d-md-none">Delete</span>
             </button>
         </div>

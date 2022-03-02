@@ -41,7 +41,7 @@
                             x-model="agreedToTerms"
                             {% if success != None %}checked{% endif %}
                     /><span>&nbsp;<span class="fw-bold text-danger">*</span>&nbsp;I have read the <a
-                        href="{% url 'data-policy' %}">data policy</a> and agree to receiving emails from this newsletter.</span>
+                        href="{% url 'data-policy' %}">data policy</a> and agree to receiving direct email.</span>
                 </div>
             {% if error != None %}
                 <div class="alert alert-danger mt-2 mb-0" x-transition>Sign up failed - are you already subscribed or entered
@@ -54,8 +54,11 @@
                     Subscribe
                 </button>
             {% else %}
-                <div class="alert alert-success mt-2" x-transition>Thanks for subscribing!</div>
+                <div class="alert alert-success mt-2" x-transition>Thanks! Check your Email to confirm the Subscription</div>
             {% endif %}
         </form>
+        <div>
+            <small class="text-muted text-italic">You can unsubscribe at any time by clicking the link in the footer of our emails.</small>
+        </div>
     </div>
 </div>

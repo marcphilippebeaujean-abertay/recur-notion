@@ -1041,3 +1041,97 @@ class TestUpdateRecurringTasksDatabase(TasksTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assert_database_was_updated()
+
+
+class TestDuplicateRecurringTasksDatabase(TasksTestCase):
+    def setUp(self):
+        super().setUp()
+        self.default_task_name = "name"
+        self.old_database = NotionDatabase.objects.create(
+            database_id="old_db_id",
+            database_name="old_db_name",
+            properties_schema_json=dict(),
+        )
+        self.recurring_test_task_model = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            name=self.default_task_name,
+            database=self.old_database,
+            properties_json={"property": "12345"},
+        )
+        self.request_url = reverse(
+            "duplicate-recurring-task",
+            kwargs={"pk": self.recurring_test_task_model.pk},
+        )
+
+    def assert_task_was_not_duplicated(self):
+        self.assertEqual(RecurringTask.objects.count(), 1)
+        self.assertEqual(Schedule.objects.count(), 1)
+        original_task = RecurringTask.objects.all()[0]
+        self.assertEqual(original_task.pk, self.recurring_test_task_model.pk)
+
+    def assert_task_was_duplicated(self):
+        self.assertEqual(RecurringTask.objects.count(), 2)
+        self.assertEqual(Schedule.objects.count(), 2)
+        original_task = RecurringTask.objects.all()[0]
+        duplicated_task = RecurringTask.objects.all()[1]
+        self.assertEqual(original_task.name + " Copy", duplicated_task.name)
+        self.assertEqual(original_task.start_time, duplicated_task.start_time)
+        self.assertEqual(original_task.properties_json, duplicated_task.properties_json)
+        self.assertEqual(original_task.interval, duplicated_task.interval)
+        self.assertEqual(original_task.database, duplicated_task.database)
+
+    def test_only_logged_in_user_can_duplicate_recurring_tasks(self):
+        # create new recurring task
+        response = self.client.post(self.request_url)
+        self.assertEqual(response.status_code, 302)
+        self.assert_task_was_not_duplicated()
+
+    def test_cannot_duplicate_other_users_tasks_database(self):
+        other_user_recurring_task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=get_user_model().objects.create_user(
+                username="testuser2", email="test2@email.com", password="secret"
+            ),
+            database=self.sample_database,
+        )
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        other_task_url = reverse(
+            "duplicate-recurring-task",
+            kwargs={"pk": other_user_recurring_task.pk},
+        )
+        response = self.client.post(other_task_url)
+        self.assertEqual(response.status_code, 404)
+        for task in RecurringTask.objects.all():
+            self.assertFalse("Copy" in task.name)
+
+    def test_throw_404_when_not_found(self):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        missing_task_url = reverse(
+            "duplicate-recurring-task",
+            kwargs={"pk": 4},
+        )
+        response = self.client.post(
+            missing_task_url,
+            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assert_task_was_not_duplicated()
+
+    def test_update_recurring_task_database_creates_database(self):
+        NotionDatabase.objects.all().delete()
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(
+            self.request_url,
+            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assert_task_was_duplicated()

@@ -46,6 +46,16 @@
     display:none;
 }
 
+.hide-on-indicator-opacity{
+    opacity:1;
+}
+.htmx-request .hide-on-indicator-opacity{
+    opacity:0;
+}
+.htmx-request.hide-on-indicator-opacity{
+    opacity:0;
+}
+
 .top-margin-for-header {
     height: 100px;
 }

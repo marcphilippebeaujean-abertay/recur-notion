@@ -126,6 +126,11 @@
 </main>
 
 <div class="container pb-4">
+    {% if notifications != None %}
+        {% for notification in notifications %}
+            {% include 'widgets/notification.html' with notification=notification %}
+        {% endfor %}
+    {% endif %}
     {% block content %}
     <p>Default content...</p>
     {% endblock content %}
