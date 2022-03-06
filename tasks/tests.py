@@ -675,6 +675,22 @@ class TestDeleteRecurringTask(TasksTestCase):
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
         response = self.client.delete(self.request_url)
+        self.assertEqual(response.status_code, 302)
+        self.assert_task_deleted()
+
+    def test_successful_delete_with_post(self):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(self.request_url)
+        self.assertEqual(response.status_code, 302)
+        self.assert_task_deleted()
+
+    def test_successful_delete_as_htmx_partial(self):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.delete(self.request_url, HTTP_X_HX_PARTIAL="true")
         self.assertEqual(response.status_code, 200)
         self.assert_task_deleted()
 
@@ -683,11 +699,11 @@ class TestDeleteRecurringTask(TasksTestCase):
         self.assertEqual(response.status_code, 302)
         self.assert_task_not_deleted()
 
-    def test_require_delete_method_for_delete(self):
+    def test_require_delete_or_post_method_for_delete(self):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
-        response = self.client.post(self.request_url)
+        response = self.client.get(self.request_url)
         self.assertEqual(response.status_code, 405)
         self.assert_task_not_deleted()
 
@@ -721,7 +737,7 @@ class TestDeleteRecurringTask(TasksTestCase):
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
         response = self.client.delete(self.request_url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assert_task_deleted()
         self.assertEqual(Schedule.objects.count(), 0)
 

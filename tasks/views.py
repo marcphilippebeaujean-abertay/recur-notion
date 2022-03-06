@@ -56,7 +56,7 @@ def create_recurring_task(request):
 
 
 @login_required
-@require_http_methods(["DELETE"])
+@require_http_methods(["DELETE", "POST"])
 def delete_recurring_task(request, pk):
     try:
         task_to_remove_model = RecurringTask.objects.filter(pk=pk, owner=request.user)[
@@ -64,8 +64,25 @@ def delete_recurring_task(request, pk):
         ]
     except IndexError:
         return HttpResponse("Could not find recurring task.", status=404)
+    deleted_task_pk, deleted_task_name = (
+        task_to_remove_model.pk,
+        task_to_remove_model.name,
+    )
     task_to_remove_model.delete()
-    return HttpResponse("", status=200)
+    if "X-Hx-Partial" in request.headers and request.headers["X-Hx-Partial"] == "true":
+        return HttpResponse(
+            f"""
+        <div class='alert alert-success mt-2 alert-dismissible fade show'>
+            Deleted task \"{deleted_task_name}\"!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        """,
+            status=200,
+        )
+    messages.success(
+        request, f'Successfully Deleted Task with name "{deleted_task_name}"!'
+    )
+    return redirect(reverse("recurring-tasks-view"))
 
 
 @login_required

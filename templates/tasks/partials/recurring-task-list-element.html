@@ -71,7 +71,7 @@
                 </span>
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
                           x-show="loading"></span>
-                    <span class="d-md-none">Clone</span>
+                    <span class="d-md-none">Duplicate</span>
                 </button>
             </form>
         </div>
@@ -83,6 +83,7 @@
                     hx-swap="outerHTML"
                     hx-confirm="Are you sure you wish to delete this Task?"
                     hx-indicator=".delete-indication-{{recurring_task.pk}}"
+                    hx-headers='{ "X-Hx-Partial": true}'
             >
                 <span class="position-absolute spinner-border spinner-border-sm my-indicator delete-indication-{{recurring_task.pk}}"
                       role="status" aria-hidden="true"></span>
