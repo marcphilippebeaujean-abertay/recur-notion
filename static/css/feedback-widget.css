@@ -1,0 +1,13 @@
+#feedback-widget {
+    position: fixed;
+    bottom: 3%;
+    right: 3%;
+}
+
+#feedback-open-btn {
+    border-radius: 100px !important;
+    z-index: 1;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}

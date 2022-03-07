@@ -2,6 +2,7 @@
 @import "footer.css";
 @import "landing-page.css";
 @import "recurring-tasks.css";
+@import "feedback-widget.css";
 
 /** Use to hide alpinejs elements before load **/
 [x-cloak] {
