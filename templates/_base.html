@@ -20,9 +20,6 @@
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
     {% endblock %}
-
-    <!-- Alpine JS -->
-    <script src="//unpkg.com/alpinejs" defer></script>
 </head>
 
 <body>
@@ -53,7 +50,9 @@
                             <li class="nav-item">
                                 <a class="nav-link {% if 'tasks' in request.path %} active {% endif %}"
                                    href="/tasks">
-                                    {% bootstrap_icon_by_icon_name icon_name='arrow-repeat' %}
+                                    {% autoescape off %}
+                                        {% bootstrap_icon_by_icon_name icon_name='arrow-repeat' %}
+                                    {% endautoescape %}
                                     Recurring Tasks
                                 </a>
                             </li>
@@ -140,26 +139,6 @@
     {% endblock content %}
 </div>
 
-<div id="feedback-widget" x-data="{ open: false }">
-    <div x-cloak class="position-relative">
-        <div id="feedback-open-btn"
-             class="btn btn-success rounded p-3"
-             @click="open = true">
-            <div x-show="!open">
-                {% bootstrap_icon_by_icon_name icon_name='send' height=24 width=24 %}
-            </div>
-            <div x-show="open">
-                {% bootstrap_icon_by_icon_name icon_name='x-lg' height=24 width=24 %}
-            </div>
-        </div>
-        <div @click.outside="open = false" x-show="open" class="card">
-            <div class="card-body">
-                <iframe style="border:none;width:100%;" height="555px" src="https://notionforms.io/forms/bug-and-feedback-report" />
-            </div>
-        </div>
-    </div>
-</div>
-
 <footer class="footer bg-light py-4">
     <div class="container bg-light">
         <div class="row bg-light">
@@ -220,6 +199,24 @@
 <!-- Project JS -->
 <!--<script src="{% static 'js/base.js' %}"></script>-->
 {% endblock javascript %}
+
+<div id="feedback-widget" x-data="{ open: false }">
+    <div x-cloak class="position-relative">
+        <div id="feedback-open-btn" class="btn btn-success rounded p-3" @click="open = true">
+            <div x-show="!open">
+                {% bootstrap_icon_by_icon_name icon_name='send' height=24 width=24 %}
+            </div>
+            <div x-show="open">
+                {% bootstrap_icon_by_icon_name icon_name='x-lg' height=24 width=24 %}
+            </div>
+        </div>
+        <div @click.outside="open = false" x-show="open" class="card">
+            <div class="card-body">
+                <iframe style="border:none;width:100%;" height="555px" src="https://notionforms.io/forms/bug-and-feedback-report" />
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

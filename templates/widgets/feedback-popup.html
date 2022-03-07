@@ -1,0 +1,22 @@
+{% load page_basics %}
+
+
+<div id="feedback-widget" x-data="{ open: false }">
+    <div x-cloak class="position-relative">
+        <div id="feedback-open-btn"
+             class="btn btn-success rounded p-3"
+             @click="open = true">
+            <div x-show="!open">
+                {% bootstrap_icon_by_icon_name icon_name='send' height=24 width=24 %}
+            </div>
+            <div x-show="open">
+                {% bootstrap_icon_by_icon_name icon_name='x-lg' height=24 width=24 %}
+            </div>
+        </div>
+        <div @click.outside="open = false" x-show="open" class="card">
+            <div class="card-body">
+                <iframe style="border:none;width:100%;" height="555px" src="https://notionforms.io/forms/bug-and-feedback-report" />
+            </div>
+        </div>
+    </div>
+</div>
