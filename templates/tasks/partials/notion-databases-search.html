@@ -16,24 +16,23 @@
             </label>
             <span class="text-small">Can't find what you are looking for? <a href="{% oauth_url %}">Click Here</a> to update Albert's Database Access.</span>
         </div>
+        <noscript>
+            <div class="alert alert-danger">JavaScript Required!</div>
+        </noscript>
         <div class="input-group mb-0 z-2">
             <div class="input-group-prepend">
                 <div class="input-group-text">
                     <span>
-                    {% autoescape off %}
                         {% bootstrap_icon_by_icon_name icon_name='table' %}
-                    {% endautoescape %}
                     </span>
                 </div>
             </div>
-            <input type="hidden"
-                   value=""
+            <input type="text"
                    hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
                    hx-target='#database-search-results'
                    hx-trigger="load once"
                    hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
-                   hx-indicator=".database-search-results-indicator" />
-            <input type="text"
+                   hx-indicator=".database-search-results-indicator"
                    @click="showSearchResults = true;"
                    @click.outside="() =>{
                         showSearchResults = false;
@@ -42,7 +41,7 @@
                         }
                    }"
                    autocomplete="off"
-                   name="database-search-query"
+                   name="database-search"
                    class="form-control mb-0 zindex-popover"
                    value="{% if savedDbName == None %}{% else %}{{savedDbName}}{% endif %}"
                    placeholder="Search for Notion Database..."

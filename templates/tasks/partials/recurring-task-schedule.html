@@ -52,7 +52,6 @@
                         hx-trigger="change"
                         hx-target="#schedule-preview-{{recurring_task.id}}"
                         hx-vals="js:{'update-schedule-only': true}"
-                        x-bind:disabled="loading"
                         id="{{ recurring_task.pk }}-interval">
                     {% interval_choices as interval_choices %}
                     {% for choice in interval_choices %}
