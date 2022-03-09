@@ -1,7 +1,8 @@
 from crispy_forms.bootstrap import Alert, PrependedText
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Div, Field, Layout, Row, Submit
+from crispy_forms.layout import HTML, Div, Layout
 from django import forms
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 from notion_properties.constants import (
@@ -70,13 +71,14 @@ class NotionPropertyForm(forms.Form):
         unsupported_properties_alert = None
         if (
             task_model.database is not None
-            and len(task_model.database.get_list_of_unsupported_property_names()) > 0
+            and len(task_model.database.get_list_of_premium_property_names()) > 0
         ):
             alert_message = f'{bootstrap_icon_by_icon_name(icon_name="info-circle")} '
-            alert_message += "The following properties are currently not supported (but will be in future updates): "
+            alert_message += "The following properties are currently are not supported in the Free Tier: "
             alert_message += ", ".join(
-                task_model.database.get_list_of_unsupported_property_names()
+                task_model.database.get_list_of_premium_property_names()
             )
+            alert_message += render_to_string("widgets/upgrade-popup.html")
             unsupported_properties_alert = Alert(
                 content=alert_message,
                 css_class="hide-internal-buttons alert-warning mt-2 mb-0",

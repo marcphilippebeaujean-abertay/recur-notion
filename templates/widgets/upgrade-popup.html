@@ -1,0 +1,70 @@
+{% load page_basics %}
+
+<!-- Button trigger modal -->
+<span class="text-bold link-secondary hover-pointer" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  {% bootstrap_icon_by_icon_name icon_name='arrow-up' %}
+  Upgrade To Pro
+</span>
+
+<!-- Modal -->
+<div class="modal fade text-dark" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Upgrade To Pro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body row">
+        <div class="col-6">
+          <p class="h6">
+            {% bootstrap_icon_by_icon_name icon_name='check-lg' %} Advanced Field Types (Rollups, Formulas, etc.)
+          </p>
+        </div>
+        <div class="col-6">
+          <p class="h6">
+            {% bootstrap_icon_by_icon_name icon_name='check-lg' %} Templates for Page Content
+          </p>
+        </div>
+        <div class="col-6">
+          <p class="h6">
+            {% bootstrap_icon_by_icon_name icon_name='check-lg' %} Schedule Hourly
+          </p>
+        </div>
+        <div class="col-6">
+          <p class="h6">
+            {% bootstrap_icon_by_icon_name icon_name='check-lg' %} Unlimited Workspace Members
+          </p>
+        </div>
+        <div class="col-6">
+          <p class="h6">
+            {% bootstrap_icon_by_icon_name icon_name='check-lg' %} Unlimited Tasks
+          </p>
+        </div>
+        <div class="col-6">
+          <p class="h6">
+            {% bootstrap_icon_by_icon_name icon_name='check-lg' %} Phone Support
+          </p>
+        </div>
+      </div>
+      <div>
+        <p class="text-center h5 text-muted my-4">3$ Per Month For Each Workspace User</p>
+      </div>
+      <div class="d-flex justify-content-center">
+        <div x-data="{ loading: false }">
+          <button type="button"
+                  class="btn btn-success my-4"
+            hx-trigger="click once;"
+            hx-target="this"
+            hx-get="{% url 'upgrade-request' %}"
+            hx-swap="outerHTML"
+            x-bind:disabled="loading"
+          >
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
+                                      x-show="loading"></span>
+            Go To Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

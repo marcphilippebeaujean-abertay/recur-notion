@@ -13,6 +13,16 @@ IGNORED_PROPERTIES_SET = set.union(
     },
     NOTION_DATE_PROPERTIES_SET,
 )
+
+PREMIUM_PROPERTIES_SET = set.union(
+    {
+        "relation",
+        "formula",
+        "rollup",
+        "date",
+        "people",
+    }
+)
 NOTION_TEXT_PROPERTIES_SET = {"email", "phone_number", "rich_text", "title", "url"}
 NOTION_SELECT_PROPERTIES = {"multi_select", "select"}
 EMPTY_OPTION_DICT = {"id": "", "name": ""}

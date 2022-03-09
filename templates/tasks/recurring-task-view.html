@@ -57,7 +57,7 @@
                                         aria-label="Close"></button>
                             </div>
                             {% else %}
-                            {% include 'tasks/partials/recurring-task-update-property-form.html' %}
+                                {% include 'tasks/partials/recurring-task-update-property-form.html' %}
                             {% endif %}
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                     </div>
                     <div x-data="{loading: false}">
                         <form
-                                action="{%url 'delete-recurring-task' pk=recurring_task.pk %}"
+                                action="{% url 'delete-recurring-task' pk=recurring_task.pk %}"
                                 method="POST"
                                 @submit="loading = true"
                         >

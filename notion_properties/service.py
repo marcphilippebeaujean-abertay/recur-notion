@@ -29,9 +29,9 @@ def create_properties_dict_for_create_page_api_request_from_property_dto_list(
     return create_page_property_dict
 
 
-def get_list_of_ignored_property_names_in_notion_property_dto_list(property_dto_list):
+def get_list_of_premium_property_names_in_notion_property_dto_list(property_dto_list):
     ignored_property_name_list = []
     for property_dto in property_dto_list:
-        if property_dto.notion_type in constants.IGNORED_PROPERTIES_SET:
+        if property_dto.notion_type in constants.PREMIUM_PROPERTIES_SET:
             ignored_property_name_list.append(property_dto.name)
     return ignored_property_name_list

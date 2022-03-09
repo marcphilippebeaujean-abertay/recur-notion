@@ -69,3 +69,7 @@
 .hide-internal-buttons .close {
     display: none;
 }
+
+.hover-pointer:hover {
+    cursor: pointer;
+}

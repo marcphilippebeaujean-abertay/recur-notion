@@ -35,13 +35,16 @@ logger = logging.getLogger(__name__)
 def recurring_tasks_view(request):
     notion_workspace_access_grants_queryset = NotionWorkspaceAccess.objects.filter(
         owner=request.user
-    )
+    )[:10]
     if notion_workspace_access_grants_queryset.count() == 0:
         return redirect("notion-access-prompt")
     return render(
         request,
         "tasks/recurring-tasks-list-view.html",
-        {"recurring_tasks": request.user.tasks.all()},
+        {
+            "recurring_tasks": request.user.tasks.all(),
+            "num_remaining_tasks": 10 - len(notion_workspace_access_grants_queryset),
+        },
     )
 
 

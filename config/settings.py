@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "tasks",
     "newsletter",
     "notion_database",
+    "subscription",
 ]
 
 # MIDDLEWARE

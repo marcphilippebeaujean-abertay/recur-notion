@@ -181,7 +181,7 @@ class TestIgnoredPropertiesHandling(TestDatabaseResponseConversion):
         "notion_database.service.notion_client.Client",
         side_effect=create_or_get_mocked_oauth_notion_client,
     )
-    def test_ignored_properties_are_included_when_querying_their_names(self, m):
+    def test_premium_properties_are_included_when_querying_their_names(self, m):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
@@ -193,7 +193,7 @@ class TestIgnoredPropertiesHandling(TestDatabaseResponseConversion):
                 simple_database_dict=db_dict
             )
         )
-        if "Assign" not in generated_db_model.get_list_of_unsupported_property_names():
+        if "Deadline" not in generated_db_model.get_list_of_premium_property_names():
             raise Exception("Missing some unsupported property name in method")
 
     @mock.patch(
@@ -214,5 +214,5 @@ class TestIgnoredPropertiesHandling(TestDatabaseResponseConversion):
         )
         generated_db_model.properties_schema_json = {"hello": "world"}
         self.assertEqual(
-            len(generated_db_model.get_list_of_unsupported_property_names()), 0
+            len(generated_db_model.get_list_of_premium_property_names()), 0
         )

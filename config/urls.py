@@ -11,6 +11,7 @@ urlpatterns = [
     path("", include("tasks.urls")),
     path("", include("notion_database.urls")),
     path("", include("newsletter.urls")),
+    path("", include("subscription.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
