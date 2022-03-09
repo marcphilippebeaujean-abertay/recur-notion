@@ -82,27 +82,31 @@ LOGGING = {
             "style": "{",
         },
     },
-    "filters": {
-        "require_debug_true": {
-            "()": "django.utils.log.RequireDebugTrue",
-        },
-    },
     "handlers": {
         "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+        },
     },
     "loggers": {
-        "django": {
+        "": {
             "handlers": ["console"],
-            "propagate": True,
+            "level": "DEBUG",
         },
         "django.request": {
+            "handlers": ["mail_admins"],
             "level": "ERROR",
-            "propagate": False,
+            "propagate": True,
+        },
+        "django.security": {
+            "handlers": ["mail_admins"],
+            "level": "ERROR",
+            "propagate": True,
         },
     },
 }

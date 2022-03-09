@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import HttpResponse
-from django.shortcuts import render
 
 # Create your views here.
 from django.views.decorators.http import require_http_methods
@@ -13,7 +12,7 @@ def upgrade_request_view(request):
     send_mail(
         "Payment Request",
         f"User with email {request.user.email} wanted to pay!",
-        "admin@albert.so",
+        "hello@albert.so",
         ["marcphilippbeaujean@gmail.com"],
         fail_silently=True,
     )
