@@ -13,7 +13,7 @@ def upgrade_request_view(request):
         "Payment Request",
         f"User with email {request.user.email} wanted to pay!",
         "hello@albert.so",
-        ["marcphilippbeaujean@gmail.com"],
+        ["marcphilippebeaujean@gmail.com"],
         fail_silently=True,
     )
     return HttpResponse(
