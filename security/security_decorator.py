@@ -8,6 +8,7 @@ from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
 
 import config.settings as settings
+from tasks.models import RecurringTask
 from workspaces.models import NotionWorkspaceAccess
 
 
@@ -27,7 +28,9 @@ def user_passes_test(
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if not test_func(request.user) and len(message) > 0:
-                messages.add_message(request, messages.ERROR, message)
+                messages.add_message(
+                    request, messages.ERROR, message, extra_tags="alert alert-danger"
+                )
             if test_func(request.user):
                 return view_func(request, *args, **kwargs)
             path = request.build_absolute_uri()
@@ -59,6 +62,23 @@ def notion_workspace_authorization_required(view_func=None):
         on_failure_redirect_url=reverse_lazy("notion-access-prompt"),
         redirect_field_name="",
         message="",
+    )
+    if view_func:
+        return actual_decorator(view_func)
+    return actual_decorator
+
+
+def check_free_tasks_usage_limit(view_func=None):
+    """
+    Decorator for views that require to check for Workspace Tasks limit.
+    """
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated
+        and RecurringTask.objects.filter(owner=u).count()
+        < settings.NUM_FREE_RECURRING_TASKS,
+        on_failure_redirect_url=reverse_lazy("recurring-tasks-view"),
+        redirect_field_name="",
+        message=f"You exceeded the limit for the free plan!",
     )
     if view_func:
         return actual_decorator(view_func)

@@ -9,8 +9,12 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
+from config.settings import NUM_FREE_RECURRING_TASKS
 from notion_properties.forms import NotionPropertyForm
-from security.security_decorator import notion_workspace_authorization_required
+from security.security_decorator import (
+    check_free_tasks_usage_limit,
+    notion_workspace_authorization_required,
+)
 from workspaces.models import NotionWorkspaceAccess
 
 from .models import RecurringTask
@@ -41,13 +45,16 @@ def recurring_tasks_list_view(request):
         "tasks/recurring-tasks-list-view.html",
         {
             "recurring_tasks": tasks_query,
-            "num_remaining_tasks": max(10 - tasks_query.count(), 0),
+            "num_remaining_tasks": max(
+                NUM_FREE_RECURRING_TASKS - tasks_query.count(), 0
+            ),
         },
     )
 
 
 @login_required
 @notion_workspace_authorization_required
+@check_free_tasks_usage_limit
 @require_http_methods(["POST"])
 def create_recurring_task(request):
     created_task = RecurringTask.objects.create(
@@ -90,7 +97,7 @@ def delete_recurring_task(request, pk):
 
 
 @login_required
-@notion_workspace_authorization_required
+@check_free_tasks_usage_limit
 @require_http_methods(["POST"])
 def duplicate_recurring_task(request, pk):
     try:

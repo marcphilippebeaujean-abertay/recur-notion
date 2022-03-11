@@ -447,6 +447,30 @@ class TestCreateRecurringTasks(TasksTestCase):
         self.assertEqual(response.status_code, 302)
         self.assert_task_was_created()
 
+    def test_task_cannot_be_created_because_of_usage_limits(self):
+        RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            name="12345",
+            database=self.sample_database,
+            properties_json={"property": "12345"},
+        )
+        RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            name="12345",
+            database=self.sample_database,
+            properties_json={"property": "12345"},
+        )
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post("/create-recurring-task/", self.create_payload)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(RecurringTask.objects.all().count(), 2)
+
     def test_cannot_create_recurring_task_without_workspace_access(self):
         NotionWorkspaceAccess.objects.all().delete()
         self.client.force_login(
@@ -1160,17 +1184,30 @@ class TestDuplicateRecurringTasksDatabase(TasksTestCase):
         self.assertEqual(response.status_code, 404)
         self.assert_task_was_not_duplicated()
 
-    def test_update_recurring_task_database_creates_database(self):
-        NotionDatabase.objects.all().delete()
+    def test_recurring_task_is_duplicated(self):
         self.client.force_login(
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
-        response = self.client.post(
-            self.request_url,
-            {"newDatabaseId": notion_db_mock.VALID_DATABASE_ID},
-        )
+        response = self.client.post(self.request_url)
         self.assertEqual(response.status_code, 302)
         self.assert_task_was_duplicated()
+
+    def test_recurring_task_not_duplicated_because_of_rate_limit(self):
+        another_recurring_task = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            start_time=DEFAULT_RECURRING_TASK_TEST_STARTIME_DATETIME,
+            owner=self.user,
+            name=self.default_task_name,
+            database=self.old_database,
+            properties_json={"property": "12345"},
+        )
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post(self.request_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(RecurringTask.objects.count(), 2)
+        self.assertEqual(Schedule.objects.count(), 2)
 
 
 class TestGetRecurringTaskView(TasksTestCase):
