@@ -10,6 +10,7 @@ from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 
 from notion_properties.forms import NotionPropertyForm
+from security.security_decorator import notion_workspace_authorization_required
 from workspaces.models import NotionWorkspaceAccess
 
 from .models import RecurringTask
@@ -31,28 +32,28 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 @login_required
+@notion_workspace_authorization_required
 @require_http_methods(["GET"])
-def recurring_tasks_view(request):
-    notion_workspace_access_grants_queryset = NotionWorkspaceAccess.objects.filter(
-        owner=request.user
-    )[:10]
-    if notion_workspace_access_grants_queryset.count() == 0:
-        return redirect("notion-access-prompt")
+def recurring_tasks_list_view(request):
+    tasks_query = request.user.tasks.all()
     return render(
         request,
         "tasks/recurring-tasks-list-view.html",
         {
-            "recurring_tasks": request.user.tasks.all(),
-            "num_remaining_tasks": 10 - len(notion_workspace_access_grants_queryset),
+            "recurring_tasks": tasks_query,
+            "num_remaining_tasks": 10 - tasks_query.count(),
         },
     )
 
 
 @login_required
+@notion_workspace_authorization_required
 @require_http_methods(["POST"])
 def create_recurring_task(request):
     created_task = RecurringTask.objects.create(
-        start_time=now() + datetime.timedelta(days=1), owner=request.user
+        start_time=now() + datetime.timedelta(days=1),
+        owner=request.user,
+        workspace=NotionWorkspaceAccess.objects.filter(owner=request.user)[0].workspace,
     )
     messages.success(request, f"Successfully Created a new Recurring Task!")
     return redirect("recurring-task-view", pk=created_task.pk)
@@ -89,6 +90,7 @@ def delete_recurring_task(request, pk):
 
 
 @login_required
+@notion_workspace_authorization_required
 @require_http_methods(["POST"])
 def duplicate_recurring_task(request, pk):
     try:
@@ -103,6 +105,7 @@ def duplicate_recurring_task(request, pk):
         interval=task_to_duplicate.interval,
         start_time=task_to_duplicate.start_time,
         properties_json=task_to_duplicate.properties_json,
+        workspace=task_to_duplicate.workspace,
     )
     messages.success(
         request, f'Successfully Duplicated Task with Name "{task_to_duplicate.name}"!'
@@ -111,6 +114,7 @@ def duplicate_recurring_task(request, pk):
 
 
 @login_required
+@notion_workspace_authorization_required
 @require_http_methods(["POST"])
 def update_recurring_task_schedule(request, pk):
     try:
@@ -148,6 +152,7 @@ def update_recurring_task_schedule(request, pk):
 
 
 @login_required
+@notion_workspace_authorization_required
 @require_http_methods(["POST"])
 def update_recurring_task_properties(request, pk):
     try:
@@ -206,16 +211,7 @@ def update_recurring_task_database(request, pk):
 
 
 @login_required
-@require_http_methods(["GET"])
-def get_recurring_tasks(request):
-    return render(
-        request,
-        "tasks/partials/recurring-tasks-list.html",
-        {"recurring_tasks": request.user.tasks.all()},
-    )
-
-
-@login_required
+@notion_workspace_authorization_required
 @require_http_methods(["GET"])
 def recurring_task_view(request, pk):
     try:

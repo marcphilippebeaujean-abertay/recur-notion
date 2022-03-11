@@ -344,6 +344,7 @@ class TestCreateTasksJobTest(TasksTestCase):
             owner=self.user,
             properties_json=EXAMPLE_NOTION_PROPERTIES,
             database=self.sample_database,
+            workspace=self.init_workspace,
         )
 
     def test_client_no_existing_workspace_user(self):
@@ -356,6 +357,15 @@ class TestCreateTasksJobTest(TasksTestCase):
     def test_create_scheduled_task_in_notion(self):
         # run the tasks method
         create_recurring_task_in_notion(self.task.pk)
+
+    def test_create_scheduled_task_in_notion_and_add_workspace_if_not_added(self):
+        # run the tasks method
+        RecurringTask.objects.filter(pk=self.task.pk).update(workspace=None)
+        create_recurring_task_in_notion(self.task.pk)
+        self.assertIsNotNone(
+            RecurringTask.objects.filter(pk=self.task.pk)[0].workspace.pk,
+            self.init_workspace.pk,
+        )
 
     def test_create_scheduled_task_in_notion_despite_wrong_type_for_property(self):
         list_of_property_ids_to_change_back = []
@@ -421,6 +431,7 @@ class TestCreateRecurringTasks(TasksTestCase):
         created_recurring_task = RecurringTask.objects.all()[0]
         self.assertEqual(created_recurring_task.name, "New Page")
         self.assertEqual(created_recurring_task.owner, self.user)
+        self.assertEqual(created_recurring_task.workspace.pk, self.init_workspace.pk)
         self.assertEqual(Schedule.objects.count(), 1)
         schedule_object = Schedule.objects.all()[0]
         self.assertEqual(schedule_object.args, f"{created_recurring_task.pk}")
@@ -435,6 +446,15 @@ class TestCreateRecurringTasks(TasksTestCase):
         response = self.client.post("/create-recurring-task/", self.create_payload)
         self.assertEqual(response.status_code, 302)
         self.assert_task_was_created()
+
+    def test_cannot_create_recurring_task_without_workspace_access(self):
+        NotionWorkspaceAccess.objects.all().delete()
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.post("/create-recurring-task/", self.create_payload)
+        self.assertEqual(response.status_code, 302)
+        self.assert_task_was_not_created()
 
     def test_create_recurring_task_requires_post_method(self):
         self.client.force_login(
@@ -1151,3 +1171,67 @@ class TestDuplicateRecurringTasksDatabase(TasksTestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assert_task_was_duplicated()
+
+
+class TestGetRecurringTaskView(TasksTestCase):
+    def setUp(self):
+        super().setUp()
+        self.recurring_test_task_model = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            owner=self.user,
+            database=self.sample_database,
+        )
+        self.request_url = reverse(
+            "recurring-task-view", kwargs={"pk": self.recurring_test_task_model.pk}
+        )
+
+    def test_cannot_get_task_without_login(self):
+        response = self.client.get(self.request_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_cannot_get_task_without_workspace_access(self):
+        NotionWorkspaceAccess.objects.all().delete()
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        queried_access = NotionWorkspaceAccess.objects.filter(owner=self.user).all()
+        response = self.client.get(self.request_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_can_get_task(self):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.get(self.request_url)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestGetRecurringTaskListView(TasksTestCase):
+    def setUp(self):
+        super().setUp()
+        self.recurring_test_task_model = RecurringTask.objects.create(
+            interval=RecurringTask.TaskIntervals.EVERY_DAY.value,
+            owner=self.user,
+            database=self.sample_database,
+        )
+        self.request_url = reverse("recurring-tasks-view")
+
+    def test_cannot_get_tasks_list_without_login(self):
+        response = self.client.get(self.request_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_cannot_get_tasks_list_without_workspace_access(self):
+        NotionWorkspaceAccess.objects.all().delete()
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        queried_access = NotionWorkspaceAccess.objects.filter(owner=self.user).all()
+        response = self.client.get(self.request_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_can_get_tasks_list(self):
+        self.client.force_login(
+            get_user_model().objects.get_or_create(username=self.user.username)[0]
+        )
+        response = self.client.get(self.request_url)
+        self.assertEqual(response.status_code, 200)

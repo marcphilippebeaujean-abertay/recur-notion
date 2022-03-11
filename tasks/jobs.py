@@ -40,10 +40,14 @@ def create_recurring_task_in_notion(task_pk):
     workspace_access_queryset = user.workspace_access.all()
     if workspace_access_queryset.count == 0:
         raise Exception("User did not have a workspace access.")
+    workspace_access_queried = list(workspace_access_queryset)[0]
+    if task_model.workspace is None:
+        task_model.workspace = workspace_access_queried.workspace
+        task_model.save()
+    elif task_model.workspace.pk != workspace_access_queried.workspace.pk:
+        raise Exception("Users workspace does not match the one they have access to")
     try:
-        client = notion_client.Client(
-            auth=list(workspace_access_queryset)[0].access_token
-        )
+        client = notion_client.Client(auth=workspace_access_queried.access_token)
     except IndexError:
         logger.error("User did not have a workspace access")
         raise Exception("User did not have a workspace access.")

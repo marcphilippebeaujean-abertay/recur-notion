@@ -4,9 +4,8 @@ from .views import (
     create_recurring_task,
     delete_recurring_task,
     duplicate_recurring_task,
-    get_recurring_tasks,
     recurring_task_view,
-    recurring_tasks_view,
+    recurring_tasks_list_view,
     update_recurring_task_database,
     update_recurring_task_properties,
     update_recurring_task_schedule,
@@ -14,7 +13,6 @@ from .views import (
 
 urlpatterns = [
     path("create-recurring-task/", create_recurring_task, name="create-recurring-task"),
-    path("get-recurring-tasks/", get_recurring_tasks, name="get-recurring-tasks"),
     path("recurring-task/<int:pk>", recurring_task_view, name="recurring-task-view"),
     path(
         "delete-recurring-task/<int:pk>",
@@ -41,5 +39,5 @@ urlpatterns = [
         update_recurring_task_database,
         name="update-recurring-task-database",
     ),
-    path("tasks", recurring_tasks_view, name="recurring-tasks-view"),
+    path("tasks", recurring_tasks_list_view, name="recurring-tasks-view"),
 ]

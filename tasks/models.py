@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta
 
 import pytz
 from django.core.serializers.json import DjangoJSONEncoder
@@ -7,9 +7,11 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django_q.models import Schedule
 
-# Create your models here.
 from accounts.models import CustomUser
+
+# Create your models here.
 from notion_database.models import NotionDatabase
+from workspaces.models import NotionWorkspace
 
 
 class RecurringTask(models.Model):
@@ -30,6 +32,13 @@ class RecurringTask(models.Model):
     )
     owner = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="tasks"
+    )
+    workspace = models.ForeignKey(
+        NotionWorkspace,
+        blank=True,
+        null=True,
+        related_name="tasks",
+        on_delete=models.SET_NULL,
     )
     start_time = models.DateTimeField(default=now() + timedelta(days=1))
     properties_json = models.JSONField(encoder=DjangoJSONEncoder, default=dict)
