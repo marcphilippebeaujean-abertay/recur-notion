@@ -41,7 +41,7 @@ def recurring_tasks_list_view(request):
         "tasks/recurring-tasks-list-view.html",
         {
             "recurring_tasks": tasks_query,
-            "num_remaining_tasks": 10 - tasks_query.count(),
+            "num_remaining_tasks": max(10 - tasks_query.count(), 0),
         },
     )
 
