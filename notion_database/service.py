@@ -58,8 +58,13 @@ def query_user_notion_database_with_api_by_id_as_dict(user_model, database_id_st
 
 
 def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
+    title = (
+        notion_db_dict["title"][0]["text"]["content"]
+        if len(notion_db_dict["title"]) > 0
+        else ""
+    )
     return {
-        "name": notion_db_dict["title"][0]["text"]["content"],
+        "name": title,
         "id": notion_db_dict["id"],
         "properties": get_list_of_property_dtos_from_notion_database_resp_dict(
             notion_db_dict=notion_db_dict
