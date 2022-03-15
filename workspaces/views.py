@@ -30,7 +30,7 @@ def add_notion_workspace_from_access_code(request):
         )
     except Exception as e:
         return HttpResponseServerError("Error occurred trying to authorize with Notion")
-    return redirect("recurring-tasks-view")
+    return redirect("notion-embeds-list-view")
 
 
 @login_required

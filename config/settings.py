@@ -1,6 +1,11 @@
+import logging
 import os
+import sys
 from pathlib import Path
 
+## Disable logging for tests
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+    logging.disable(logging.CRITICAL)
 # GENERAL
 # ------------------------------------------------------------------------------
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,8 +52,9 @@ INSTALLED_APPS = [
     "accounts",
     "pages",
     "workspaces",
-    "tasks",
     "newsletter",
+    "embed_widgets_base",
+    "notion_embeds",
     "notion_database",
     "subscription",
 ]
@@ -152,7 +158,6 @@ TEMPLATES = [
                 "webp_converter.context_processors.webp_support",
             ],
             "libraries": {
-                "task_tags": "tasks.template_tags",
                 "notion_property_tags": "notion_properties.template_tags",
                 "notion_workspace_tags": "workspaces.template_tags",
                 "page_basics": "pages.template_tags",
@@ -172,6 +177,7 @@ DATABASES = {
     }
 }
 
+# TODO: Change Database Engine based on DEBUG = True
 if os.environ.get("DATABASE_ENGINE") == "django.db.backends.sqlite3":
     DATABASES["default"]["NAME"] = "db.sqlite3"
 else:
@@ -282,9 +288,9 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "recurring-tasks-view"
+LOGIN_REDIRECT_URL = "recurring-notion-embed-view"
 # https://django-allauth.readthedocs.io/en/latest/views.html#logout-account-logout
-ACCOUNT_LOGOUT_REDIRECT_URL = "recurring-tasks-view"
+ACCOUNT_LOGOUT_REDIRECT_URL = "recurring-notion-embed-view"
 # https://django-allauth.readthedocs.io/en/latest/installation.html?highlight=backends
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
@@ -332,6 +338,3 @@ NOTION_CLIENT_ID = os.environ.get("NOTION_CLIENT_ID")
 NOTION_OAUTH_CALLBACK = os.environ.get("NOTION_OAUTH_CALLBACK")
 
 HONEYPOT_FIELD_NAME = "Full Name"
-
-# USAGE LIIMITS
-NUM_FREE_RECURRING_TASKS = 2

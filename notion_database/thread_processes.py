@@ -1,6 +1,6 @@
 from threading import Thread
 
-from notion_database.service import query_user_notion_databases_list
+from notion_database.service import query_user_notion_databases_from_api_as_model_list
 
 
 class FetchUserDatabasesThread(Thread):
@@ -10,6 +10,8 @@ class FetchUserDatabasesThread(Thread):
         self.response_simple_database_dict = []
 
     def run(self):
-        self.response_simple_database_dict = query_user_notion_databases_list(
-            user_model=self.user_model
+        self.response_simple_database_dict = (
+            query_user_notion_databases_from_api_as_model_list(
+                user_model=self.user_model
+            )
         )

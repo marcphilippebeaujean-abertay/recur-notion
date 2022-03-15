@@ -2,10 +2,7 @@ import logging
 
 import notion_client
 
-from notion_database.models import NotionDatabase
-from notion_properties.service import (
-    get_list_of_property_dtos_from_notion_database_resp_dict,
-)
+from notion_database.models import NotionDatabase, NotionPropertyMetaData
 from workspaces.models import NotionWorkspaceAccess
 
 # Get an instance of a logger
@@ -30,7 +27,7 @@ def load_user_notion_client(user_model):
     return notion_client.Client(auth=notion_workspace_access_grant_model.access_token)
 
 
-def query_user_notion_databases_list(user_model, query_string=None):
+def query_user_notion_databases_from_api_as_model_list(user_model, query_string=None):
     logger.info(f"Fetching workspace pages")
     request_filter_dict = {
         "filter": {"property": "object", "value": "database"},
@@ -45,45 +42,113 @@ def query_user_notion_databases_list(user_model, query_string=None):
         raise NotionApiException("Unable to retrieve Database data!")
     notion_db_response_dict_list = response_dict.get("results")
     return [
-        convert_notion_database_resp_dict_to_simple_database_dict(db_response_dict)
+        convert_notion_database_resp_dict_to_unsaved_model(
+            notion_db_dict=db_response_dict,
+            notion_workspace=NotionWorkspaceAccess.objects.filter(owner=user_model)[
+                0
+            ].workspace,
+        )
         for db_response_dict in notion_db_response_dict_list
     ]
 
 
-def query_user_notion_database_with_api_by_id_as_dict(user_model, database_id_str):
+def query_saved_notion_database_model_with_api_update(user_model, database_id_str):
     database_dict = load_user_notion_client(user_model=user_model).databases.retrieve(
         database_id=database_id_str
     )
-    return convert_notion_database_resp_dict_to_simple_database_dict(database_dict)
+    workspace = NotionWorkspaceAccess.objects.filter(owner=user_model)[0].workspace
+    database_resp_as_notion_model = convert_notion_database_resp_dict_to_saved_model(
+        notion_db_dict=database_dict, notion_workspace=workspace
+    )
+    return database_resp_as_notion_model
 
 
-def convert_notion_database_resp_dict_to_simple_database_dict(notion_db_dict):
+def convert_notion_database_resp_dict_to_unsaved_model(
+    notion_db_dict, notion_workspace
+):
     title = (
         notion_db_dict["title"][0]["text"]["content"]
         if len(notion_db_dict["title"]) > 0
         else ""
     )
-    return {
-        "name": title,
-        "id": notion_db_dict["id"],
-        "properties": get_list_of_property_dtos_from_notion_database_resp_dict(
-            notion_db_dict=notion_db_dict
-        ),
-    }
-
-
-def get_or_update_database_from_simple_database_dict_returning_model(
-    simple_database_dict,
-):
-    db_id_str = simple_database_dict["id"]
-    notion_database_model, was_created = NotionDatabase.objects.get_or_create(
-        database_id=db_id_str
+    unsaved_notion_database_model = NotionDatabase(
+        notion_id=notion_db_dict["id"],
+        database_name=title,
+        notion_workspace=notion_workspace,
     )
-    notion_database_model.database_name = simple_database_dict["name"]
+    return unsaved_notion_database_model
+
+
+def convert_notion_database_resp_dict_to_saved_model(notion_db_dict, notion_workspace):
+    notion_database_unsaved_model = convert_notion_database_resp_dict_to_unsaved_model(
+        notion_db_dict=notion_db_dict, notion_workspace=notion_workspace
+    )
+    unsaved_property_model_list = (
+        get_list_of_unsaved_property_model_from_notion_database_resp_dict(
+            notion_db_dict
+        )
+    )
+    return get_or_save_notion_database_model(
+        notion_database_model_unsaved=notion_database_unsaved_model,
+        notion_property_meta_model_unsaved_list=unsaved_property_model_list,
+    )
+
+
+def get_list_of_unsaved_property_model_from_notion_database_resp_dict(notion_db_dict):
+    property_dict_list = []
+    for property_name in notion_db_dict["properties"].keys():
+        notion_property_dict = notion_db_dict["properties"][property_name]
+        # certain property types are not supported
+        property_meta_data = NotionPropertyMetaData(
+            property_type=notion_property_dict["type"],
+            name=property_name,
+            notion_id=notion_property_dict["id"],
+        )
+        property_dict_list.append(property_meta_data)
+    return property_dict_list
+
+
+def get_or_save_notion_database_model(
+    notion_database_model_unsaved, notion_property_meta_model_unsaved_list
+):
+    db_id_str = notion_database_model_unsaved.notion_id
+    (
+        notion_database_model,
+        notion_db_model_was_created,
+    ) = NotionDatabase.objects.get_or_create(
+        notion_id=db_id_str,
+        notion_workspace=notion_database_model_unsaved.notion_workspace,
+    )
+    notion_database_model.database_name = notion_database_model_unsaved.database_name
     notion_database_model.database_id = db_id_str
-    notion_database_model.properties_schema_json = [
-        properties_dto.dto_dict()
-        for properties_dto in simple_database_dict["properties"]
-    ]
+    if notion_db_model_was_created:
+        notion_database_model.notion_properties.set(
+            [
+                NotionPropertyMetaData.objects.create(
+                    notion_id=notion_property_meta_data.notion_id,
+                    name=notion_property_meta_data.name,
+                    property_type=notion_property_meta_data.property_type,
+                    database=notion_database_model,
+                )
+                for notion_property_meta_data in notion_property_meta_model_unsaved_list
+            ]
+        )
+    else:
+        final_notion_properties_list = []
+        for property_meta_data_container in notion_property_meta_model_unsaved_list:
+            (
+                property_meta_data_model,
+                property_db_model_was_created,
+            ) = NotionPropertyMetaData.objects.get_or_create(
+                database=notion_database_model,
+                notion_id=property_meta_data_container.notion_id,
+            )
+            property_meta_data_model.name = property_meta_data_container.name
+            property_meta_data_model.property_type = (
+                property_meta_data_container.property_type
+            )
+            property_meta_data_model.save()
+            final_notion_properties_list.append(property_meta_data_model)
+        notion_database_model.notion_properties.set(final_notion_properties_list)
     notion_database_model.save()
     return notion_database_model
