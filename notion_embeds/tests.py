@@ -62,7 +62,9 @@ class TestCreateNotionEmbed(NotionEmbedTestCase):
         self.assertEqual(NotionDatabaseEmbed.objects.count(), 1)
         self.assertEqual(Embeddable.objects.count(), 1)
         created_notion_db_embeddable = NotionDatabaseEmbed.objects.all()[0]
-        self.assertEqual(created_notion_db_embeddable.name, "New Embeddable iFrame")
+        self.assertEqual(
+            created_notion_db_embeddable.name, "New Notion Database Widget"
+        )
         self.assertEqual(created_notion_db_embeddable.creator, self.user)
         self.assertEqual(created_notion_db_embeddable.workspace, None)
 

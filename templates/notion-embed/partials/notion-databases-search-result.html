@@ -6,21 +6,21 @@
     {% for notion_database in databases %}
         <div class="database-search-result"
              x-show="'{{ notion_database.name }}'.toLowerCase().includes(currentSearchValue.toLowerCase())"
-             hx-post="{% url 'update-notion-embed-database' pk=task_pk %}"
-             hx-vals='{"newDatabaseId": "{{ notion_database.id }}"}'
+             hx-post="{% url 'update-notion-embed-database' pk=embed_pk %}"
+             hx-vals='{"newDatabaseId": "{{ notion_database.notion_id }}"}'
              hx-indicator=".properties-request-indicator"
-             hx-target="#properties-form-container"
+             hx-target="#page-body"
              hx-trigger="click"
              @click="() => {
                 // Variables set in Notion Databases Search
-                savedDatabaseValue = '{{ notion_database.name }}';
+                savedDatabaseValue = '{{ notion_database.database_name }}';
                 currentSearchValue = savedDatabaseValue;
                 databaseChanged = true;
-                // Variable set in Recurring Task View
+                // Variable set in Embed View
                 databaseSelected = true;
              }"
         >
-            {{ notion_database.name }}
+            {{ notion_database.database_name }}
         </div>
     {% endfor %}
 {% endif %}

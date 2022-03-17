@@ -5,198 +5,200 @@
 {% block title %}Home page{% endblock title %}
 
 {% block content %}
-<div class="my-4 d-none d-none d-sm-block"></div>
-<div class="px-3 pt-3">
-    <h1 class="text-center">Recurring Tasks For Notion</h1>
-    <div class="my-2 d-none d-none d-sm-block"></div>
-    <div class="d-flex flex-column mt-4">
-        <div class="d-flex justify-content-center">
-            <p class="h6">
-                &nbsp;
-                <span class="text-success">
-                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                </span>&nbsp;Free
-            </p>
-            <p class="h6">
-                &nbsp;
-                <span class="text-success">
-                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                </span>&nbsp;Easy To Use
-            </p>
-            <p class="h6">
-                &nbsp;
-                <span class="text-success">
-                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                </span>&nbsp;No Formulas Required
-            </p>
-        </div>
-        <div class="d-flex justify-content-center w-100">
-            <p class="h6">
-                &nbsp;
-                <span class="text-success">
-                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    </span>&nbsp;No Changes To Tables Required
-            </p>
-            <p class="h6 mb-4">
-                &nbsp;
-                <span class="text-success">
-                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                    </span>&nbsp;No Credit Card Required
-            </p>
-        </div>
-    </div>
-</div>
-<div>
-    <div class="d-flex flex-column justify-content-center">
-        <div class="m-auto">
-            <a href="{% url 'account_signup' %}" class="btn btn-success">Get Started For Free</a>
+<div class="container">
+    <div class="my-4 d-none d-none d-sm-block"></div>
+    <div class="px-3 pt-3">
+        <h1 class="text-center">Recurring Tasks For Notion</h1>
+        <div class="my-2 d-none d-none d-sm-block"></div>
+        <div class="d-flex flex-column mt-4">
+            <div class="d-flex justify-content-center">
+                <p class="h6">
+                    &nbsp;
+                    <span class="text-success">
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    </span>&nbsp;Free
+                </p>
+                <p class="h6">
+                    &nbsp;
+                    <span class="text-success">
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    </span>&nbsp;Easy To Use
+                </p>
+                <p class="h6">
+                    &nbsp;
+                    <span class="text-success">
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                    </span>&nbsp;No Formulas Required
+                </p>
+            </div>
+            <div class="d-flex justify-content-center w-100">
+                <p class="h6">
+                    &nbsp;
+                    <span class="text-success">
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                        </span>&nbsp;No Changes To Tables Required
+                </p>
+                <p class="h6 mb-4">
+                    &nbsp;
+                    <span class="text-success">
+                        {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                        </span>&nbsp;No Credit Card Required
+                </p>
+            </div>
         </div>
     </div>
-    <div class="py-2"></div>
-    <div class="my-3 d-none d-none d-sm-block"></div>
-    <div class="w-100">
-        <img src="{% static 'images/recurring-meeting.gif' %}" id="landing-example-gif" alt="Recur logo"
-             width="600px"
-             class="mw-100 h-auto m-auto d-block"/>
+    <div>
+        <div class="d-flex flex-column justify-content-center">
+            <div class="m-auto">
+                <a href="{% url 'account_signup' %}" class="btn btn-success">Get Started For Free</a>
+            </div>
+        </div>
+        <div class="py-2"></div>
+        <div class="my-3 d-none d-none d-sm-block"></div>
+        <div class="w-100">
+            <img src="{% static 'images/recurring-meeting.gif' %}" id="landing-example-gif" alt="Recur logo"
+                 width="600px"
+                 class="mw-100 h-auto m-auto d-block"/>
+        </div>
     </div>
-</div>
 
-<div class="my-4 py-2"></div>
-<h3 class="text-center mt-4">Replace Any Task App With Notion</h3>
-<div class="d-flex flex-row justify-content-center py-3">
-    <img src="{% static 'images/todoist-logo.png' %}" alt="Todoist logo" height="40" width="40" class="mx-2"/>
-    <img src="{% static 'images/google-todo-logo.png' %}" alt="Google Todo logo" height="40" width="40"
-         class="mx-2"/>
-    <img src="{% static 'images/asana-logo.png' %}" alt="Asana logo" height="40" width="40" class="mx-2"/>
-    <img src="{% static 'images/jira-logo.png' %}" alt="Jira logo" height="40" width="40" class="mx-2"/>
-    <img src="{% static 'images/things-3-logo.png' %}" alt="Things 3 logo" height="40" width="40" class="mx-2"/>
-    <img src="{% static 'images/reminder-logo.png' %}" alt="Reminder logo" height="40" width="40" class="mx-2"/>
-</div>
-<div class="my-4 py-4 d-none d-sm-block"></div>
-<div class="py-1"></div>
-<div class="my-4 py-4 d-sm-none"></div>
-<div class="px-3 py-4 mt-2">
-    <div class="d-flex flex-column justify-content-center">
-        <h2 class="mt-0 text-center h3">How It Works</h2>
+    <div class="my-4 py-2"></div>
+    <h3 class="text-center mt-4">Replace Any Task App With Notion</h3>
+    <div class="d-flex flex-row justify-content-center py-3">
+        <img src="{% static 'images/todoist-logo.png' %}" alt="Todoist logo" height="40" width="40" class="mx-2"/>
+        <img src="{% static 'images/google-todo-logo.png' %}" alt="Google Todo logo" height="40" width="40"
+             class="mx-2"/>
+        <img src="{% static 'images/asana-logo.png' %}" alt="Asana logo" height="40" width="40" class="mx-2"/>
+        <img src="{% static 'images/jira-logo.png' %}" alt="Jira logo" height="40" width="40" class="mx-2"/>
+        <img src="{% static 'images/things-3-logo.png' %}" alt="Things 3 logo" height="40" width="40" class="mx-2"/>
+        <img src="{% static 'images/reminder-logo.png' %}" alt="Reminder logo" height="40" width="40" class="mx-2"/>
     </div>
-    <div class="d-md-flex justify-content-between row">
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <h3 class="h5 mb-3 text-center">Choose Workspace Database</h3>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/database-preview.png' %}" width="250" height="70"
-                         alt="Select Database preview"/>
+    <div class="my-4 py-4 d-none d-sm-block"></div>
+    <div class="py-1"></div>
+    <div class="my-4 py-4 d-sm-none"></div>
+    <div class="px-3 py-4 mt-2">
+        <div class="d-flex flex-column justify-content-center">
+            <h2 class="mt-0 text-center h3">How It Works</h2>
+        </div>
+        <div class="d-md-flex justify-content-between row">
+            <div class="col-md-4 col-12 mt-4 justify-content-center">
+                <h3 class="h5 mb-3 text-center">Choose Workspace Database</h3>
+                <div class="card steps-card m-auto">
+                    <div class="card-body">
+                        <img src="{% static 'images/database-preview.png' %}" width="250" height="70"
+                             alt="Select Database preview"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <h3 class="h5 mb-3 text-center">Create The Schedule</h3>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/daily-standup-preview.png' %}" width="250" height="100"
-                         alt="Schedule creator preview"/>
+            <div class="col-md-4 col-12 mt-4 justify-content-center">
+                <h3 class="h5 mb-3 text-center">Create The Schedule</h3>
+                <div class="card steps-card m-auto">
+                    <div class="card-body">
+                        <img src="{% static 'images/daily-standup-preview.png' %}" width="250" height="100"
+                             alt="Schedule creator preview"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 col-12 mt-4 justify-content-center">
-            <div>
+            <div class="col-md-4 col-12 mt-4 justify-content-center">
                 <div>
-                    <h3 class="h5 mb-3 text-center">Set Notion Properties</h3>
+                    <div>
+                        <h3 class="h5 mb-3 text-center">Set Notion Properties</h3>
+                    </div>
                 </div>
-            </div>
-            <div class="card steps-card m-auto">
-                <div class="card-body">
-                    <img src="{% static 'images/properties-preview.png' %}" width="250" height="120"
-                         alt="Set properties preview"/>
+                <div class="card steps-card m-auto">
+                    <div class="card-body">
+                        <img src="{% static 'images/properties-preview.png' %}" width="250" height="120"
+                             alt="Set properties preview"/>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div class="my-4 py-2"></div>
-<div class="py-4 d-none d-sm-block"></div>
-<div class="px-3 py-3">
-    <div class="d-md-flex justify-content-between row">
-        <div class="col-md-7 d-none d-md-block">
-            <img src="{% static 'images/dashboard-example.png' %}" id="dashboard-example-desktop"
-                 alt="Dashboard example" class="w-100 h-auto"/>
-        </div>
-        <div class="d-flex flex-column justify-content-center col-md-5 px-2 mb-4">
-            <h2 class="h3">Say <span class="highlight">"Goodbye"</span> To Tedious <span
-                    class="highlight">Data Entry</span></h2>
-            <p class="h6 my-2 pb-2">Works great for:</p>
-            <div class="d-flex row">
-                <div class="col-6">
-                    <p class="h6">
-                        <span class="text-success">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                            {% endautoescape %}
-                        </span>&nbsp;Todo Lists
-                    </p>
-                    <p class="h6">
-                        <span class="text-success">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                            {% endautoescape %}
-                        </span>&nbsp;Expense Tracking
-                    </p>
-                    <p class="h6">
-                        <span class="text-success">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                            {% endautoescape %}
-                        </span>&nbsp;Habit Building
-                    </p>
-                </div>
-                <div class="col-6">
-                    <p class="h6">
-                        <span class="text-success">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                            {% endautoescape %}
-                        </span>&nbsp;Meetings
-                    </p>
-                    <p class="h6">
-                        <span class="text-success">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                            {% endautoescape %}
-                        </span>&nbsp;Reminders
-                    </p>
-                    <p class="h6">
-                        <span class="text-success">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
-                            {% endautoescape %}
-                        </span>&nbsp;Chores
-                    </p>
-                </div>
+    <div class="my-4 py-2"></div>
+    <div class="py-4 d-none d-sm-block"></div>
+    <div class="px-3 py-3">
+        <div class="d-md-flex justify-content-between row">
+            <div class="col-md-7 d-none d-md-block">
+                <img src="{% static 'images/dashboard-example.png' %}" id="dashboard-example-desktop"
+                     alt="Dashboard example" class="w-100 h-auto"/>
             </div>
-            <p class="h6 mt-2">...and much more.</p>
-        </div>
-        <div class="col-md-6 d-md-none">
-            <img src="{% static 'images/dashboard-example.png' %}" id="dashboard-example-phone"
-                 alt="Dashboard example" class="w-100 h-auto"/>
+            <div class="d-flex flex-column justify-content-center col-md-5 px-2 mb-4">
+                <h2 class="h3">Say <span class="highlight">"Goodbye"</span> To Tedious <span
+                        class="highlight">Data Entry</span></h2>
+                <p class="h6 my-2 pb-2">Works great for:</p>
+                <div class="d-flex row">
+                    <div class="col-6">
+                        <p class="h6">
+                            <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                                {% endautoescape %}
+                            </span>&nbsp;Todo Lists
+                        </p>
+                        <p class="h6">
+                            <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                                {% endautoescape %}
+                            </span>&nbsp;Expense Tracking
+                        </p>
+                        <p class="h6">
+                            <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                                {% endautoescape %}
+                            </span>&nbsp;Habit Building
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="h6">
+                            <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                                {% endautoescape %}
+                            </span>&nbsp;Meetings
+                        </p>
+                        <p class="h6">
+                            <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                                {% endautoescape %}
+                            </span>&nbsp;Reminders
+                        </p>
+                        <p class="h6">
+                            <span class="text-success">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='check-lg' %}
+                                {% endautoescape %}
+                            </span>&nbsp;Chores
+                        </p>
+                    </div>
+                </div>
+                <p class="h6 mt-2">...and much more.</p>
+            </div>
+            <div class="col-md-6 d-md-none">
+                <img src="{% static 'images/dashboard-example.png' %}" id="dashboard-example-phone"
+                     alt="Dashboard example" class="w-100 h-auto"/>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="my-4 py-2g d-none d-none d-sm-block"></div>
-<div class="my-2 d-none d-sm-block"></div>
-<div class="pb-4 pt-4">
-    <h2 class="h1 pt-4 mt-4 text-center">Meet <span class="highlight"><i>Albert</i></span></h2>
-    <p class="h6 mb-4 mt-2 text-center pb-4">Making Notion Automation simple and accessible for you and your
-        Team.</p>
-    <div class="row d-flex">
-        <div class="col-12 col-md-6">
-            <img src="{% static 'images/albert-splash.svg' %}" class="w-100"
-                 alt="Albert mascott"/>
-        </div>
-        <div class="col-12 col-md-6 d-flex flex-column justify-content-center">
-            <div class="my-2 py-4 d-sm-none"></div>
-            <div>
-                {% include 'newsletter/partials/mailchimp_form.html' with email="" %}
+    <div class="my-4 py-2g d-none d-none d-sm-block"></div>
+    <div class="my-2 d-none d-sm-block"></div>
+    <div class="pb-4 pt-4">
+        <h2 class="h1 pt-4 mt-4 text-center">Meet <span class="highlight"><i>Albert</i></span></h2>
+        <p class="h6 mb-4 mt-2 text-center pb-4">Making Notion Automation simple and accessible for you and your
+            Team.</p>
+        <div class="row d-flex">
+            <div class="col-12 col-md-6">
+                <img src="{% static 'images/albert-splash.svg' %}" class="w-100"
+                     alt="Albert mascott"/>
+            </div>
+            <div class="col-12 col-md-6 d-flex flex-column justify-content-center">
+                <div class="my-2 py-4 d-sm-none"></div>
+                <div>
+                    {% include 'newsletter/partials/mailchimp_form.html' with email="" %}
+                </div>
             </div>
         </div>
     </div>

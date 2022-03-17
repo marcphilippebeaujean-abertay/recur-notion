@@ -1,0 +1,40 @@
+{% load notion_embed_tags %}
+{% load static %}
+
+<div class="border w-100">
+    <div class="notion-table-embed-wrapper">
+    <table class="table">
+        <thead class="bg-light rounded-top">
+        <tr>
+            {% for notion_property_settings in notion_table_properties %}
+                <th scope="col"
+                    class="text-truncate border-end"
+                    x-show="() => {
+                        let propertyId = '{{ notion_property_settings.property.notion_id }}'
+                        if(notionWidgetSettings &&
+                            notionWidgetSettings
+                                .visiblePropertyIds
+                                .has(propertyId)
+                            ){
+                            return true;
+                        }
+                        return false;
+                    }"
+                >
+                    <span class="me-2">
+                    {% icon_by_property_type notion_type=notion_property_settings.property.property_type %}
+                    </span>
+                    {{ notion_property_settings.property.name }}
+                </th>
+            {% endfor %}
+        </tr>
+        </thead>
+    </table>
+    </div>
+    <div>
+        <div class="d-flex justify-content-center position-relative">
+            <h5>Powered By </h5>
+            <img src="{% static 'images/logo-full-small.png' %}" class="position-relative" style="bottom: 12px; left:10px;" alt="" />
+        </div>
+    </div>
+</div>

@@ -5,36 +5,38 @@
 
 
 {% block content %}
-<h1>Embeddabable Databases</h1>
-<div x-data="{ loading: false }">
-    <form action="{%  url 'create-notion-embed' %}"
-          method="POST"
-          @submit="loading = true"
-    >
-        {% csrf_token %}
-        <button
-                type="submit"
-                x-bind:disabled="loading"
-                class="btn btn-success position-relative"
+<div class="container m-auto">
+    <h1>Your Notion Widgets</h1>
+    <div x-data="{ loading: false }">
+        <form action="{%  url 'create-notion-embed' %}"
+              method="POST"
+              @submit="loading = true"
         >
-            <span x-show="!loading">
-                            {% autoescape off %}
-                                {% bootstrap_icon_by_icon_name icon_name='plus-circle' %}
-                            {% endautoescape %}
-            </span>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
-                  x-show="loading"></span>
-            &nbsp;Create Embed
-        </button>
-    </form>
-</div>
-<div class="row">
-    <div class="col-12">
-        <div class="my-2 mr-2">
-            <div class="d-flex row">
-                {% for notion_embed in notion_embeds %}
-                    {% include "notion-embed/partials/notion-embed-list-element.html" with notion_embed=notion_embed %}
-                {% endfor %}
+            {% csrf_token %}
+            <button
+                    type="submit"
+                    x-bind:disabled="loading"
+                    class="btn btn-success position-relative"
+            >
+                <span x-show="!loading">
+                                {% autoescape off %}
+                                    {% bootstrap_icon_by_icon_name icon_name='plus-circle' %}
+                                {% endautoescape %}
+                </span>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
+                      x-show="loading"></span>
+                &nbsp;Create Database Widget
+            </button>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="my-2 mr-2">
+                <div class="d-flex row">
+                    {% for notion_embed in notion_embeds %}
+                        {% include "notion-embed/partials/notion-embed-list-element.html" with notion_embed=notion_embed %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

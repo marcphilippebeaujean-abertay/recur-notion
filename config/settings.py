@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "embed_widgets_base",
     "notion_embeds",
     "notion_database",
-    "subscription",
 ]
 
 # MIDDLEWARE
@@ -158,7 +157,7 @@ TEMPLATES = [
                 "webp_converter.context_processors.webp_support",
             ],
             "libraries": {
-                "notion_property_tags": "notion_properties.template_tags",
+                "notion_embed_tags": "notion_embeds.template_tags",
                 "notion_workspace_tags": "workspaces.template_tags",
                 "page_basics": "pages.template_tags",
             },
@@ -288,9 +287,9 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "recurring-notion-embed-view"
+LOGIN_REDIRECT_URL = "notion-embeds-list-view"
 # https://django-allauth.readthedocs.io/en/latest/views.html#logout-account-logout
-ACCOUNT_LOGOUT_REDIRECT_URL = "recurring-notion-embed-view"
+ACCOUNT_LOGOUT_REDIRECT_URL = "notion-embeds-list-view"
 # https://django-allauth.readthedocs.io/en/latest/installation.html?highlight=backends
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

@@ -1,0 +1,68 @@
+{% extends '_base.html' %}
+
+{% block title %}Edit Notion Widget{% endblock %}
+
+{% load page_basics %}
+
+{% block content %}
+<div class="d-flex container">
+    <div class="w-100 px-2">
+        <div>
+            <div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="task-name">Name</label>
+                        <div class="d-flex">
+                            <input value="{{ notion_embed.name }}"
+                                   type="text"
+                                   class="h3 border-0 w-100 mb-0 bg-muted-on-hover"
+                                   name="task-name"
+                                   id="task-name"
+                                   hx-trigger="change"
+                                   hx-indicator="#task-name-change-loading-indicator"
+                                   hx-post="{% url 'update-notion-embed-name' pk=notion_embed.pk %}"
+                            />
+                        </div>
+                        <small x-cloak id="task-name-change-loading-indicator"
+                               class="htmx-indicator my-0 mx-0 text-muted">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                                  x-cloak></span>
+                            Saving changes...
+                        </small>
+                        <div x-data="{loading: false}" class="flex-grow mt-2">
+                            <form
+                                    action="{% url 'delete-notion-embed' pk=notion_embed.pk %}"
+                                    method="POST"
+                                    @submit="loading = true"
+                            >
+                                {% csrf_token %}
+                                <button
+                                        class="btn btn-danger position-relative"
+                                        type="submit"
+                                        x-bind:disabled="loading"
+                                >
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                                              x-cloak
+                                              x-show="loading"></span>
+                                    <span x-show="!loading">
+                                            {% bootstrap_icon_by_icon_name icon_name='trash' %}
+                                        </span>
+                                    Delete Widget
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-warning w-100 my-2">
+                    Please assign a Notion Database to create your iFrame Widget.
+                </div>
+                <div>
+                    <div class="col-12 pe-2">
+                        {% include 'notion-embed/partials/notion-databases-search.html' with savedDbName='' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

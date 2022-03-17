@@ -1,0 +1,72 @@
+{% load page_basics %}
+
+
+<div class="d-flex screen-height position-relative"
+     x-data="{
+            notionWidgetSettings: {
+                visiblePropertyIds: new Set([
+                {% for property_setting in embed_notion_property_settings %}
+                {% if property_setting.should_be_visible %}
+                    '{{ property_setting.property.notion_id }}',
+                {% endif %}
+                {% endfor %}
+                ])
+            }
+        }"
+>
+    <div class="col-3 position-relative pe-3">
+        {% include 'notion-embed/partials/notion-table-properties-sidebar.html' %}
+    </div>
+    <div class="col-6">
+        <div class="d-flex flex-column">
+            <label for="embed-name">Name</label>
+            <div>
+                <input value="{{ notion_embed.name }}"
+                       type="text"
+                       class="h3 border-0 w-100 mb-0 bg-muted-on-hover"
+                       name="embed-name"
+                       id="embed-name"
+                       hx-trigger="change"
+                       hx-indicator="#embed-name-change-loading-indicator"
+                       hx-post="{% url 'update-notion-embed-name' pk=notion_embed.pk %}"
+                />
+            </div>
+            <small x-cloak id="embed-name-change-loading-indicator"
+                   class="htmx-indicator my-0 mx-0 text-muted">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      x-cloak></span>
+                Saving changes...
+            </small>
+            <div x-data="{loading: false}" class="flex-grow mt-2">
+                <form
+                        action="{% url 'delete-notion-embed' pk=notion_embed.pk %}"
+                        method="POST"
+                        @submit="loading = true"
+                >
+                    {% csrf_token %}
+                    <button
+                            class="btn btn-danger position-relative"
+                            type="submit"
+                            x-bind:disabled="loading"
+                    >
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                                  x-cloak
+                                  x-show="loading"></span>
+                        <span x-show="!loading">
+                                {% bootstrap_icon_by_icon_name icon_name='trash' %}
+                            </span>
+                        Delete Widget
+                    </button>
+                </form>
+            </div>
+            <div class="mt-4">
+                <div class="col-12 pe-2">
+                    {% include 'notion-embed/partials/notion-databases-search.html' with savedDbName=notion_embed.notion_database.database_name %}
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            {% include 'notion-embed/database-iframe/notion-embed-database-table.html' with notion_table_properties=embed_notion_property_settings %}
+        </div>
+    </div>
+</div>

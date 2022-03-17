@@ -13,6 +13,10 @@ from security.security_decorator import notion_workspace_authorization_required
 from .models import NotionDatabaseEmbed
 
 # Get an instance of a logger
+from .service import (
+    create_notion_property_settings_from_notion_database_and_embed_model,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,9 +39,9 @@ def notion_embeds_list_view(request):
 @require_http_methods(["POST"])
 def create_notion_embed(request):
     created_embed = NotionDatabaseEmbed.objects.create(
-        creator=request.user,
+        creator=request.user, name="New Notion Database Widget"
     )
-    messages.success(request, f"Successfully Created a new Recurring Task!")
+    messages.success(request, f"Successfully created a new Notion Widget!")
     return redirect("notion-embed-view", pk=created_embed.pk)
 
 
@@ -104,8 +108,21 @@ def update_notion_embed_database(request, pk):
     except NotionDatabaseEmbed.DoesNotExist as e:
         return HttpResponse(status=404)
     updated_notion_embed_model.notion_database = database_fetched
+    notion_property_settings = (
+        create_notion_property_settings_from_notion_database_and_embed_model(
+            notion_embed_model=updated_notion_embed_model,
+            notion_database_model=database_fetched,
+        )
+    )
     updated_notion_embed_model.save()
-    return HttpResponse(status=200)
+    return render(
+        request,
+        "notion-embed/notion-embed-editor.html",
+        {
+            "notion_embed": updated_notion_embed_model,
+            "embed_notion_property_settings": notion_property_settings,
+        },
+    )
 
 
 @login_required
@@ -115,11 +132,30 @@ def notion_embed_view(request, pk):
     try:
         notion_embed_model = NotionDatabaseEmbed.objects.filter(
             pk=pk, creator=request.user
-        )[0]
+        ).prefetch_related("notion_database")[0]
     except IndexError:
         return HttpResponse("Could not find notion embed.", status=404)
+    if notion_embed_model.notion_database is None:
+        return render(
+            "notion-embed/notion-embed-no-active-db-view.html",
+            {"notion_embed": notion_embed_model},
+        )
+
+    updated_database_model = query_saved_notion_database_model_with_api_update(
+        user_model=request.user,
+        database_id_str=notion_embed_model.notion_database.notion_id,
+    )
+    notion_property_settings = (
+        create_notion_property_settings_from_notion_database_and_embed_model(
+            notion_embed_model=notion_embed_model,
+            notion_database_model=updated_database_model,
+        )
+    )
     return render(
         request,
         "notion-embed/notion-embed-view.html",
-        {"notion_embed": notion_embed_model},
+        {
+            "notion_embed": notion_embed_model,
+            "embed_notion_property_settings": notion_property_settings,
+        },
     )

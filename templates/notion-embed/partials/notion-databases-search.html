@@ -4,8 +4,8 @@
 
 <div x-data="{
         showSearchResults: false,
-        savedDatabaseValue: {% if savedDbName == None %}'',{% else %}'{{savedDbName}}'{% endif %},
-        currentSearchValue: {% if savedDbName == None %}'',{% else %}'{{savedDbName}}'{% endif %},
+        savedDatabaseValue: '{{savedDbName}}',
+        currentSearchValue: '{{savedDbName}}',
         databaseChanged: false
     }">
     <div class="position-relative">
@@ -28,10 +28,10 @@
                 </div>
             </div>
             <input type="text"
-                   hx-post="{% url 'search-workspace-databases-for-task-db-change' %}"
+                   hx-post="{% url 'search-workspace-databases-for-notion-embed-db-change' %}"
                    hx-target='#database-search-results'
-                   hx-trigger="load once"
-                   hx-vals='{ "taskPk": "{{ recurring_task.pk }}" }'
+                   hx-trigger="click once"
+                   hx-vals='{ "embedPk": "{{ notion_embed.pk }}" }'
                    hx-indicator=".database-search-results-indicator"
                    @click="showSearchResults = true;"
                    @click.outside="() =>{
@@ -41,7 +41,7 @@
                         }
                    }"
                    autocomplete="off"
-                   name="database-search"
+                   name="database-search-query"
                    class="form-control mb-0 zindex-popover"
                    value="{% if savedDbName == None %}{% else %}{{savedDbName}}{% endif %}"
                    placeholder="Search for Notion Database..."

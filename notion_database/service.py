@@ -68,7 +68,7 @@ def convert_notion_database_resp_dict_to_unsaved_model(
 ):
     title = (
         notion_db_dict["title"][0]["text"]["content"]
-        if len(notion_db_dict["title"]) > 0
+        if "title" in notion_db_dict and len(notion_db_dict["title"]) > 0
         else ""
     )
     unsaved_notion_database_model = NotionDatabase(

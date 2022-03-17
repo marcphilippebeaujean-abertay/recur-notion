@@ -1,0 +1,30 @@
+/** Styling to hide HTMX Request indicators **/
+.my-indicator{
+    display:none;
+}
+.htmx-request .my-indicator{
+    display:block;
+}
+.htmx-request.my-indicator{
+    display:block;
+}
+
+.hide-on-indicator{
+    display:inline;
+}
+.htmx-request .hide-on-indicator{
+    display:none;
+}
+.htmx-request.hide-on-indicator{
+    display:none;
+}
+
+.hide-on-indicator-opacity{
+    opacity:1;
+}
+.htmx-request .hide-on-indicator-opacity{
+    opacity:0;
+}
+.htmx-request.hide-on-indicator-opacity{
+    opacity:0;
+}

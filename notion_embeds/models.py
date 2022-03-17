@@ -12,6 +12,7 @@ class NotionDatabaseEmbed(Embeddable):
         null=True,
         blank=True,
         default=None,
+        related_name="notion_embeds",
     )
 
     @property
@@ -22,6 +23,7 @@ class NotionDatabaseEmbed(Embeddable):
 
 
 class NotionEmbedPropertySettings(models.Model):
+    should_be_visible = models.BooleanField(default=True)
     property = models.ForeignKey(NotionPropertyMetaData, on_delete=models.CASCADE)
     database_embed = models.ForeignKey(
         NotionDatabaseEmbed,

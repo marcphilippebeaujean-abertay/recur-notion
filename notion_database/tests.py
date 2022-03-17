@@ -2,7 +2,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 from workspaces.models import NotionWorkspace, NotionWorkspaceAccess
 
@@ -13,7 +13,6 @@ from .notion_mock_api import (
     create_or_get_mocked_oauth_notion_client,
 )
 from .service import (
-    get_or_save_notion_database_model,
     query_saved_notion_database_model_with_api_update,
     query_user_notion_databases_from_api_as_model_list,
 )
@@ -38,7 +37,9 @@ class TestDatabaseResponseConversion(TestCase):
 class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
     def setUp(self):
         super().setUp()
-        self.request_url = reverse_lazy("search-workspace-databases-for-task-db-change")
+        self.request_url = reverse_lazy(
+            "search-workspace-databases-for-notion-embed-db-change"
+        )
 
     @mock.patch(
         "notion_database.service.notion_client.Client",
@@ -46,7 +47,8 @@ class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
     )
     def test_only_logged_in_user_can_query_their_databases(self, m):
         response = self.client.post(
-            self.request_url, {"taskPk": 1, "database-search-query": VALID_DATABASE_ID}
+            self.request_url,
+            {"embedPk": 1, "database-search-query": VALID_DATABASE_ID},
         )
         self.assertEqual(response.status_code, 302)
 
@@ -59,7 +61,8 @@ class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
             get_user_model().objects.get_or_create(username=self.user.username)[0]
         )
         response = self.client.post(
-            self.request_url, {"taskPk": 1, "database-search-query": VALID_DATABASE_ID}
+            self.request_url,
+            {"embedPk": 1, "database-search-query": VALID_DATABASE_ID},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -81,9 +84,11 @@ class TestGetAllUserNotionDatabaseProperties(TestDatabaseResponseConversion):
 class TestGetSingleDatabaseProperties(TestDatabaseResponseConversion):
     def setUp(self):
         super().setUp()
-        self.request_url = reverse_lazy("search-workspace-databases-for-task-db-change")
+        self.request_url = reverse_lazy(
+            "search-workspace-databases-for-notion-embed-db-change"
+        )
         self.valid_db_request_body = {
-            "taskPk": 1,
+            "embedPk": 1,
             "database-search-query": VALID_DATABASE_ID,
         }
 
@@ -133,12 +138,6 @@ class TestIgnoredPropertiesHandling(TestDatabaseResponseConversion):
         )
         self.assertEqual(generated_db_model.database_id, VALID_DATABASE_ID)
         self.assertEqual(generated_db_model.database_name, "Todo")
-        # for properties_dict in generated_db_model.notion_properties:
-        #    property_dto = NotionPropertyDto.from_dto_dict(properties_dict)
-        #    if property_dto.notion_type in IGNORED_PROPERTIES_SET:
-        #        self.assertEqual(property_dto.value, None)
-        #    else:
-        #        self.assertTrue(property_dto.is_default_value)
 
     @mock.patch(
         "notion_database.service.notion_client.Client",

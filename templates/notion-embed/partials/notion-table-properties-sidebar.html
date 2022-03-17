@@ -1,0 +1,47 @@
+{% load notion_embed_tags %}
+
+<div class="notion-embed-editor-sidebar ms-2 shadow-small">
+    <div class="rounded-top border-top border-start border-end bg-secondary">
+        <ul class="nav nav-tabs ps-4 bg-light">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Columns</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="#">Customization</a>
+            </li>
+        </ul>
+    </div>
+    <div class="w-100 b-dark border-end border-bottom border-start rounded-end ps-4 m2-">
+        <div class="py-2"></div>
+        <div class="row">
+        {% for notion_property_settings in embed_notion_property_settings %}
+            <div class="py-1 col-6"
+                 x-data="{
+                    propertyId: '{{ notion_property_settings.property.notion_id }}',
+                    isVisible: {% if notion_property_settings.should_be_visible %}true{% else %}false{% endif %}
+                 }"
+            >
+                <div class="d-flex">
+                    <input type="checkbox"
+                           class="position-relative me-2 mt-1"
+                           x-bind:value="isVisible"
+                           @change="() => {
+                                isVisible = !isVisible;
+                                if(isVisible){
+                                    notionWidgetSettings.visiblePropertyIds.add(propertyId);
+                                } else {
+                                    notionWidgetSettings.visiblePropertyIds.delete(propertyId);
+                                }
+                           }"
+                    />
+                    <p class="h6 text-truncate m-0">{{ notion_property_settings.property.name }}</p>
+                </div>
+                <small class="text-muted text-truncate mb-1">
+                    {% icon_by_property_type notion_type=notion_property_settings.property.property_type height=10 width=10  %}
+                    {% get_simple_name_by_property_type notion_type=notion_property_settings.property.property_type %}
+                </small>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+#database-search-result-container {
+    position: absolute;
+    background-color: white;
+    width: 100%;
+    max-height: 270px;
+    overflow: hidden;
+}
+
+.database-search-result {
+    padding: 10px;
+    cursor: pointer;
+    color: #000000;
+    bottom: -5px;
+    background-color: white;
+}
+
+.database-search-result:hover {
+    background-color: var(--success-color);
+    color: #FFFFFF;
+}

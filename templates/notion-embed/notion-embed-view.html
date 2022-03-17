@@ -1,72 +1,9 @@
 {% extends '_base.html' %}
 
-{% block title %}Recurring Tasks{% endblock %}
+{% block title %}Edit Notion Widget{% endblock %}
 
 {% load page_basics %}
 
 {% block content %}
-<div class="d-flex" x-data="{
-        databaseSelected: {% if notion_embed.database == None %}false{% else %}true{% endif %},
-    }">
-    <div class="w-100 px-2">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12">
-                        <label for="task-name">Name</label><br/>
-                        <input value="{{ notion_embed.name }}"
-                               type="text"
-                               class="h3 border-0 w-100 mb-0 bg-muted-on-hover"
-                               name="task-name"
-                               id="task-name"
-                               hx-trigger="change"
-                               hx-indicator="#task-name-change-loading-indicator"
-                               hx-post="{% url 'update-notion-embed-name' pk=notion_embed.pk %}"
-                        />
-                        <small x-cloak id="task-name-change-loading-indicator"
-                               class="htmx-indicator my-0 mx-0 text-muted">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                                  x-cloak></span>
-                            Saving changes...
-                        </small>
-                    </div>
-                </div>
-                <div>
-                    <div class="col-12 pe-2">
-                        {% if notion_embed.database is None or notion_embed.database.database_name is None %}
-                            {% include 'notion-embed/partials/notion-databases-search.html' with savedDbName='' %}
-                        {% else %}
-                            {% include 'notion-embed/partials/notion-databases-search.html' with savedDbName=notion_embed.database.database_name %}
-                        {% endif %}
-                    </div>
-                    <div class="my-2"></div>
-                </div>
-
-                <div class="d-flex mt-4 pt-4">
-                    <div x-data="{loading: false}">
-                        <form
-                                action="{% url 'delete-notion-embed' pk=notion_embed.pk %}"
-                                method="POST"
-                                @submit="loading = true"
-                        >
-                            {% csrf_token %}
-                            <button
-                                    class="btn btn-danger position-relative"
-                                    type="submit"
-                                    x-bind:disabled="loading"
-                            >
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-cloak
-                                      x-show="loading"></span>
-                                <span x-show="!loading">
-                                    {% bootstrap_icon_by_icon_name icon_name='trash' %}
-                                </span>
-                                Delete
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    {% include 'notion-embed/notion-embed-editor.html' %}
 {% endblock content %}

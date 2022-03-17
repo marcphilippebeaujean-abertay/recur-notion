@@ -1,11 +1,11 @@
 
 
-.add-recurring-task-btn {
+.add-notion-embed-btn {
     border-style: dashed !important;
     width: 100%;
 }
 
-.add-recurring-task-btn:hover {
+.add-notion-embed-btn:hover {
   cursor: pointer;
 }
 
@@ -13,29 +13,13 @@
     background-color: rgba(0,0,0,.04);
 }
 
-#database-search-result-container {
-    position: absolute;
-    background-color: white;
-    width: 100%;
-    max-height: 270px;
-    overflow: hidden;
-}
-
-.database-search-result {
-    padding: 10px;
-    cursor: pointer;
-    color: #000000;
-    bottom: -5px;
-    background-color: white;
-}
-
-.database-search-result:hover {
-    background-color: var(--success-color);
-    color: #FFFFFF;
+.notion-table-embed-wrapper {
+    max-width: 100%;
+    overflow: auto;
 }
 
 @media only screen and (max-width: 768px){
-    .recurring-task-list-element {
+    .notion-embed-list-element {
         border-style: solid;
         border-width: 1px 1px 1px 1px;
         border-radius: 0.5rem;
@@ -47,7 +31,7 @@
 }
 
 @media only screen and (min-width: 769px) {
-    .recurring-task-list-element {
+    .notion-embed-list-element {
         border-style: solid;
         border-width: 0px 0px 1px 0px;
         border-color: #d6d6d7;
@@ -56,7 +40,7 @@
         padding: 10px 5px 10px 5px;
     }
 
-    .recurring-task-list-element label {
+    .notion-embed-list-element label {
         display: none;
     }
 }

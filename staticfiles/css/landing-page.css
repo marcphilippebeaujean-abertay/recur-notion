@@ -2,3 +2,22 @@
     max-width: 450px;
     padding: 50px;
 }
+
+.steps-card {
+    max-width: 300px;
+    min-height: 160px;
+    position: relative;
+}
+
+.steps-card:first-child {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.highlight {
+    /*background-color: rgba(25, 135, 84, 0.1);
+    text-decoration: underline #198754;*/
+}
