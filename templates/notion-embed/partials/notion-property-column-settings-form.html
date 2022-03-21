@@ -1,0 +1,51 @@
+{% load notion_embed_tags %}
+
+<form
+    hx-post="{% url 'update-notion-embed-properties-settings' pk=notion_embed.pk %}"
+    hx-include=".is-visible-field"
+    hx-indicator=".settings-form-submission-pending"
+    hx-swap="none"
+>
+    <div class="row d-flex" >
+    {% for notion_property_settings in embed_notion_property_settings %}
+        <div class="py-1 col-6"
+             x-data="{
+                propertyId: '{{ notion_property_settings.property.notion_id }}',
+                isVisible: {% if notion_property_settings.should_be_visible %}true{% else %}false{% endif %}
+             }"
+        >
+            <div class="d-flex">
+                <input type="checkbox"
+                       name="{{ notion_property_settings.property.notion_id }}"
+                       class="position-relative me-2 mt-1 is-visible-field"
+                       x-bind:value="isVisible"
+                       @change="() => {
+                            isVisible = !isVisible;
+                            if(isVisible){
+                                notionWidgetSettings.visiblePropertyIds.add(propertyId);
+                            } else {
+                                notionWidgetSettings.visiblePropertyIds.delete(propertyId);
+                            }
+                       }"
+                />
+                <p class="h6 text-truncate m-0">{{ notion_property_settings.property.name }}</p>
+            </div>
+            <small class="text-muted text-truncate mb-1">
+                {% icon_by_property_type notion_type=notion_property_settings.property.property_type height=10 width=10  %}
+                {% get_simple_name_by_property_type notion_type=notion_property_settings.property.property_type %}
+            </small>
+        </div>
+    {% endfor %}
+    </div>
+    <div>
+        <button type="submit" class="btn btn-success mb-3 settings-form-submission-pending hide-on-indicator">
+            Save
+        </button>
+        <button disabled
+                class="btn btn-success mb-3 settings-form-submission-pending my-indicator"
+        >
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            Save
+        </button>
+    </div>
+</form>

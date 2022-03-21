@@ -7,6 +7,7 @@ from .views import (
     notion_embeds_list_view,
     update_notion_embed_database,
     update_notion_embed_name,
+    update_notion_embed_properties_settings,
 )
 
 urlpatterns = [
@@ -28,4 +29,9 @@ urlpatterns = [
         name="update-notion-embed-database",
     ),
     path("notion-embeds-list", notion_embeds_list_view, name="notion-embeds-list-view"),
+    path(
+        "update-notion-embed-properties-settings/<int:pk>",
+        update_notion_embed_properties_settings,
+        name="update-notion-embed-properties-settings",
+    ),
 ]

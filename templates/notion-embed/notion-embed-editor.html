@@ -1,7 +1,7 @@
 {% load page_basics %}
 
 
-<div class="d-flex screen-height position-relative"
+<div class="d-flex position-relative"
      x-data="{
             notionWidgetSettings: {
                 visiblePropertyIds: new Set([
@@ -58,11 +58,6 @@
                         Delete Widget
                     </button>
                 </form>
-            </div>
-            <div class="mt-4">
-                <div class="col-12 pe-2">
-                    {% include 'notion-embed/partials/notion-databases-search.html' with savedDbName=notion_embed.notion_database.database_name %}
-                </div>
             </div>
         </div>
         <div class="mt-4">

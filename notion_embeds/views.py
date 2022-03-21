@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from notion_database.models import NotionPropertyMetaData
 from notion_database.service import query_saved_notion_database_model_with_api_update
 from security.security_decorator import notion_workspace_authorization_required
 
@@ -159,3 +160,24 @@ def notion_embed_view(request, pk):
             "embed_notion_property_settings": notion_property_settings,
         },
     )
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_notion_embed_properties_settings(request, pk):
+    try:
+        embed_property_settings_to_be_updated_list = (
+            NotionDatabaseEmbed.objects.filter(pk=pk, creator=request.user)
+            .prefetch_related("notion_property_settings")[0]
+            .notion_property_settings.all()
+        )
+    except IndexError:
+        return HttpResponse("Could not find notion embed.", status=404)
+    for embed_property_settings in embed_property_settings_to_be_updated_list:
+        if embed_property_settings.property.notion_id in request.POST.keys():
+            embed_property_settings.should_be_visible = True
+        else:
+            embed_property_settings.should_be_visible = False
+        embed_property_settings.save()
+
+    return HttpResponse(status=200)
