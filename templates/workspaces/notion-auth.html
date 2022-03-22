@@ -13,9 +13,15 @@
         <a href="{% oauth_url %}"
            class="btn btn-success mt-2"
            x-bind:disabled="loading"
+           @click="loading = true"
         >
-            <span class="mx-2" @click="loading = true">
-                <span x-cloak class="spinner-border spinner-border-sm" role="status" aria-hidden="true" x-show="loading"></span>
+            <span class="mx-2">
+                <span x-cloak
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                      x-show="loading">
+                </span>
                 Connect Notion
             </span>
         </a>

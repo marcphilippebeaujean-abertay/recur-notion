@@ -12,4 +12,14 @@
     >
         {% crispy property_form property_form.helper %}
     </form>
+    <div class="mt-4">
+        <h5>Page Template</h5>
+        <div class="alert alert-warning mt-2 mb-0">
+            This is a Premium Feature.
+            {% include 'widgets/upgrade-popup.html' %}
+        </div>
+        <button class="btn btn-success mt-2" disabled>
+            Add Page Content
+        </button>
+    </div>
 </div>
